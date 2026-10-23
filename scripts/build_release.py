@@ -130,7 +130,13 @@ def main():
             raise SystemExit('缺少模块许可证: '+module)
         manifest.append({'module': module, 'version': cli_commit if module == 'github.com/larksuite/cli' else version, 'directory': folder.name, 'license_files': copied})
     goroot = Path(run(['go', 'env', 'GOROOT'], project, capture=True).strip())
-    shutil.copy2(goroot/'LICENSE', licenses/'GO-TOOLCHAIN-LICENSE')
+    # Homebrew 把 Go 的 LICENSE 放在 libexec 的上一级目录。
+    go_license = next((p for p in [goroot/'LICENSE', goroot.parent/'LICENSE'] if p.is_file()), None)
+    if go_license is None:
+        raise SystemExit('未找到当前 Go 工具链的 LICENSE')
+    shutil.copy2(go_license, licenses/'GO-TOOLCHAIN-LICENSE')
+    if (goroot/'PATENTS').is_file():
+        shutil.copy2(goroot/'PATENTS', licenses/'GO-TOOLCHAIN-PATENTS')
     (licenses/'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n')
     for directory in [sources/'project', backend]:
         run(['go', 'mod', 'vendor'], directory, env)
