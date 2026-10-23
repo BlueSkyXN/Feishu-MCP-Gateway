@@ -1,4 +1,4 @@
-module feishu-mcp-gateway/backend
+module github.com/BlueSkyXN/Feishu-MCP-Gateway/backend
 
 go 1.26.0
 

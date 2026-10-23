@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 BlueSkyXN
+# SPDX-License-Identifier: GPL-3.0-only
 """从指定的已有 lark-cli 源码构建受控后端；不修改来源工作区。"""
 import argparse
 import json

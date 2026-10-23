@@ -1,4 +1,4 @@
-module feishu-mcp-gateway
+module github.com/BlueSkyXN/Feishu-MCP-Gateway
 
 go 1.26.0
 

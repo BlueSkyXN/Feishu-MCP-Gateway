@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 BlueSkyXN
+# SPDX-License-Identifier: GPL-3.0-only
 """仅用 schema 和 dry-run 验证固定 CLI；使用临时 HOME 与占位应用凭据。"""
 import argparse
 import concurrent.futures

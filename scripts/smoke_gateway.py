@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 BlueSkyXN
+# SPDX-License-Identifier: GPL-3.0-only
 """启动独立 Gateway 进程验证 MCP 与文件链路；不调用飞书操作。"""
 import argparse
 import hashlib

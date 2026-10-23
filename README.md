@@ -1,8 +1,10 @@
-# feishu-mcp-gateway
+# Feishu-MCP-Gateway
 
 通用飞书 MCP Server，替代 Agent 直接使用 `lark-cli` 的能力入口。服务提供应用身份操作、可复用文件和后台调用；多应用、多个客户端与 Wake 提问者使用独立的授权范围。
 
 飞书执行身份固定为 **bot / TAT**。App Secret、Token 和 DPoP 私钥保留在 Gateway 进程内。服务使用受控的 `lark-cli-gateway` 后端，后端只能通过本次调用的临时代理访问已授权接口。
+
+项目采用 [GPL-3.0-only](LICENSE)（GNU GPL 第 3 版）。第三方代码保留各自的版权与许可，见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
 当前版本 `0.2.0-dev`，使用官方 MCP Go SDK v1.8.0，支持 `2026-07-28` 与 `2025-11-25` Streamable HTTP。认证采用管理员预配的 Bearer key。没有用户 OAuth、UAT 或个人 profile 登录流程。
 
@@ -26,6 +28,12 @@
 - 文件输入、产物归档、跨操作复用、Resources、有界读取、HTTP 传输和单次传输票据。
 - 加密事件回调接入、去重和有界事件读取。
 
+## 下载
+
+源码：[BlueSkyXN/Feishu-MCP-Gateway](https://github.com/BlueSkyXN/Feishu-MCP-Gateway)。
+
+[GitHub Releases](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 提供 macOS arm64、Linux amd64 的 Gateway 与配套后端、校验和、对应源码包。下载后核对 SHA256SUMS，并按示例配置应用凭据和接入权限。
+
 ## 构建
 
 需要 Go 1.26 或更新版本、Python 3，以及上述固定提交的已有 lark-cli 源码。构建脚本验证来源 Git 状态，不修改来源工作区。受控 wrapper 单独构建，避免把 Cobra 的进程全局状态放进多用户服务。
@@ -35,7 +43,7 @@ python3 scripts/build_backend.py /path/to/lark-cli --test
 go test ./...
 go test -race ./...
 go vet ./...
-go build -o bin/feishu-mcp-gateway ./cmd/gateway
+go build -trimpath -buildvcs=false -o bin/feishu-mcp-gateway ./cmd/gateway
 python3 scripts/verify_backend.py bin/lark-cli-gateway
 python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway
 ```
@@ -45,9 +53,17 @@ python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway
 Linux 构建可使用：
 
 ```sh
-GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bin/feishu-mcp-gateway-linux-amd64 ./cmd/gateway
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o bin/feishu-mcp-gateway-linux-amd64 ./cmd/gateway
 python3 scripts/build_backend.py /path/to/lark-cli --goos linux --goarch amd64 --output bin/lark-cli-gateway-linux-amd64
 ```
+
+维护者可以从干净提交生成完整发布包：
+
+```sh
+python3 scripts/build_release.py /path/to/lark-cli --tag v0.2.0-dev --output local/releases/v0.2.0-dev
+```
+
+对应源码包中的 `rebuild.py` 使用随包 vendor 依赖构建，关闭网络模块解析；需要预先安装 Go 1.26 或更新版本。
 
 ## 配置与管理
 

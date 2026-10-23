@@ -1,4 +1,6 @@
-# 第三方来源
+# 版权与第三方许可
+
+Feishu-MCP-Gateway 的原创代码 Copyright (c) 2026 BlueSkyXN，采用 GPL-3.0-only。完整许可见 LICENSE。组合分发遵循 GPLv3；下面的第三方材料继续保留原有许可与署名。
 
 `internal/gateway/catalog.json` 与 `docs/coverage.json` 根据 `larksuite/cli` 的已提交 Catalog Snapshot 和公开 Shortcut 声明转换生成。来源版本记录在文件中；转换脚本为 `scripts/import_catalog.py`。
 
@@ -28,4 +30,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Go 依赖的版本锁定在 go.mod / go.sum。各依赖保留原始许可证；打包分发其二进制时须随包保留相应声明。lark-cli 二进制由部署者单独配置，本仓库未内置该二进制。
+Go 依赖的版本锁定在 go.mod / go.sum 和对应源码包的 backend/go.mod / go.sum。Release 中的 THIRD_PARTY_LICENSES 包含实际链接依赖的许可文本与清单；对应源码包包含 Gateway、固定版本 lark-cli、vendor 依赖与离线构建脚本。Go 工具链与操作系统组件由构建环境提供。

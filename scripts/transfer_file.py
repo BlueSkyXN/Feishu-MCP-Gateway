@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""在本机与 feishu-mcp-gateway 之间传输单个文件；票据 JSON 从 stdin 读取。"""
+# Copyright (c) 2026 BlueSkyXN
+# SPDX-License-Identifier: GPL-3.0-only
+"""在本机与 Feishu-MCP-Gateway 之间传输单个文件；票据 JSON 从 stdin 读取。"""
 import argparse
 import hashlib
 import json

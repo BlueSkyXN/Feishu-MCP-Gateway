@@ -1,3 +1,6 @@
+// Copyright (c) 2026 BlueSkyXN
+// SPDX-License-Identifier: GPL-3.0-only
+
 package main
 
 import (
@@ -14,7 +17,7 @@ import (
 	"syscall"
 	"time"
 
-	"feishu-mcp-gateway/internal/gateway"
+	"github.com/BlueSkyXN/Feishu-MCP-Gateway/internal/gateway"
 )
 
 func main() {

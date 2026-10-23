@@ -1,3 +1,6 @@
+// Copyright (c) 2026 BlueSkyXN
+// SPDX-License-Identifier: GPL-3.0-only
+
 package gateway
 
 import (

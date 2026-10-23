@@ -1,4 +1,4 @@
-# feishu-mcp-gateway
+# Feishu-MCP-Gateway
 
 通用飞书 MCP Server。对外能力由 Operation 目录定义；始终使用应用身份，禁止用户 OAuth、UAT 和个人 profile 回退。Wake 身份只是可选可信来源适配。
 

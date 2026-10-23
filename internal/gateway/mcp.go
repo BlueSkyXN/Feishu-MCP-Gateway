@@ -1,3 +1,6 @@
+// Copyright (c) 2026 BlueSkyXN
+// SPDX-License-Identifier: GPL-3.0-only
+
 package gateway
 
 import (
@@ -32,7 +35,7 @@ func mcpResult(r Result) *mcp.CallToolResult {
 }
 
 func (s *Service) mcpView(client Client) *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "feishu-mcp-gateway", Version: "0.2.0-dev"}, &mcp.ServerOptions{
+	server := mcp.NewServer(&mcp.Implementation{Name: "Feishu-MCP-Gateway", Version: "0.2.0-dev"}, &mcp.ServerOptions{
 		Instructions:              "飞书操作始终以应用身份执行。写操作重试复用 idempotency_key；unknown 状态先核对回执。文件和 Job 标识只能在当前授权范围内使用。",
 		SupportedProtocolVersions: []string{"2026-07-28", "2025-11-25"},
 		Capabilities:              &mcp.ServerCapabilities{Tools: &mcp.ToolCapabilities{ListChanged: false}, Resources: &mcp.ResourceCapabilities{ListChanged: false}},
