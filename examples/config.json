@@ -1,0 +1,33 @@
+{
+  "listen": "127.0.0.1:18790",
+  "data_dir": "../local/data",
+  "cli_binary": "/absolute/path/to/native/lark-cli",
+  "cli_sha256": "REPLACE_WITH_NATIVE_BINARY_SHA256",
+  "workers": 4,
+  "apps": [
+    {
+      "id": "feishu-app",
+      "organization_id": "organization",
+      "app_id": "REPLACE_WITH_APP_ID",
+      "brand": "feishu",
+      "secret_env": "FEISHU_APP_SECRET"
+    }
+  ],
+  "clients": [
+    {
+      "id": "wake-read",
+      "app_connection_id": "feishu-app",
+      "key_sha256": "REPLACE_WITH_ACCESS_KEY_SHA256",
+      "identity_mode": "wake_actor",
+      "packs": ["wiki.read"],
+      "resource_mode": "resource_scoped",
+      "resources": {"wiki_space": ["REPLACE_WITH_SPACE_ID"]},
+      "actors": {
+        "feishu:user_id:REPLACE_WITH_USER_ID": {
+          "resources": {"wiki_space": ["REPLACE_WITH_SPACE_ID"]}
+        }
+      },
+      "max_concurrent": 2
+    }
+  ]
+}
