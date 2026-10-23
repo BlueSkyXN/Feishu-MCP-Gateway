@@ -6,3 +6,6 @@
 *.db-wal
 .env
 config.local.json
+
+__pycache__/
+*.pyc

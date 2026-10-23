@@ -1,6 +1,8 @@
 # 第三方来源
 
-`internal/gateway/catalog.json` 与 `docs/coverage.json` 根据 `larksuite/cli` 的已提交 Catalog Snapshot 转换生成。来源版本记录在文件中；转换脚本为 `scripts/import_catalog.py`。
+`internal/gateway/catalog.json` 与 `docs/coverage.json` 根据 `larksuite/cli` 的已提交 Catalog Snapshot 和公开 Shortcut 声明转换生成。来源版本记录在文件中；转换脚本为 `scripts/import_catalog.py`。
+
+`internal/gateway/dpop_url.go` 的 HTU 规范化实现来自同一固定版本，保留原始版权声明。`backend/` 通过其公开 extension 与 command 包构建受控 wrapper。事件加密协议核对于 MIT 许可的 `github.com/larksuite/oapi-sdk-go/v3@v3.7.2/event/event.go`（Copyright 2022 Lark Technologies Pte. Ltd.）。
 
 来源：https://github.com/larksuite/cli
 

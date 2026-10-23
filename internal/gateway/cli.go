@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -16,15 +17,44 @@ import (
 type CLIExecutor struct {
 	binary, sha, root string
 	limit             int64
+	workspaceLimit    int64
+	broker            *Broker
+	store             *Store
+	authorizeFile     func(Principal, string, string) (File, error)
 }
 
 func NewCLIExecutor(c Config) (*CLIExecutor, error) {
 	if !filepath.IsAbs(c.CLIBinary) || len(c.CLISHA256) != 64 {
 		return nil, errors.New("cli_binary 必须为绝对路径，并配置固定文件的 cli_sha256")
 	}
-	e := &CLIExecutor{binary: c.CLIBinary, sha: strings.ToLower(c.CLISHA256), root: filepath.Join(c.DataDir, "work"), limit: c.MaxFileBytes}
+	e := &CLIExecutor{binary: c.CLIBinary, sha: strings.ToLower(c.CLISHA256), root: filepath.Join(c.DataDir, "work"), limit: c.MaxFileBytes, workspaceLimit: c.MaxWorkspaceBytes}
 	if err := e.verify(); err != nil {
 		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, e.binary, "--gateway-capabilities")
+	cmd.Env = []string{"PATH=/usr/bin:/bin", "HOME=/nonexistent", "NO_COLOR=1"}
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, errors.New("需要 lark-cli-gateway 受控后端，无法读取后端契约")
+	}
+	var caps struct {
+		Contract string `json:"contract"`
+		Source   string `json:"source_commit"`
+		AppOnly  bool   `json:"app_only"`
+		Rooted   bool   `json:"rooted_fileio"`
+		Proxy    bool   `json:"sidecar_required"`
+	}
+	cat, err := LoadCatalog()
+	if err != nil {
+		return nil, err
+	}
+	if err = validateCatalogConfig(c, cat); err != nil {
+		return nil, err
+	}
+	if json.Unmarshal(out, &caps) != nil || caps.Contract != "feishu-gateway-backend-v1" || caps.Source != cat.SourceCommit || !caps.AppOnly || !caps.Rooted || !caps.Proxy {
+		return nil, errors.New("受控后端契约或源码版本与目录不一致")
 	}
 	if err := os.MkdirAll(e.root, 0700); err != nil {
 		return nil, err
@@ -63,7 +93,10 @@ func (b *cappedBuffer) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) ExecutionResult {
+func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) (result ExecutionResult) {
+	if e.broker == nil || e.store == nil {
+		return ExecutionResult{Error: fault("backend_unbound", "执行器需要绑定 Gateway 服务")}
+	}
 	if err := e.verify(); err != nil {
 		return ExecutionResult{Error: fault("backend_version_mismatch", "CLI 文件已改变，请重新核对目录与后端版本")}
 	}
@@ -78,25 +111,61 @@ func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) Execu
 	if err != nil {
 		return ExecutionResult{Error: fault("storage_failed", "无法解析执行目录")}
 	}
-	argv := append([]string{}, in.Operation.Command...)
-	argv = append(argv, "--as", "bot", "--format", "json")
-	for _, section := range []string{"params", "data"} {
-		if value, ok := in.Arguments[section]; ok {
-			path := filepath.Join(dir, section+".json")
-			if err = os.WriteFile(path, encode(value), 0600); err != nil {
-				return ExecutionResult{Error: fault("storage_failed", "无法写入执行参数")}
-			}
-			argv = append(argv, "--"+section, "@"+path)
-		}
+	if err = os.MkdirAll(filepath.Join(dir, ".gateway"), 0700); err != nil {
+		return ExecutionResult{Error: fault("storage_failed", "无法建立私有参数目录")}
 	}
+	w, err := e.prepareFiles(in, dir)
+	if err != nil {
+		return ExecutionResult{Error: asFault(err)}
+	}
+	defer w.root.Close()
+	argv, err := e.buildArgs(in, w)
+	if err != nil {
+		return ExecutionResult{Error: asFault(err)}
+	}
+	in.FileHashes = w.hashes
+	in.ExternalURLs = w.urls
+	proxy, err := e.broker.Open(ctx, in)
+	if err != nil {
+		return ExecutionResult{Error: asFault(err)}
+	}
+	defer proxy.Close()
+	defer func() {
+		proxyError, started := proxy.Outcome()
+		if result.Error != nil && result.Error.Kind != "partial_failure" && proxy.HasConfirmedWrite() {
+			result.Uncertain = true
+		}
+		if proxyError != nil && result.Error != nil {
+			result.Error = proxyError
+			result.Uncertain = result.Uncertain || started
+		}
+		files, paths, err := w.collect(e, in)
+		result.Files = append(result.Files, files...)
+		if result.Error != nil {
+			result.Error.Message = strings.ReplaceAll(result.Error.Message, dir, ".")
+		}
+		result.Data = w.rewrite(result.Data, paths)
+		if result.Meta != nil {
+			result.Meta = object(w.rewrite(result.Meta, paths))
+		}
+		if err != nil {
+			if result.Error == nil {
+				result.Error = fault("artifact_collection_failed", "执行已返回，但部分产物未归档")
+				result.Uncertain = started
+			}
+		}
+	}()
+
 	cmd := exec.CommandContext(ctx, e.binary, argv...)
 	cmd.Dir = dir
 	cmd.WaitDelay = 2 * time.Second
 	cmd.Env = []string{
-		"PATH=/usr/bin:/bin:/usr/sbin:/sbin", "HOME=" + dir, "TMPDIR=" + dir,
+		"PATH=/usr/bin:/bin:/usr/sbin:/sbin", "HOME=" + filepath.Join(dir, ".gateway"), "TMPDIR=" + filepath.Join(dir, ".gateway"),
 		"LANG=en_US.UTF-8", "CI=1", "NO_COLOR=1",
-		"LARKSUITE_CLI_CONFIG_DIR=" + filepath.Join(dir, "config"),
-		"LARKSUITE_CLI_APP_ID=" + app.AppID, "LARKSUITE_CLI_APP_SECRET=" + app.secret,
+		"LARKSUITE_CLI_CONFIG_DIR=" + filepath.Join(dir, ".gateway/config"),
+		"LARKSUITE_CLI_APP_ID=" + app.AppID,
+		"LARKSUITE_CLI_AUTH_PROXY=" + proxy.URL, "LARKSUITE_CLI_PROXY_KEY=" + proxy.Key,
+		"FEISHU_GATEWAY_WORKDIR=" + dir, "FEISHU_GATEWAY_FILE_LIMIT=" + fmt.Sprint(e.limit), "FEISHU_GATEWAY_WORKSPACE_LIMIT=" + fmt.Sprint(e.workspaceLimit),
 		"LARKSUITE_CLI_BRAND=" + app.Brand, "LARKSUITE_CLI_DEFAULT_AS=bot", "LARKSUITE_CLI_STRICT_MODE=bot",
 		"LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1", "LARKSUITE_CLI_NO_SKILLS_NOTIFIER=1",
 	}
@@ -105,7 +174,7 @@ func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) Execu
 	cmd.Stderr = stderr
 	cmd.Stdin = strings.NewReader("")
 	err = cmd.Run()
-	uncertain := in.Operation.Risk != "read"
+	_, uncertain := proxy.Outcome()
 	if out.overflow || stderr.overflow {
 		return ExecutionResult{Error: fault("backend_output_limit", "执行输出超过上限，需要核对操作回执"), Uncertain: uncertain}
 	}

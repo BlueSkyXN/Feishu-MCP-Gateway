@@ -37,10 +37,13 @@ func (f *fakeExecutor) Execute(ctx context.Context, in Invocation, a App) Execut
 func testConfig(t *testing.T) Config {
 	t.Helper()
 	t.Setenv("TEST_FEISHU_SECRET", "fixture-app-secret")
-	c := Config{DataDir: t.TempDir(), Listen: "127.0.0.1:0", Workers: 4, Apps: []App{{ID: "app-a", OrgID: "org-a", AppID: "cli_fixture_a", Brand: "feishu", SecretEnv: "TEST_FEISHU_SECRET"}, {ID: "app-b", OrgID: "org-b", AppID: "cli_fixture_b", Brand: "lark", SecretEnv: "TEST_FEISHU_SECRET"}}, Clients: []Client{
+	c := Config{CatalogRevision: CatalogRevision(), DataDir: t.TempDir(), Listen: "127.0.0.1:0", Workers: 4, Apps: []App{{ID: "app-a", OrgID: "org-a", AppID: "cli_fixture_a", Brand: "feishu", SecretEnv: "TEST_FEISHU_SECRET"}, {ID: "app-b", OrgID: "org-b", AppID: "cli_fixture_b", Brand: "lark", SecretEnv: "TEST_FEISHU_SECRET"}}, Clients: []Client{
 		{ID: "wake", AppID: "app-a", KeySHA256: digest([]byte("fixture-key")), IdentityMode: "wake_actor", Packs: []string{"wiki.read", "drive.write"}, ResourceMode: "resource_scoped", MaxConcurrent: 4, Resources: map[string][]string{"wiki_space": {"space-a", "space-b"}, "folder": {"folder-a", "folder-b"}}, Actors: map[string]ActorPolicy{"feishu:user_id:alice": {Resources: map[string][]string{"wiki_space": {"space-a"}, "folder": {"folder-a"}}}, "feishu:user_id:bob": {Resources: map[string][]string{"wiki_space": {"space-b"}, "folder": {"folder-b"}}}}},
 		{ID: "desktop", AppID: "app-b", KeySHA256: digest([]byte("other-key")), IdentityMode: "client", Packs: []string{"wiki.read"}, ResourceMode: "application_scope", MaxConcurrent: 2},
 	}}
+	for i := range c.Apps {
+		c.Apps[i].OutboundRequestsPerSecond = 1000
+	}
 	if err := c.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -477,15 +480,15 @@ func TestOutputSpillAndFileReauthorization(t *testing.T) {
 	}
 }
 
-func TestCatalogExcludesUserAndHighRiskOperations(t *testing.T) {
+func TestCatalogAppIdentityAndHighRiskGates(t *testing.T) {
 	c, err := LoadCatalog()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(c.Operations) != 177 {
+	if len(c.Operations) != 599 {
 		t.Fatalf("catalog size %d", len(c.Operations))
 	}
-	for _, id := range []string{"wiki.spaces.create", "drive.permission.members.create", "im.images.create"} {
+	for _, id := range []string{"wiki.spaces.create"} {
 		if _, ok := c.Operation(id); ok {
 			t.Fatalf("unsupported operation exposed: %s", id)
 		}
@@ -495,10 +498,9 @@ func TestCatalogExcludesUserAndHighRiskOperations(t *testing.T) {
 func TestCLISubprocessEnvironmentAndMapping(t *testing.T) {
 	c := testConfig(t)
 	dir := t.TempDir()
-	script := `#!/bin/sh
-if [ "$LARKSUITE_CLI_DEFAULT_AS" != bot ] || [ "$LARKSUITE_CLI_STRICT_MODE" != bot ] || [ -n "$LARKSUITE_CLI_USER_ACCESS_TOKEN" ] || [ -n "$LARKSUITE_CLI_AUTH_PROXY" ] || [ -n "$AWS_SECRET_ACCESS_KEY" ]; then exit 9; fi
+	script := fixtureHeader() + `if [ "$LARKSUITE_CLI_DEFAULT_AS" != bot ] || [ "$LARKSUITE_CLI_STRICT_MODE" != bot ] || [ -n "$LARKSUITE_CLI_USER_ACCESS_TOKEN" ] || [ -z "$LARKSUITE_CLI_AUTH_PROXY" ] || [ -n "$LARKSUITE_CLI_APP_SECRET" ] || [ -n "$LARKSUITE_CLI_TENANT_ACCESS_TOKEN" ] || [ -n "$AWS_SECRET_ACCESS_KEY" ]; then exit 9; fi
 if [ "$1" != wiki ] || [ "$2" != spaces ] || [ "$3" != get ] || [ "$4" != --as ] || [ "$5" != bot ]; then exit 8; fi
-if [ "$HOME" != "$PWD" ] || [ "$LARKSUITE_CLI_CONFIG_DIR" != "$PWD/config" ]; then exit 7; fi
+if [ "$HOME" != "$PWD/.gateway" ] || [ "$LARKSUITE_CLI_CONFIG_DIR" != "$PWD/.gateway/config" ]; then exit 7; fi
 printf '%s\n' '{"ok":true,"identity":"bot","data":{"space":{"name":"fixture"}}}'
 `
 	path := filepath.Join(dir, "fixture-cli")
@@ -514,13 +516,18 @@ printf '%s\n' '{"ok":true,"identity":"bot","data":{"space":{"name":"fixture"}}}'
 	if err != nil {
 		t.Fatal(err)
 	}
+	bound, err := NewService(c, e)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bound.Close()
 	cat, err := LoadCatalog()
 	if err != nil {
 		t.Fatal(err)
 	}
 	op, _ := cat.Operation("wiki.spaces.get")
 	app, _ := c.app("app-a")
-	result := e.Execute(context.Background(), Invocation{Operation: op, Arguments: argsSpace("space-a")}, app)
+	result := e.Execute(context.Background(), Invocation{Principal: actor("alice"), Operation: op, Arguments: argsSpace("space-a")}, app)
 	if result.Error != nil {
 		t.Fatalf("%+v", result)
 	}
@@ -625,14 +632,14 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 		want                 string
 		uncertain            bool
 	}{
-		{"identity", `{"ok":true,"identity":"user","data":{}}`, "", "identity_violation", true},
+		{"identity", `{"ok":true,"identity":"user","data":{}}`, "", "identity_violation", false},
 		{"partial", `{"ok":false,"identity":"bot","data":{"items":[{"status":"succeeded"},{"status":"failed"}]},"meta":{"count":2}}`, "", "partial_failure", false},
 		{"auth", "", `{"ok":false,"identity":"bot","error":{"type":"authorization","subtype":"missing_scope","code":99991679,"message":"run auth login","missing_scopes":["scope"],"log_id":"fixture-log"}}`, "upstream_authorization_missing_scope", false},
-		{"network", "", `{"ok":false,"identity":"bot","error":{"type":"network","subtype":"timeout","message":"timeout"}}`, "upstream_network_timeout", true},
+		{"network", "", `{"ok":false,"identity":"bot","error":{"type":"network","subtype":"timeout","message":"timeout"}}`, "upstream_network_timeout", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(t)
-			script := "#!/bin/sh\n"
+			script := fixtureHeader()
 			if tc.stdout != "" {
 				script += "printf '%s\\n' '" + tc.stdout + "'\n"
 			}
@@ -650,13 +657,18 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			bound, err := NewService(c, e)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bound.Close()
 			cat, err := LoadCatalog()
 			if err != nil {
 				t.Fatal(err)
 			}
 			op, _ := cat.Operation("drive.files.create_folder")
 			a, _ := c.app("app-a")
-			r := e.Execute(context.Background(), Invocation{Operation: op, Arguments: map[string]any{}}, a)
+			r := e.Execute(context.Background(), Invocation{Principal: actor("alice"), Operation: op, Arguments: map[string]any{"data": map[string]any{"folder_token": "folder-a", "name": "fixture"}, "idempotency_key": "fixture"}}, a)
 			if r.Error == nil || r.Error.Kind != tc.want || r.Uncertain != tc.uncertain {
 				t.Fatalf("%+v", r)
 			}
@@ -670,4 +682,9 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 			}
 		})
 	}
+}
+
+func fixtureHeader() string {
+	cat, _ := LoadCatalog()
+	return "#!/bin/sh\nif [ \"$1\" = --gateway-capabilities ]; then printf '%s\\n' '{\"contract\":\"feishu-gateway-backend-v1\",\"source_commit\":\"" + cat.SourceCommit + "\",\"app_only\":true,\"rooted_fileio\":true,\"sidecar_required\":true}'; exit 0; fi\n"
 }

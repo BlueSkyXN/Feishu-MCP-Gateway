@@ -26,7 +26,8 @@ def main():
         with socket.socket() as sock:
             sock.bind(('127.0.0.1', 0))
             port = sock.getsockname()[1]
-        config = {'listen': f'127.0.0.1:{port}', 'data_dir': str(root/'data'), 'cli_binary': str(cli), 'cli_sha256': hashlib.sha256(cli.read_bytes()).hexdigest(), 'apps': [{'id': 'fixture-app', 'organization_id': 'fixture-org', 'app_id': 'cli_fixture', 'brand': 'feishu', 'secret_env': 'FIXTURE_APP_SECRET'}], 'clients': [{'id': 'fixture-client', 'app_connection_id': 'fixture-app', 'key_sha256': hashlib.sha256(key.encode()).hexdigest(), 'identity_mode': 'client', 'packs': ['wiki.read'], 'resource_mode': 'resource_scoped', 'resources': {'wiki_space': ['fixture-space']}}]}
+        revision=subprocess.check_output([str(args.gateway.resolve()), '--catalog-revision'],text=True).strip()
+        config = {'catalog_revision':revision, 'listen': f'127.0.0.1:{port}', 'data_dir': str(root/'data'), 'cli_binary': str(cli), 'cli_sha256': hashlib.sha256(cli.read_bytes()).hexdigest(), 'apps': [{'id': 'fixture-app', 'organization_id': 'fixture-org', 'app_id': 'cli_fixture', 'brand': 'feishu', 'secret_env': 'FIXTURE_APP_SECRET'}], 'clients': [{'id': 'fixture-client', 'app_connection_id': 'fixture-app', 'key_sha256': hashlib.sha256(key.encode()).hexdigest(), 'identity_mode': 'client', 'packs': ['wiki.read'], 'resource_mode': 'resource_scoped', 'resources': {'wiki_space': ['fixture-space']}}]}
         path = root/'config.json'
         path.write_text(json.dumps(config))
         path.chmod(0o600)

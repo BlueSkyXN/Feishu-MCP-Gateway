@@ -13,20 +13,45 @@ import (
 //go:embed catalog.json
 var catalogJSON []byte
 
+func CatalogRevision() string {
+	return digest(append(append([]byte{}, catalogJSON...), encode(eventReadOperation())...))
+}
+
 type Operation struct {
-	ID               string            `json:"id"`
-	Tool             string            `json:"tool"`
-	Description      string            `json:"description"`
-	Pack             string            `json:"pack"`
-	Risk             string            `json:"risk"`
-	Command          []string          `json:"command"`
-	InputSchema      map[string]any    `json:"input_schema"`
-	DataSchema       map[string]any    `json:"data_schema"`
-	AppScopes        []string          `json:"app_scopes"`
-	ResourceBindings map[string]string `json:"resource_bindings"`
-	DocURL           string            `json:"doc_url"`
-	input            *jsonschema.Resolved
-	output           *jsonschema.Resolved
+	QueryFields             []string               `json:"query_fields,omitempty"`
+	ParameterDefaults       map[string]any         `json:"parameter_defaults,omitempty"`
+	Kind                    string                 `json:"kind"`
+	Method                  string                 `json:"method"`
+	Path                    string                 `json:"path"`
+	FileFields              []string               `json:"file_fields,omitempty"`
+	EgressPrefixes          []string               `json:"egress_prefixes,omitempty"`
+	FlagBindings            map[string]FlagBinding `json:"flag_bindings,omitempty"`
+	ConditionalScopes       []string               `json:"conditional_app_scopes,omitempty"`
+	ConditionalConfirmation bool                   `json:"conditional_confirmation,omitempty"`
+	Hidden                  bool                   `json:"hidden,omitempty"`
+	HasDryRun               bool                   `json:"has_dry_run,omitempty"`
+	ID                      string                 `json:"id"`
+	Tool                    string                 `json:"tool"`
+	Description             string                 `json:"description"`
+	Pack                    string                 `json:"pack"`
+	Risk                    string                 `json:"risk"`
+	Command                 []string               `json:"command"`
+	InputSchema             map[string]any         `json:"input_schema"`
+	DataSchema              map[string]any         `json:"data_schema"`
+	AppScopes               []string               `json:"app_scopes"`
+	ResourceBindings        map[string]string      `json:"resource_bindings"`
+	DocURL                  string                 `json:"doc_url"`
+	input                   *jsonschema.Resolved
+	output                  *jsonschema.Resolved
+}
+
+type FlagBinding struct {
+	JSON   bool     `json:"json,omitempty"`
+	Name   string   `json:"name"`
+	Type   string   `json:"type"`
+	Input  []string `json:"input"`
+	File   bool     `json:"file"`
+	Output bool     `json:"output"`
 }
 
 type Catalog struct {
@@ -48,21 +73,23 @@ func LoadCatalog() (*Catalog, error) {
 	if err := json.Unmarshal(catalogJSON, &c); err != nil {
 		return nil, err
 	}
+	c.Operations = append(c.Operations, eventReadOperation())
 	c.byID = map[string]Operation{}
 	names := map[string]bool{}
 	valid := regexp.MustCompile(`^[a-z][a-z0-9_.]*$`)
+	validCommand := regexp.MustCompile(`^[a-z+][a-z0-9_.+-]*$`)
 	for i := range c.Operations {
 		op := &c.Operations[i]
-		if !valid.MatchString(op.ID) || !valid.MatchString(op.Tool) || len(op.Command) < 3 || names[op.Tool] {
+		if !validCommand.MatchString(op.ID) || !valid.MatchString(op.Tool) || len(op.Command) < 2 || names[op.Tool] || len(op.Tool) > 128 {
 			return nil, fmt.Errorf("invalid operation: %s", op.ID)
 		}
 		names[op.Tool] = true
 		for _, arg := range op.Command {
-			if !valid.MatchString(arg) {
+			if !validCommand.MatchString(arg) {
 				return nil, fmt.Errorf("invalid command mapping: %s", op.ID)
 			}
 		}
-		if op.Risk != "read" && op.Risk != "write" {
+		if op.Risk != "read" && op.Risk != "write" && op.Risk != "high-risk-write" {
 			return nil, fmt.Errorf("unsupported risk: %s", op.ID)
 		}
 		var err error

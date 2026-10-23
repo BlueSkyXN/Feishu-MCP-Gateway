@@ -1,8 +1,8 @@
 {
   "listen": "127.0.0.1:18790",
   "data_dir": "../local/data",
-  "cli_binary": "/absolute/path/to/native/lark-cli",
-  "cli_sha256": "REPLACE_WITH_NATIVE_BINARY_SHA256",
+  "cli_binary": "/absolute/path/to/lark-cli-gateway",
+  "cli_sha256": "REPLACE_WITH_WRAPPER_SHA256",
   "workers": 4,
   "apps": [
     {
@@ -10,7 +10,9 @@
       "organization_id": "organization",
       "app_id": "REPLACE_WITH_APP_ID",
       "brand": "feishu",
-      "secret_env": "FEISHU_APP_SECRET"
+      "secret_env": "FEISHU_APP_SECRET",
+      "dpop_mode": "preferred",
+      "outbound_requests_per_second": 5
     }
   ],
   "clients": [
@@ -19,15 +21,28 @@
       "app_connection_id": "feishu-app",
       "key_sha256": "REPLACE_WITH_ACCESS_KEY_SHA256",
       "identity_mode": "wake_actor",
-      "packs": ["wiki.read"],
+      "packs": [
+        "wiki.read"
+      ],
       "resource_mode": "resource_scoped",
-      "resources": {"wiki_space": ["REPLACE_WITH_SPACE_ID"]},
+      "resources": {
+        "wiki_space": [
+          "REPLACE_WITH_SPACE_ID"
+        ]
+      },
       "actors": {
         "feishu:user_id:REPLACE_WITH_USER_ID": {
-          "resources": {"wiki_space": ["REPLACE_WITH_SPACE_ID"]}
+          "resources": {
+            "wiki_space": [
+              "REPLACE_WITH_SPACE_ID"
+            ]
+          }
         }
       },
-      "max_concurrent": 2
+      "max_concurrent": 2,
+      "allow_transfer_tickets": true,
+      "tool_view": "named"
     }
-  ]
+  ],
+  "catalog_revision": "d3142d243464f97a46deb892e57109b9707652021ec323be7d9f77c4a8b68c41"
 }

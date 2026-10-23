@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -27,13 +28,10 @@ func (w privateWriter) Flush() {
 }
 
 func (s *Service) Handler() http.Handler {
-	views := map[string]*mcp.Server{}
-	for _, c := range s.config.Clients {
-		if !c.Disabled {
-			views[c.ID] = s.mcpView(c)
-		}
-	}
-	transport := mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server { p, _ := principal(r.Context()); return views[p.ClientID] }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
+	transport := mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
+		p, _ := principal(r.Context())
+		return s.policy.Load().views[p.ClientID]
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 	mux := http.NewServeMux()
 	mux.Handle("/mcp", transport)
 	mux.HandleFunc("POST /files", s.upload)
@@ -44,14 +42,32 @@ func (s *Service) Handler() http.Handler {
 			_, _ = w.Write([]byte(`{"status":"ok"}`))
 			return
 		}
+		if !s.beginRequest() {
+			http.Error(w, "service stopping", 503)
+			return
+		}
+		defer s.calls.Done()
 		w = privateWriter{w}
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		if origin := r.Header.Get("Origin"); origin != "" && !slices.Contains(s.config.Origins, origin) {
+		if origin := r.Header.Get("Origin"); origin != "" && !slices.Contains(s.currentConfig().Origins, origin) {
 			http.Error(w, "Origin is not allowed", http.StatusForbidden)
 			return
 		}
-		p, err := s.config.authenticate(r)
+		if strings.HasPrefix(r.URL.Path, "/events/") {
+			s.eventHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(r.URL.Path, "/transfers/") {
+			s.transferHTTP(w, r)
+			return
+		}
+		if r.URL.Path == "/admin/status" || r.URL.Path == "/admin/reload" {
+			s.admin(w, r)
+			return
+		}
+		p, err := s.currentConfig().authenticate(r)
 		if err != nil {
+			w.Header().Set("WWW-Authenticate", `Bearer realm="feishu-mcp-gateway"`)
 			code := http.StatusUnauthorized
 			if f, ok := err.(*Fault); ok && f.Kind != "unauthenticated" {
 				code = http.StatusForbidden
@@ -69,15 +85,19 @@ func (s *Service) Handler() http.Handler {
 }
 func (s *Service) upload(w http.ResponseWriter, r *http.Request) {
 	p, _ := principal(r.Context())
-	if _, _, err := s.config.checkPrincipal(p, true); err != nil {
+	if _, _, err := s.currentConfig().checkPrincipal(p, true); err != nil {
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
-	if err := s.acquire(r.Context(), p.ClientID); err != nil {
+	if err := s.rate(p); err != nil {
 		http.Error(w, err.Error(), http.StatusTooManyRequests)
 		return
 	}
-	defer s.release(p.ClientID)
+	if err := s.acquirePrincipal(p); err != nil {
+		http.Error(w, err.Error(), http.StatusTooManyRequests)
+		return
+	}
+	defer s.releasePrincipal(p)
 	b, err := readBounded(r.Body, s.config.MaxFileBytes)
 	if err != nil {
 		http.Error(w, "file exceeds size limit or cannot be read", http.StatusRequestEntityTooLarge)
@@ -98,15 +118,19 @@ func (s *Service) upload(w http.ResponseWriter, r *http.Request) {
 }
 func (s *Service) download(w http.ResponseWriter, r *http.Request) {
 	p, _ := principal(r.Context())
-	if _, _, err := s.config.checkPrincipal(p, true); err != nil {
+	if _, _, err := s.currentConfig().checkPrincipal(p, true); err != nil {
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
-	if err := s.acquire(r.Context(), p.ClientID); err != nil {
+	if err := s.rate(p); err != nil {
 		http.Error(w, err.Error(), http.StatusTooManyRequests)
 		return
 	}
-	defer s.release(p.ClientID)
+	if err := s.acquirePrincipal(p); err != nil {
+		http.Error(w, err.Error(), http.StatusTooManyRequests)
+		return
+	}
+	defer s.releasePrincipal(p)
 	f, err := s.AuthorizeFile(p, r.PathValue("id"))
 	if err != nil {
 		http.Error(w, asFault(err).Error(), http.StatusNotFound)

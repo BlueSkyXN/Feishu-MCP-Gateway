@@ -8,10 +8,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
-	"unicode"
 
 	_ "modernc.org/sqlite"
 )
@@ -85,16 +83,21 @@ func openStore(c Config) (*Store, error) {
 		s.Close()
 		return nil, err
 	}
-	if version > 1 {
+	if version > 4 {
 		s.Close()
-		return nil, fmt.Errorf("数据库版本 %d 高于当前程序支持的版本 1", version)
+		return nil, fmt.Errorf("数据库版本 %d 高于当前程序支持的版本 4", version)
 	}
 	_, err = db.Exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
 CREATE TABLE IF NOT EXISTS invocations(id TEXT PRIMARY KEY,owner TEXT NOT NULL,principal TEXT NOT NULL,operation TEXT NOT NULL,args TEXT NOT NULL,idem TEXT NOT NULL,hash TEXT NOT NULL,state TEXT NOT NULL,result TEXT NOT NULL,async INTEGER NOT NULL,created INTEGER NOT NULL,updated INTEGER NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS invocation_idem ON invocations(owner,operation,idem) WHERE idem<>'';
 CREATE TABLE IF NOT EXISTS files(id TEXT PRIMARY KEY,owner TEXT NOT NULL,client TEXT NOT NULL,meta TEXT NOT NULL,size INTEGER NOT NULL,expires INTEGER NOT NULL,state TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS cursors(id TEXT PRIMARY KEY,owner TEXT NOT NULL,operation TEXT NOT NULL,query_hash TEXT NOT NULL,token TEXT NOT NULL,expires INTEGER NOT NULL);
-PRAGMA user_version=1;`)
+CREATE TABLE IF NOT EXISTS file_pins(invocation TEXT NOT NULL,file TEXT NOT NULL,PRIMARY KEY(invocation,file));
+CREATE TABLE IF NOT EXISTS transfers(hash TEXT PRIMARY KEY,principal TEXT NOT NULL,direction TEXT NOT NULL,file TEXT NOT NULL,name TEXT NOT NULL,mime TEXT NOT NULL,expires INTEGER NOT NULL,used INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT,app TEXT NOT NULL,event_id TEXT NOT NULL,event_type TEXT NOT NULL,payload TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(app,event_id));
+CREATE TABLE IF NOT EXISTS event_retention(app TEXT NOT NULL,event_type TEXT NOT NULL,floor INTEGER NOT NULL,PRIMARY KEY(app,event_type));
+CREATE INDEX IF NOT EXISTS events_app_seq ON events(app,seq);
+PRAGMA user_version=4;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -173,6 +176,18 @@ func (s *Store) Reserve(p Principal, op Operation, args map[string]any, idem str
 		}
 	}
 	now := time.Now().Unix()
+	for _, fid := range inputFileIDs(op, args) {
+		var n int
+		if err = tx.QueryRow(`SELECT COUNT(*) FROM files WHERE id=? AND owner=? AND state='ready' AND expires>?`, fid, p.Owner(), now).Scan(&n); err != nil {
+			return Record{}, false, err
+		}
+		if n != 1 {
+			return Record{}, false, fault("file_unavailable", "输入文件不存在、已过期或属于其他主体")
+		}
+		if _, err = tx.Exec(`INSERT INTO file_pins VALUES(?,?)`, id, fid); err != nil {
+			return Record{}, false, err
+		}
+	}
 	if async {
 		var pending int
 		if err = tx.QueryRow(`SELECT COUNT(*) FROM invocations WHERE json_extract(principal,'$.client_id')=? AND state IN ('queued','running','cancel_requested')`, p.ClientID).Scan(&pending); err != nil {
@@ -192,6 +207,7 @@ func (s *Store) Reserve(p Principal, op Operation, args map[string]any, idem str
 	return Record{ID: id, Principal: p, OperationID: op.ID, Arguments: args, State: state, Result: result, Async: async}, false, nil
 }
 func (s *Store) Finish(id string, r Result) error {
+	defer s.db.Exec(`DELETE FROM file_pins WHERE invocation=?`, id)
 	_, err := s.db.Exec(`UPDATE invocations SET state=?,result=?,updated=? WHERE id=? AND state IN ('running','cancel_requested')`, r.Status, string(encode(r)), time.Now().Unix(), id)
 	return err
 }
@@ -233,6 +249,9 @@ func (s *Store) Cancel(p Principal, id string) (Result, error) {
 	switch r.State {
 	case "queued":
 		r.Result.Status = "cancelled"
+		if _, err = tx.Exec(`DELETE FROM file_pins WHERE invocation=?`, id); err != nil {
+			return Result{}, err
+		}
 	case "running":
 		r.Result.Status = "cancel_requested"
 	default:
@@ -249,9 +268,10 @@ func (s *Store) PutFile(p Principal, name, mime string, b []byte, source ...stri
 	if int64(len(b)) > s.cfg.MaxFileBytes {
 		return File{}, fault("file_too_large", "文件超过单文件容量限制")
 	}
-	if name == "" || len(name) > 255 || strings.ContainsAny(name, "/\\") || strings.IndexFunc(name, unicode.IsControl) >= 0 {
-		return File{}, fault("invalid_filename", "名称必须是没有目录和换行的短文件名")
+	if _, err := validFileName(name); err != nil {
+		return File{}, err
 	}
+
 	f := File{ID: newID("f_"), Name: name, MIME: mime, Size: int64(len(b)), SHA256: digest(b), Expires: time.Now().Unix() + s.cfg.FileTTL}
 	f.URI = "feishu-file://files/" + f.ID
 	if len(source) > 0 {
@@ -263,7 +283,7 @@ func (s *Store) PutFile(p Principal, name, mime string, b []byte, source ...stri
 	}
 	defer tx.Rollback()
 	var used int64
-	if err = tx.QueryRow(`SELECT COALESCE(SUM(size),0) FROM files WHERE client=? AND state='ready' AND expires>?`, p.ClientID, time.Now().Unix()).Scan(&used); err != nil {
+	if err = tx.QueryRow(`SELECT COALESCE(SUM(size),0) FROM files WHERE client=? AND state='ready' AND (expires>? OR EXISTS (SELECT 1 FROM file_pins WHERE file=files.id))`, p.ClientID, time.Now().Unix()).Scan(&used); err != nil {
 		return f, err
 	}
 	if used+f.Size > s.cfg.MaxStorageBytes {
@@ -290,7 +310,8 @@ func (s *Store) PutFile(p Principal, name, mime string, b []byte, source ...stri
 	return f, err
 }
 
-func (s *Store) File(p Principal, id string) (File, error) {
+func (s *Store) File(p Principal, id string) (File, error) { return s.fileForInvocation(p, id, "") }
+func (s *Store) fileForInvocation(p Principal, id, inv string) (File, error) {
 	var raw, state string
 	var f File
 	err := s.db.QueryRow(`SELECT meta,state FROM files WHERE id=? AND owner=?`, id, p.Owner()).Scan(&raw, &state)
@@ -303,7 +324,13 @@ func (s *Store) File(p Principal, id string) (File, error) {
 	if err = json.Unmarshal([]byte(raw), &f); err != nil {
 		return f, err
 	}
-	if state != "ready" || f.Expires <= time.Now().Unix() {
+	var pinned int
+	if inv != "" {
+		if err = s.db.QueryRow(`SELECT COUNT(*) FROM file_pins WHERE invocation=? AND file=?`, inv, id).Scan(&pinned); err != nil {
+			return f, err
+		}
+	}
+	if state != "ready" || (f.Expires <= time.Now().Unix() && pinned == 0) {
 		return f, fault("file_expired", "文件已过期或删除")
 	}
 	return f, nil
@@ -327,19 +354,57 @@ func (s *Store) ReadFile(p Principal, id string, offset int64, limit int) (File,
 	b, err := io.ReadAll(io.LimitReader(in, int64(limit)))
 	return f, b, err
 }
+func (s *Store) readPinned(p Principal, id, inv string) ([]byte, error) {
+	if _, err := s.fileForInvocation(p, id, inv); err != nil {
+		return nil, err
+	}
+	f, err := s.files.Open(id)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return readBounded(f, s.cfg.MaxFileBytes)
+}
 func (s *Store) DeleteFile(p Principal, id string) error {
-	_, err := s.File(p, id)
+	tx, err := s.db.Begin()
 	if err != nil {
 		return err
+	}
+	defer tx.Rollback()
+	var count int
+	err = tx.QueryRow(`SELECT COUNT(*) FROM files WHERE id=? AND owner=? AND state='ready'`, id, p.Owner()).Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fault("not_found", "文件不存在")
+	}
+	err = tx.QueryRow(`SELECT COUNT(*) FROM file_pins WHERE file=?`, id).Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return fault("file_in_use", "文件正在被排队或执行中的操作使用")
 	}
 	if err = s.files.Remove(id); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	_, err = s.db.Exec(`UPDATE files SET state='deleted' WHERE id=? AND owner=?`, id, p.Owner())
-	return err
+	_, err = tx.Exec(`UPDATE files SET state='deleted' WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 func (s *Store) Collect() error {
-	rows, err := s.db.Query(`SELECT id FROM files WHERE state='ready' AND expires<=?`, time.Now().Unix())
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = tx.Exec(`DELETE FROM file_pins WHERE invocation IN (SELECT id FROM invocations WHERE state NOT IN ('queued','running','cancel_requested'))`); err != nil {
+		return err
+	}
+	rows, err := tx.Query(`SELECT id FROM files WHERE state='ready' AND expires<=? AND NOT EXISTS (SELECT 1 FROM file_pins WHERE file=files.id)`, time.Now().Unix())
 	if err != nil {
 		return err
 	}
@@ -361,18 +426,66 @@ func (s *Store) Collect() error {
 		if err = s.files.Remove(id); err != nil && !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-		if _, err = s.db.Exec(`UPDATE files SET state='expired' WHERE id=?`, id); err != nil {
+		if _, err = tx.Exec(`UPDATE files SET state='expired' WHERE id=?`, id); err != nil {
 			return err
 		}
 	}
-	_, err = s.db.Exec(`DELETE FROM cursors WHERE expires<=?`, time.Now().Unix())
-	return err
+	appRows, err := tx.Query(`SELECT DISTINCT app FROM events`)
+	if err != nil {
+		return err
+	}
+	var eventApps []string
+	for appRows.Next() {
+		var a string
+		if err = appRows.Scan(&a); err != nil {
+			appRows.Close()
+			return err
+		}
+		eventApps = append(eventApps, a)
+	}
+	err = appRows.Err()
+	appRows.Close()
+	if err != nil {
+		return err
+	}
+	for _, a := range eventApps {
+		if err = pruneEvents(tx, a); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(`DELETE FROM transfers WHERE expires<=?`, time.Now().Unix()); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(`DELETE FROM cursors WHERE expires<=?`, time.Now().Unix()); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+func (s *Store) ListFiles(p Principal, after string, limit int) ([]File, error) {
+	rows, err := s.db.Query(`SELECT meta FROM files WHERE owner=? AND state='ready' AND expires>? AND id>? ORDER BY id LIMIT ?`, p.Owner(), time.Now().Unix(), after, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []File{}
+	for rows.Next() {
+		var raw string
+		if err = rows.Scan(&raw); err != nil {
+			return nil, err
+		}
+		var f File
+		if err = json.Unmarshal([]byte(raw), &f); err != nil {
+			return nil, err
+		}
+		out = append(out, f)
+	}
+	return out, rows.Err()
 }
 
 func queryHash(args map[string]any) string {
 	m := map[string]any{}
 	for k, v := range args {
-		if k != "async" && k != "idempotency_key" {
+		if k != "async" && k != "idempotency_key" && k != "page_token" && k != "cursor" {
 			m[k] = v
 		}
 	}
@@ -391,8 +504,8 @@ func (s *Store) WrapCursor(p Principal, op string, args map[string]any, token st
 	return id, err
 }
 func (s *Store) UnwrapCursor(p Principal, op string, args map[string]any) error {
-	params := object(args["params"])
-	id, _ := params["page_token"].(string)
+	params, field := cursorInput(args)
+	id, _ := params[field].(string)
 	if id == "" {
 		return nil
 	}
@@ -404,6 +517,16 @@ func (s *Store) UnwrapCursor(p Principal, op string, args map[string]any) error 
 	if err != nil {
 		return fmt.Errorf("cursor: %w", err)
 	}
-	params["page_token"] = token
+	params[field] = token
 	return nil
+}
+
+func cursorInput(args map[string]any) (map[string]any, string) {
+	if _, ok := args["page_token"]; ok {
+		return args, "page_token"
+	}
+	if _, ok := args["cursor"]; ok {
+		return args, "cursor"
+	}
+	return object(args["params"]), "page_token"
 }

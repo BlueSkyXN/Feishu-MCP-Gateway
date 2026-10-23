@@ -26,8 +26,13 @@ func main() {
 func run() error {
 	path := flag.String("config", "config.local.json", "JSON 配置路径")
 	check := flag.Bool("check", false, "验证配置、目录及固定 CLI 文件后退出")
+	catalogFlag := flag.Bool("catalog-revision", false, "输出当前操作目录摘要")
 	keygen := flag.Bool("generate-key", false, "仅向 stdout 输出新接入 key 和校验摘要，不写文件")
 	flag.Parse()
+	if *catalogFlag {
+		fmt.Println(gateway.CatalogRevision())
+		return nil
+	}
 	if *keygen {
 		key := rand.Text()
 		hash := sha256.Sum256([]byte(key))
@@ -55,6 +60,10 @@ func run() error {
 		return err
 	}
 	defer service.Close()
+	service.ConfigPath = *path
+	reload := make(chan os.Signal, 1)
+	signal.Notify(reload, syscall.SIGHUP)
+	defer signal.Stop(reload)
 	server := &http.Server{Addr: c.Listen, Handler: service.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: time.Duration(c.TimeoutSeconds+30) * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -70,12 +79,26 @@ func run() error {
 		case <-ctx.Done():
 			shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-			return server.Shutdown(shutdown)
+			if err := server.Shutdown(shutdown); err != nil {
+				_ = server.Close()
+				return err
+			}
+			return nil
 		case err := <-result:
 			if err == http.ErrServerClosed {
 				return nil
 			}
 			return err
+		case <-reload:
+			next, err := gateway.LoadConfig(*path)
+			if err == nil {
+				err = service.Reload(next)
+			}
+			if err != nil {
+				slog.Error("configuration reload rejected", "error", err)
+			} else {
+				slog.Info("configuration reloaded")
+			}
 		case <-cleanup.C:
 			if err := service.Store.Collect(); err != nil {
 				slog.Error("artifact cleanup failed", "error", err)

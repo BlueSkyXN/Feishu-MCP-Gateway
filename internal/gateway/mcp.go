@@ -32,7 +32,7 @@ func mcpResult(r Result) *mcp.CallToolResult {
 }
 
 func (s *Service) mcpView(client Client) *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "feishu-mcp-gateway", Version: "0.1.0-dev"}, &mcp.ServerOptions{
+	server := mcp.NewServer(&mcp.Implementation{Name: "feishu-mcp-gateway", Version: "0.2.0-dev"}, &mcp.ServerOptions{
 		Instructions:              "飞书操作始终以应用身份执行。写操作重试复用 idempotency_key；unknown 状态先核对回执。文件和 Job 标识只能在当前授权范围内使用。",
 		SupportedProtocolVersions: []string{"2026-07-28", "2025-11-25"},
 		Capabilities:              &mcp.ServerCapabilities{Tools: &mcp.ToolCapabilities{ListChanged: false}, Resources: &mcp.ResourceCapabilities{ListChanged: false}},
@@ -40,7 +40,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 	})
 	for _, operation := range s.Catalog.Operations {
 		op := operation
-		if !visible(client, op) {
+		if client.ToolView == "compact" || !visible(client, op) {
 			continue
 		}
 		server.AddTool(&mcp.Tool{Name: op.Tool, Description: op.Description + "。执行身份固定为飞书应用；支持 async 登记后台操作。", InputSchema: op.InputSchema, OutputSchema: resultSchema(&op), Annotations: &mcp.ToolAnnotations{
@@ -52,14 +52,20 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 				return mcpResult(failed(err)), nil
 			}
 			var args map[string]any
-			if err = json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			if err = decodeArguments(req.Params.Arguments, &args); err != nil {
 				return mcpResult(failed(fault("invalid_arguments", "参数必须是 JSON 对象"))), nil
 			}
 			return mcpResult(s.Invoke(ctx, p, op.ID, args)), nil
 		})
 	}
+	if client.ToolView == "compact" {
+		s.addCompact(server)
+	}
+	if client.AllowTransferTickets {
+		s.addTransferTool(server)
+	}
 	s.addUtility(server, "feishu_context", "查看当前接入的应用身份、模式和能力范围。", schemaObject(nil, nil), true, func(ctx context.Context, p Principal, args map[string]any) Result {
-		c, a, err := s.config.checkPrincipal(p, false)
+		c, a, err := s.currentConfig().checkPrincipal(p, false)
 		if err != nil {
 			return failed(err)
 		}
@@ -72,7 +78,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 		})
 	}
 	s.addUtility(server, "feishu_file_create", "保存小文本为当前主体的受控文件；大文件使用已认证的文件传输接口。", schemaObject(map[string]any{"name": map[string]any{"type": "string", "minLength": 1, "maxLength": 255}, "text": map[string]any{"type": "string", "maxLength": 65536}}, []string{"name", "text"}), false, func(ctx context.Context, p Principal, args map[string]any) Result {
-		if _, _, err := s.config.checkPrincipal(p, true); err != nil {
+		if _, _, err := s.currentConfig().checkPrincipal(p, true); err != nil {
 			return failed(err)
 		}
 		f, err := s.Store.PutFile(p, args["name"].(string), "text/plain; charset=utf-8", []byte(args["text"].(string)))
@@ -80,6 +86,35 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 			return failed(err)
 		}
 		return Result{Status: "succeeded", Files: []File{f}}
+	})
+	s.addUtility(server, "feishu_file_list", "列出当前主体可访问的文件；after 使用上一页的 next_after。", schemaObject(map[string]any{"after": map[string]any{"type": "string"}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 100}}, nil), true, func(ctx context.Context, p Principal, args map[string]any) Result {
+		if _, _, err := s.currentConfig().checkPrincipal(p, true); err != nil {
+			return failed(err)
+		}
+		after, _ := args["after"].(string)
+		limit := 50
+		if n, ok := args["limit"].(float64); ok {
+			limit = int(n)
+		}
+		files, err := s.Store.ListFiles(p, after, limit+1)
+		if err != nil {
+			return failed(err)
+		}
+		more := len(files) > limit
+		if more {
+			files = files[:limit]
+		}
+		data := map[string]any{"has_more": more}
+		if more {
+			data["next_after"] = files[len(files)-1].ID
+		}
+		visible := []File{}
+		for _, f := range files {
+			if _, err := s.AuthorizeFile(p, f.ID); err == nil {
+				visible = append(visible, f)
+			}
+		}
+		return Result{Status: "succeeded", Files: visible, Data: data}
 	})
 	for _, action := range []string{"stat", "read", "delete"} {
 		action := action
@@ -89,7 +124,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 			props["limit"] = map[string]any{"type": "integer", "minimum": 1, "maximum": 65536}
 		}
 		s.addUtility(server, "feishu_file_"+action, "访问当前主体的受控文件。read 最多读取 64 KiB，二进制或非完整 UTF-8 返回 base64。", schemaObject(props, []string{"file_id"}), action != "delete", func(ctx context.Context, p Principal, args map[string]any) Result {
-			if _, _, err := s.config.checkPrincipal(p, true); err != nil {
+			if _, _, err := s.currentConfig().checkPrincipal(p, true); err != nil {
 				return failed(err)
 			}
 			id := args["file_id"].(string)
@@ -134,7 +169,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 		if err != nil {
 			return nil, err
 		}
-		if _, _, err = s.config.checkPrincipal(p, true); err != nil {
+		if _, _, err = s.currentConfig().checkPrincipal(p, true); err != nil {
 			return nil, err
 		}
 		const prefix = "feishu-file://files/"
@@ -180,21 +215,33 @@ func (s *Service) addUtility(server *mcp.Server, name, description string, input
 	if err != nil {
 		panic(fmt.Sprintf("internal tool schema: %s: %v", name, err))
 	}
-	server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: input, OutputSchema: resultSchema(nil), Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolean(strings.HasSuffix(name, "delete") || strings.HasSuffix(name, "cancel")), OpenWorldHint: boolean(false)}}, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: input, OutputSchema: resultSchema(nil), Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolean(strings.HasSuffix(name, "delete") || strings.HasSuffix(name, "cancel") || name == "feishu_execute_write"), OpenWorldHint: boolean(strings.HasPrefix(name, "feishu_execute_")), IdempotentHint: name == "feishu_execute_write"}}, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		p, err := principal(ctx)
 		if err != nil {
 			return mcpResult(failed(err)), nil
 		}
 		var args map[string]any
-		if err = json.Unmarshal(req.Params.Arguments, &args); err != nil {
+		if err = decodeArguments(req.Params.Arguments, &args); err != nil {
 			return mcpResult(failed(fault("invalid_arguments", "参数必须是对象"))), nil
 		}
 		if err = schema.Validate(args); err != nil {
 			return mcpResult(failed(fault("invalid_arguments", err.Error()))), nil
+		}
+		if name != "feishu_context" && !strings.HasPrefix(name, "feishu_tools_") && !strings.HasPrefix(name, "feishu_execute_") {
+			if err := s.rate(p); err != nil {
+				return mcpResult(failed(err)), nil
+			}
 		}
 		return mcpResult(fn(ctx, p, args)), nil
 	})
 }
 func isText(mime string) bool {
 	return strings.HasPrefix(mime, "text/") || strings.HasPrefix(mime, "application/json")
+}
+
+func decodeArguments(raw json.RawMessage, out *map[string]any) error {
+	if len(raw) == 0 {
+		raw = []byte("{}")
+	}
+	return json.Unmarshal(raw, out)
 }

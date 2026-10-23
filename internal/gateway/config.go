@@ -11,6 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -18,50 +19,70 @@ import (
 )
 
 type App struct {
-	ID        string `json:"id"`
-	OrgID     string `json:"organization_id"`
-	AppID     string `json:"app_id"`
-	Brand     string `json:"brand"`
-	SecretEnv string `json:"secret_env"`
-	Disabled  bool   `json:"disabled,omitempty"`
-	secret    string
+	OutboundRequestsPerSecond float64  `json:"outbound_requests_per_second,omitempty"`
+	EventVerifyTokenEnv       string   `json:"event_verify_token_env,omitempty"`
+	EventEncryptKeyEnv        string   `json:"event_encrypt_key_env,omitempty"`
+	EventTypes                []string `json:"event_types,omitempty"`
+	eventToken, eventKey      string
+	MaxConcurrent             int    `json:"max_concurrent,omitempty"`
+	MaxRequestsPerMinute      int    `json:"max_requests_per_minute,omitempty"`
+	DPoPMode                  string `json:"dpop_mode,omitempty"`
+	ID                        string `json:"id"`
+	OrgID                     string `json:"organization_id"`
+	AppID                     string `json:"app_id"`
+	Brand                     string `json:"brand"`
+	SecretEnv                 string `json:"secret_env"`
+	Disabled                  bool   `json:"disabled,omitempty"`
+	secret                    string
+	resourceScoped            bool
 }
 
 type ActorPolicy struct {
-	Operations []string            `json:"operations,omitempty"`
-	Resources  map[string][]string `json:"resources,omitempty"`
+	EventTypes           []string            `json:"event_types,omitempty"`
+	MaxConcurrent        int                 `json:"max_concurrent,omitempty"`
+	MaxRequestsPerMinute int                 `json:"max_requests_per_minute,omitempty"`
+	Operations           []string            `json:"operations,omitempty"`
+	Resources            map[string][]string `json:"resources,omitempty"`
 }
 
 type Client struct {
-	ID            string                 `json:"id"`
-	AppID         string                 `json:"app_connection_id"`
-	KeySHA256     string                 `json:"key_sha256"`
-	IdentityMode  string                 `json:"identity_mode"`
-	Packs         []string               `json:"packs"`
-	Operations    []string               `json:"operations,omitempty"`
-	ResourceMode  string                 `json:"resource_mode"`
-	Resources     map[string][]string    `json:"resources,omitempty"`
-	Actors        map[string]ActorPolicy `json:"actors,omitempty"`
-	Disabled      bool                   `json:"disabled,omitempty"`
-	MaxConcurrent int                    `json:"max_concurrent,omitempty"`
+	EventTypes           []string               `json:"event_types,omitempty"`
+	AllowTransferTickets bool                   `json:"allow_transfer_tickets,omitempty"`
+	ToolView             string                 `json:"tool_view,omitempty"`
+	MaxRequestsPerMinute int                    `json:"max_requests_per_minute,omitempty"`
+	HighRiskOperations   []string               `json:"high_risk_operations,omitempty"`
+	ID                   string                 `json:"id"`
+	AppID                string                 `json:"app_connection_id"`
+	KeySHA256            string                 `json:"key_sha256"`
+	IdentityMode         string                 `json:"identity_mode"`
+	Packs                []string               `json:"packs"`
+	Operations           []string               `json:"operations,omitempty"`
+	ResourceMode         string                 `json:"resource_mode"`
+	Resources            map[string][]string    `json:"resources,omitempty"`
+	Actors               map[string]ActorPolicy `json:"actors,omitempty"`
+	Disabled             bool                   `json:"disabled,omitempty"`
+	MaxConcurrent        int                    `json:"max_concurrent,omitempty"`
 }
 
 type Config struct {
-	MaxPendingJobs  int      `json:"max_pending_jobs_per_client,omitempty"`
-	Listen          string   `json:"listen"`
-	DataDir         string   `json:"data_dir"`
-	CLIBinary       string   `json:"cli_binary"`
-	CLISHA256       string   `json:"cli_sha256"`
-	TrustedProxy    bool     `json:"trusted_https_proxy,omitempty"`
-	Origins         []string `json:"allowed_origins,omitempty"`
-	Apps            []App    `json:"apps"`
-	Clients         []Client `json:"clients"`
-	MaxFileBytes    int64    `json:"max_file_bytes,omitempty"`
-	MaxStorageBytes int64    `json:"max_storage_bytes_per_client,omitempty"`
-	FileTTL         int64    `json:"file_ttl_seconds,omitempty"`
-	MaxInlineBytes  int      `json:"max_inline_bytes,omitempty"`
-	TimeoutSeconds  int      `json:"operation_timeout_seconds,omitempty"`
-	Workers         int      `json:"workers,omitempty"`
+	MaxWorkspaceBytes int64    `json:"max_workspace_bytes,omitempty"`
+	CatalogRevision   string   `json:"catalog_revision"`
+	AdminKeySHA256    string   `json:"admin_key_sha256,omitempty"`
+	MaxPendingJobs    int      `json:"max_pending_jobs_per_client,omitempty"`
+	Listen            string   `json:"listen"`
+	DataDir           string   `json:"data_dir"`
+	CLIBinary         string   `json:"cli_binary"`
+	CLISHA256         string   `json:"cli_sha256"`
+	TrustedProxy      bool     `json:"trusted_https_proxy,omitempty"`
+	Origins           []string `json:"allowed_origins,omitempty"`
+	Apps              []App    `json:"apps"`
+	Clients           []Client `json:"clients"`
+	MaxFileBytes      int64    `json:"max_file_bytes,omitempty"`
+	MaxStorageBytes   int64    `json:"max_storage_bytes_per_client,omitempty"`
+	FileTTL           int64    `json:"file_ttl_seconds,omitempty"`
+	MaxInlineBytes    int      `json:"max_inline_bytes,omitempty"`
+	TimeoutSeconds    int      `json:"operation_timeout_seconds,omitempty"`
+	Workers           int      `json:"workers,omitempty"`
 }
 
 func LoadConfig(path string) (Config, error) {
@@ -102,6 +123,15 @@ func (c *Config) Validate() error {
 	if c.MaxFileBytes == 0 {
 		c.MaxFileBytes = 16 << 20
 	}
+	if c.MaxWorkspaceBytes == 0 {
+		c.MaxWorkspaceBytes = 64 << 20
+	}
+	if c.MaxWorkspaceBytes < c.MaxFileBytes || c.MaxWorkspaceBytes > 1<<30 {
+		return errors.New("工作区容量需要介于单文件上限和 1 GiB 之间")
+	}
+	if c.CatalogRevision != CatalogRevision() {
+		return errors.New("catalog_revision 与目录不一致；核对新增能力后更新固定摘要")
+	}
 	if c.MaxStorageBytes == 0 {
 		c.MaxStorageBytes = 256 << 20
 	}
@@ -126,6 +156,12 @@ func (c *Config) Validate() error {
 	if c.MaxFileBytes < 1 || c.MaxFileBytes > 256<<20 || c.MaxStorageBytes < c.MaxFileBytes || c.MaxInlineBytes < 1024 || c.MaxInlineBytes > 1<<20 || c.FileTTL < 60 || c.TimeoutSeconds < 1 || c.TimeoutSeconds > 3600 || c.Workers < 1 || c.Workers > 32 {
 		return errors.New("容量、时限或 worker 配置超出范围")
 	}
+	if c.AdminKeySHA256 != "" {
+		b, err := hex.DecodeString(c.AdminKeySHA256)
+		if err != nil || len(b) != 32 {
+			return errors.New("admin_key_sha256 必须为 SHA-256 摘要")
+		}
+	}
 	apps := map[string]bool{}
 	for i := range c.Apps {
 		a := &c.Apps[i]
@@ -133,8 +169,33 @@ func (c *Config) Validate() error {
 			return errors.New("应用 ID、企业绑定不能为空且连接 ID 不能重复")
 		}
 		apps[a.ID] = true
+		if a.OutboundRequestsPerSecond == 0 {
+			a.OutboundRequestsPerSecond = 5
+		}
+		if a.OutboundRequestsPerSecond < 0.1 || a.OutboundRequestsPerSecond > 1000 {
+			return errors.New("outbound_requests_per_second 必须在 0.1 与 1000 之间")
+		}
+		if a.MaxConcurrent == 0 {
+			a.MaxConcurrent = c.Workers
+		}
+		if a.MaxConcurrent < 1 || a.MaxConcurrent > c.Workers || a.MaxRequestsPerMinute < 0 {
+			return errors.New("应用限额无效")
+		}
 		if a.Brand != "feishu" && a.Brand != "lark" {
 			return fmt.Errorf("应用 %s 的 brand 必须为 feishu 或 lark", a.ID)
+		}
+		if a.DPoPMode == "" {
+			a.DPoPMode = "preferred"
+		}
+		if a.DPoPMode != "preferred" && a.DPoPMode != "required" && a.DPoPMode != "disabled" {
+			return errors.New("dpop_mode 必须为 preferred、required 或 disabled")
+		}
+		if !a.Disabled && len(a.EventTypes) > 0 {
+			a.eventToken = os.Getenv(a.EventVerifyTokenEnv)
+			a.eventKey = os.Getenv(a.EventEncryptKeyEnv)
+			if a.eventToken == "" || a.eventKey == "" {
+				return errors.New("事件接入需要配置 verify token 与 encrypt key 的环境变量")
+			}
 		}
 		if !a.Disabled {
 			a.secret = os.Getenv(a.SecretEnv)
@@ -149,6 +210,23 @@ func (c *Config) Validate() error {
 		key, err := hex.DecodeString(v.KeySHA256)
 		if err != nil || len(key) != 32 || v.ID == "" || ids[v.ID] || keys[strings.ToLower(v.KeySHA256)] || !apps[v.AppID] {
 			return errors.New("接入 ID、key_sha256 或应用绑定无效或重复")
+		}
+		if v.ToolView == "" {
+			v.ToolView = "named"
+		}
+		if v.ToolView != "named" && v.ToolView != "compact" {
+			return errors.New("tool_view 必须为 named 或 compact")
+		}
+		if v.MaxRequestsPerMinute < 0 {
+			return errors.New("接入限额不能为负数")
+		}
+		if strings.EqualFold(v.KeySHA256, c.AdminKeySHA256) {
+			return errors.New("管理凭据必须与接入凭据分开")
+		}
+		for _, a := range v.Actors {
+			if a.MaxConcurrent < 0 || a.MaxConcurrent > c.Workers || a.MaxRequestsPerMinute < 0 {
+				return errors.New("actor 限额无效")
+			}
 		}
 		ids[v.ID] = true
 		keys[strings.ToLower(v.KeySHA256)] = true
@@ -253,6 +331,9 @@ func (c Config) checkPrincipal(p Principal, requireActor bool) (Client, App, err
 }
 
 func visible(c Client, op Operation) bool {
+	if (op.Risk == "high-risk-write" || op.ConditionalConfirmation) && !slices.Contains(c.HighRiskOperations, op.ID) {
+		return false
+	}
 	return (slices.Contains(c.Packs, op.Pack) || slices.Contains(c.Operations, op.ID)) && (c.ResourceMode != "resource_scoped" || len(op.ResourceBindings) > 0)
 }
 func authorize(c Config, p Principal, op Operation, args map[string]any) (App, error) {
@@ -281,12 +362,59 @@ func authorize(c Config, p Principal, op Operation, args map[string]any) (App, e
 	}
 	for _, rule := range rules {
 		for field, kind := range op.ResourceBindings {
-			parts := strings.Split(field, ".")
-			value, _ := object(args[parts[0]])[parts[1]].(string)
+			value, err := boundResource(args, field, kind)
+			if err != nil {
+				return a, err
+			}
+			if kind == "document" || kind == "base" || kind == "spreadsheet" {
+				value = resourceToken(value)
+			}
 			if value == "" || !slices.Contains(rule[kind], value) {
 				return a, fault("resource_denied", "目标资源未在授权范围内")
 			}
 		}
 	}
+	a.resourceScoped = len(rules) > 0
 	return a, nil
+}
+
+func argumentAt(args map[string]any, key string) any {
+	var v any = args
+	for _, part := range strings.Split(key, ".") {
+		v = object(v)[part]
+	}
+	return v
+}
+func resourceToken(value string) string {
+	if strings.Contains(value, "://") {
+		u, err := url.Parse(value)
+		if err != nil {
+			return ""
+		}
+		parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+		if len(parts) != 2 {
+			return ""
+		}
+		switch parts[0] {
+		case "docx", "doc", "base", "sheets", "bitable":
+			return parts[1]
+		default:
+			return ""
+		}
+	}
+	return value
+}
+
+func boundResource(args map[string]any, field, kind string) (string, error) {
+	value, _ := argumentAt(args, field).(string)
+	if field == "spreadsheet_token" {
+		if raw, _ := args["url"].(string); raw != "" {
+			resolved := resourceToken(raw)
+			if value != "" && resourceToken(value) != resolved {
+				return "", fault("resource_conflict", "url 与 spreadsheet_token 指向不同资源")
+			}
+			value = resolved
+		}
+	}
+	return value, nil
 }

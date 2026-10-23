@@ -55,13 +55,16 @@ type Result struct {
 }
 
 type Invocation struct {
-	ID        string
-	Principal Principal
-	Operation Operation
-	Arguments map[string]any
+	FileHashes   map[string]string
+	ExternalURLs []string
+	ID           string
+	Principal    Principal
+	Operation    Operation
+	Arguments    map[string]any
 }
 
 type ExecutionResult struct {
+	Files     []File
 	Data      any
 	Meta      map[string]any
 	Error     *Fault

@@ -98,8 +98,8 @@
   {
     "id": "calendar.calendars.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "calendar.calendars.get",
@@ -218,8 +218,8 @@
   {
     "id": "drive.file.comment.replys.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "drive.file.comment.replys.list",
@@ -308,14 +308,14 @@
   {
     "id": "drive.permission.members.create",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "drive.permission.members.transfer_owner",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "drive.permission.public.get",
@@ -326,8 +326,8 @@
   {
     "id": "drive.permission.public.patch",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "drive.quota_details.get",
@@ -392,8 +392,8 @@
   {
     "id": "im.chat.members.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.chat.members.get",
@@ -464,8 +464,8 @@
   {
     "id": "im.chats.update",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.feed.groups.batch_add_item",
@@ -506,8 +506,8 @@
   {
     "id": "im.files.create",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "unsupported field type: file"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.files.folder",
@@ -518,14 +518,14 @@
   {
     "id": "im.images.create",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "unsupported field type: file"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.messages.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.messages.forward",
@@ -584,8 +584,8 @@
   {
     "id": "im.pins.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "im.pins.list",
@@ -698,8 +698,8 @@
   {
     "id": "mail.user_mailbox.folders.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.folders.get",
@@ -728,8 +728,8 @@
   {
     "id": "mail.user_mailbox.labels.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.labels.get",
@@ -758,8 +758,8 @@
   {
     "id": "mail.user_mailbox.mail_contacts.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.mail_contacts.list",
@@ -776,8 +776,8 @@
   {
     "id": "mail.user_mailbox.message.attachments.download_url",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "unsupported field type: list"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.messages.batch_get",
@@ -836,8 +836,8 @@
   {
     "id": "mail.user_mailbox.rules.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.rules.list",
@@ -878,8 +878,8 @@
   {
     "id": "mail.user_mailbox.template.attachments.download_url",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "unsupported field type: list"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "mail.user_mailbox.templates.create",
@@ -1046,8 +1046,8 @@
   {
     "id": "okr.key_results.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "okr.key_results.get",
@@ -1094,8 +1094,8 @@
   {
     "id": "okr.objectives.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "okr.objectives.get",
@@ -1130,8 +1130,8 @@
   {
     "id": "sheets.spreadsheet.sheet.filters.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "sheets.spreadsheet.sheet.filters.get",
@@ -1238,20 +1238,20 @@
   {
     "id": "task.agent.register_agent",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.agent.update_agent_profile",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.agent_task_step_info.append_task_steps",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.custom_field_options.create",
@@ -1298,8 +1298,8 @@
   {
     "id": "task.custom_fields.remove",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.members.add",
@@ -1322,8 +1322,8 @@
   {
     "id": "task.sections.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.sections.get",
@@ -1376,8 +1376,8 @@
   {
     "id": "task.tasklists.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.tasklists.get",
@@ -1418,8 +1418,8 @@
   {
     "id": "task.tasks.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "task.tasks.get",
@@ -1448,14 +1448,14 @@
   {
     "id": "wiki.members.create",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "wiki.members.delete",
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
-    "status": "excluded",
-    "reason": "high_risk_not_enabled_in_v0"
+    "status": "adapter_ready",
+    "reason": "generic_json; live_unverified"
   },
   {
     "id": "wiki.members.list",
@@ -1504,5 +1504,3233 @@
     "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
     "status": "adapter_ready",
     "reason": "generic_json; live_unverified"
+  },
+  {
+    "id": "apps.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+access-scope-set",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+access-scope-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-member-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-member-add",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-member-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+role-match-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-add",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-settings-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+member-settings-set",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+html-publish",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+init",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+export",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+release-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+release-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+release-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+env-pull",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+log-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+log-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+trace-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+trace-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+metric-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+analytics-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+env-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+env-set",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+env-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-table-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-table-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-execute",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-env-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-data-import",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-data-export",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-sync-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-changelog-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-audit-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-audit-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-audit-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-audit-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-env-diff",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-env-migrate",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-recovery-diff",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-recovery-apply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+db-quota-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-sign",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-upload",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+file-quota-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+cache-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+cache-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+cache-clear",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+git-credential-init",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+git-credential-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+git-credential-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+session-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+session-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+session-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+session-stop",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+session-messages-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+chat",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+user-id-convert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "apps.+plugin-install",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+plugin-uninstall",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+plugin-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+openapi-key-reset",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "apps.+automation-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "application.+slash-command-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "application.+slash-command-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "application.+slash-command-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "application.+slash-command-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+agenda",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+freebusy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+room-find",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+rsvp",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+suggestion",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+meeting",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "calendar.+search-event",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+transfer",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+join-event",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "calendar.+list-attendees",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "docs.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+fetch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+script",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+history-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+history-revert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+history-revert-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+media-insert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+media-upload",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+media-preview",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+media-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+resource-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+resource-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+resource-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+upload",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+create-folder",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+create-shortcut",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+preview",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+cover",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+add-comment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+list-comments",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+batch-query-comments",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+resolve-comment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+restore-comment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+add-reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+list-replies",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+update-reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+delete-reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+react-reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+export",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+export-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+import",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+version-history",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+version-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+version-revert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+version-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+update-title",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+push",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+pull",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+sync",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+task_result",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+apply-permission",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "drive.+member-add",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+member-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+member-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+permission-get-setting",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+secure-label-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "drive.+secure-label-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "drive.+search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "drive.+inspect",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-members-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-messages-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+chat-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+message-read-users",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-edit",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-mget",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-read-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+messages-reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-resources-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+messages-send",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+threads-messages-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "im.+flag-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+flag-cancel",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+flag-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-shortcut-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-shortcut-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-shortcut-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-group-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-group-list-item",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "im.+feed-group-query-item",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "contact.+search-user",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "contact.+search-bot",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "contact.+get-user",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+workbook-info",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+revision-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-rename",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-hide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-unhide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-set-tab-color",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-show-gridline",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-hide-gridline",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+workbook-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+workbook-export",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+workbook-import",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sheet-info",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-insert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-hide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-unhide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-freeze",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-group",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-ungroup",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dim-move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+changeset-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+csv-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dropdown-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+table-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-replace",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+formula-verify",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-set",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-set-style",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-set-image",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+csv-put",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dropdown-set",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+table-put",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-clear",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-merge",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-unmerge",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+rows-resize",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cols-resize",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+range-move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+range-copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+range-fill",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+range-sort",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+pivot-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cond-format-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cond-format-result-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-view-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sparkline-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+float-image-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-create-basic",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-config-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+chart-data-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+pivot-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+pivot-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+pivot-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cond-format-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cond-format-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cond-format-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-view-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-view-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+filter-view-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sparkline-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sparkline-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+sparkline-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+float-image-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+float-image-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+float-image-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+styles-put",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+batch-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+batch-chart-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+batch-chart-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-batch-set-style",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+cells-batch-clear",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dropdown-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+dropdown-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+history-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+history-revert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "sheets.+history-revert-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+url-resolve",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+title-resolve",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "base.+base-block-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-block-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-block-move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-block-rename",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-block-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+table-copy-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-search-options",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-extension-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-extension-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+field-extension-update-cells",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-filter",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-filter",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-visible-fields",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-visible-fields",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-group",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-group",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-sort",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-sort",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-timebar",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-timebar",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-get-card",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-set-card",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+view-rename",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-upsert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-batch-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-batch-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-share-link-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-upload-attachment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-download-attachment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-remove-attachment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+record-history-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+base-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+template-categories",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+template-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+template-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+role-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+role-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+role-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+role-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+role-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+advperm-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+advperm-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workflow-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+button-rule-bind",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+button-rule-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+button-rule-unbind",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+data-query",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-questions-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-questions-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-questions-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-questions-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-submit",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-share-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+form-share-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-share-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-share-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-arrange",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-get-data",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+dashboard-block-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workspace-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workspace-entity-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+workspace-move-in",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-page-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-page-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-page-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-page-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-page-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-block-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-block-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-block-get-data",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-block-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "base.+app-block-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "event.+subscribe",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "deprecated_event_entry; use bounded event tools"
+  },
+  {
+    "id": "mail.+message",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+messages",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+message-modify",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+message-trash",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+thread",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+thread-modify",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+thread-trash",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+triage",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+watch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+rule-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-enable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-disable",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+rule-reorder",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+reply",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+reply-all",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+send",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+draft-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+draft-send",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+draft-edit",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+forward",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+send-receipt",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+decline-receipt",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+signature",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+share-to-chat",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "mail.+template-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+template-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "mail.+lint-html",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "markdown.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "markdown.+diff",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "markdown.+fetch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "markdown.+patch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "markdown.+overwrite",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+add-slide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+delete-slide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+media-upload",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+media-download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+replace-slide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+replace-pages",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+update-slide",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+screenshot",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+xml-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+history-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+history-revert",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "slides.+history-revert-status",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "minutes.+search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "minutes.+download",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "minutes.+upload",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+apply-permission",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "minutes.+summary",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+todo",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+speaker-replace",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+word-replace",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "minutes.+detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+set-ancestor",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+comment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+complete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+reopen",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+assign",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+followers",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+reminder",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+get-my-tasks",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "task.+get-related-tasks",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "task.+search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "task.+upload-attachment",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+tasklist-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+tasklist-search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "task.+tasklist-task-add",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "task.+tasklist-members",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+search",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+notes",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+recording",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-join",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-invite",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-end",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-leave",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-list-active",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-events",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-message-send",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-screenshot",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "vc.+meeting-countdown",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "note.+detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "note.+transcript",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "whiteboard.+update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "docs.+whiteboard-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "whiteboard.+export",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "whiteboard.+query",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+move",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+move-to-drive",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+node-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+delete-space",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+space-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+space-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "wiki.+node-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+node-copy",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+node-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+node-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+member-add",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+member-remove",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "wiki.+member-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+cycle-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+cycle-detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+progress-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+progress-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+progress-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+progress-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+progress-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+upload-image",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+batch-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+reorder",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+weight",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+indicator-update",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+patch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+comment-detail",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+comment-list",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+comment-get",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "adapter_ready",
+    "reason": "shortcut; live_unverified"
+  },
+  {
+    "id": "okr.+comment-create",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "okr.+comment-patch",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "okr.+comment-delete",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "okr.+comment-solve",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
+  },
+  {
+    "id": "okr.+comment-reopen",
+    "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d",
+    "status": "excluded",
+    "reason": "user_only"
   }
 ]
