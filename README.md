@@ -6,7 +6,7 @@
 
 项目采用 [GPL-3.0-only](LICENSE)（GNU GPL 第 3 版）。第三方代码保留各自的版权与许可，见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
-当前版本 `0.2.0-dev`，使用官方 MCP Go SDK v1.8.0，支持 `2026-07-28` 与 `2025-11-25` Streamable HTTP。认证采用管理员预配的 Bearer key。没有用户 OAuth、UAT 或个人 profile 登录流程。
+当前版本 `0.3.0-dev`，使用官方 MCP Go SDK v1.8.0，支持 `2026-07-28` 与 `2025-11-25` Streamable HTTP。认证采用管理员预配的 Bearer key。没有用户 OAuth、UAT 或个人 profile 登录流程。
 
 ## 能力范围
 
@@ -17,11 +17,14 @@
 | 静态 API | 206 | 45 项仅用户身份 |
 | shortcuts | 392 | 145 项仅用户身份、1 项旧事件入口 |
 
-598 项来源适配加上原生 `events.read`，共 **599 个 Operation**。文件、上下文、Job 和紧凑发现入口另外提供固定工具。目录逐项记录见 [coverage.json](docs/coverage.json)；`adapter_ready` 表示有 schema 和执行映射，真实飞书验收范围见 [VALIDATION.md](docs/VALIDATION.md)。
+598 项来源适配加上原生 `events.read`，共 **599 个 Operation**。文件、上下文、Job、指南和紧凑发现入口另外提供固定工具。目录逐项记录见 [coverage.json](docs/coverage.json)；`adapter_ready` 表示有 schema 和执行映射，真实飞书验收范围见 [VALIDATION.md](docs/VALIDATION.md)。
+
+同一固定版本的用法知识也随目录导入：228 个操作级指南来自 affordance 与 shortcut Tips，15 个领域指南与 412 个主题来自官方 Skill 文档，均已改写为网关的调用方式。说明见 [Agent 使用层](docs/AGENT-USAGE.md)。
 
 主要能力：
 
 - 默认按能力包生成具名工具；`tool_view=compact` 提供 search、describe、execute_read、execute_write，使用同一目录、校验器和执行器。
+- `feishu_guide` 提供领域总览、领域指南与主题；紧凑视图的搜索支持中英文任务说法和领域过滤。发现结果按接入和提问者的权限收窄。
 - 应用取票缓存、并发刷新合并、DPoP、出站节流、Retry-After、临时调用凭据和代理防重放。
 - 客户端及 actor 的操作/资源权限，应用/客户端/actor 并发与调用频率限制，配置热加载与撤权。
 - 写入幂等、SQLite 回执、后台 Job、取消和重启恢复。不确定写入保存为 `unknown`。
@@ -57,10 +60,17 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o bin/
 python3 scripts/build_backend.py /path/to/lark-cli --goos linux --goarch amd64 --output bin/lark-cli-gateway-linux-amd64
 ```
 
-维护者可以从干净提交生成完整发布包：
+升级 lark-cli 或调整转换规则后，重新生成目录、覆盖台账与指南，再渲染 Skill：
 
 ```sh
-python3 scripts/build_release.py /path/to/lark-cli --tag v0.2.0-dev --output local/releases/v0.2.0-dev
+python3 scripts/refresh_catalog.py /path/to/lark-cli
+go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
+```
+
+核对步骤见 [Agent 使用层](docs/AGENT-USAGE.md#升级-lark-cli)。维护者可以从干净提交生成完整发布包：
+
+```sh
+python3 scripts/build_release.py /path/to/lark-cli --tag v0.3.0-dev --output local/releases/v0.3.0-dev
 ```
 
 对应源码包中的 `rebuild.py` 使用随包 vendor 依赖构建，关闭网络模块解析；需要预先安装 Go 1.26 或更新版本。
@@ -69,9 +79,10 @@ python3 scripts/build_release.py /path/to/lark-cli --tag v0.2.0-dev --output loc
 
 复制 [示例配置](examples/config.json) 到 `local/config.json`。相对 `data_dir` 相对于配置文件目录解析。`cli_binary` 填受控 wrapper 的绝对路径，`cli_sha256` 填其 SHA-256。普通 lark-cli 二进制无法通过受控后端契约检查。
 
-`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张：
+`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张。0.3.0-dev 清理了目录中的描述文字，升级时需要更新此值。`--version` 同时输出版本、目录摘要和指南摘要：
 
 ```sh
+./bin/feishu-mcp-gateway --version
 ./bin/feishu-mcp-gateway --catalog-revision
 mkdir -p local
 umask 077
@@ -86,7 +97,7 @@ umask 077
 
 应用和接入策略可通过 SIGHUP 热加载，也可配置独立的 `admin_key_sha256` 后调用：
 
-- `GET /admin/status`：目录/策略摘要、接入数、运行数、取票缓存统计。
+- `GET /admin/status`：版本、目录/指南/策略摘要、各接入的工具视图与开放范围、运行数、取票缓存统计。
 - `POST /admin/reload`：重新读取启动配置文件；通过全部校验后替换策略。
 
 热加载后让客户端重新发现工具，以取得新视图。管理凭据与 MCP 接入凭据分开。监听、存储、后端、全局容量等运行参数改变需要重启。已有应用连接 ID 不能改绑到其他 AppID、企业或区域；新绑定使用新的连接 ID。单个数据目录只允许一个服务进程。
@@ -102,7 +113,7 @@ umask 077
 
 资源 ID 列表不自动包含子资源，也不推断提问者的个人飞书 ACL。`application_scope` 下仍配置 actor resources 时，只能执行支持这些资源检查的操作。
 
-`identity_mode=client` 以接入身份运行；`wake_actor` 在实际操作时要求有效的提问者 Header。发现可以没有 actor，实际调用、文件、Resources 和 Job 访问不能缺失。
+`identity_mode=client` 以接入身份运行；`wake_actor` 在实际操作时要求有效的提问者 Header。发现可以没有 actor，实际调用、文件、Resources 和 Job 访问不能缺失。请求带有提问者时，搜索、describe、指南总览和 `feishu_context` 只展示该提问者能执行的操作。
 
 按照 [Wake 官方说明](https://docs.qoder.cn/qoderwake/skills-and-integrations)，使用 Streamable HTTP、开启 IM 提问者身份传递、Headers Helper 留空。服务读取：
 
@@ -118,6 +129,8 @@ X-QoderWake-AtWaker-Sender-Channel
 ## 工具与结果
 
 静态 API 使用 `params`、`data` 和可选 `files`；shortcut 使用逻辑参数，例如 `doc`、`base_token`、`spreadsheet_token`。支持的 JSON payload 参数可直接传对象/数组，包含已公开的细粒度 schema。完整参数以具名工具或 `feishu_tools_describe` 为准。复杂操作可给 describe 传 parameter，只展开需要的顶层参数 schema。
+
+所有接入都提供 `feishu_guide`：无参数返回当前请求可见的领域、操作数量和入口操作，`domain` 返回领域指南，`topic` 返回指南引用的主题。MCP `instructions` 按接入列出开放领域和调用约定。紧凑视图中，`feishu_tools_search` 按任务说法查找操作（中英文均可，可按 `domain`、`risk` 过滤），`feishu_tools_describe` 同时返回该操作的指南；已知 operation_id 和参数时可直接执行。具名工具的描述附带适用与不适用场景。
 
 写入必须提供 `idempotency_key`。同键同参返回原回执，同键异参返回冲突。幂等作用域包含应用连接、接入、actor 与 operation_id。
 
@@ -160,7 +173,7 @@ python3 scripts/transfer_file.py --endpoint https://gateway.example --file ./rep
 
 ## 可选 Skill 与运行边界
 
-[feishu-gateway Skill](skills/feishu-gateway/SKILL.md) 提供工具选择、文件复用、分页和错误恢复方法，可以按宿主的 Skill 安装方式使用。工具自身包含 schema 和必要说明，权限全部由 Gateway 检查。
+[feishu-gateway Skill](skills/feishu-gateway/SKILL.md) 提供领域路由表、调用约定、写入回执、文件复用、分页和错误处理方法，可以按宿主的 Skill 安装方式使用。`python3 scripts/package_skill.py local/skill --zip` 生成带离线指南的 Skill 目录与 ZIP，可上传到 Wake；发布包中的 Skill 已包含这些指南。工具自身包含 schema 和必要说明，权限全部由 Gateway 检查。
 
 Gateway 与固定 wrapper 属于受信任服务。文件访问使用 rooted FileIO，外部 URL 请求经代理检查，真实应用凭据不进入 wrapper。此结构不构成对同一 OS 用户的进程隔离；有隔离要求时，使用独立服务身份和受控数据目录。
 
