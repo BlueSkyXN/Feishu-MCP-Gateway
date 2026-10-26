@@ -66,9 +66,13 @@ def main():
                     time.sleep(0.1)
             init = rpc('initialize', {'protocolVersion': '2025-11-25', 'clientInfo': {'name': 'smoke', 'version': '1'}, 'capabilities': {}})
             assert init['protocolVersion'] == '2025-11-25'
+            assert 'feishu_guide' in init.get('instructions', '') and 'wiki' in init['instructions']
             listing = rpc('tools/list', {})
             context = rpc('tools/call', {'name': 'feishu_context', 'arguments': {}})
             assert context['structuredContent']['data']['execution_identity'] == 'bot'
+            assert [d['domain'] for d in context['structuredContent']['data']['domains']] == ['wiki']
+            guide = rpc('tools/call', {'name': 'feishu_guide', 'arguments': {'domain': 'wiki', 'limit': 500}})['structuredContent']['data']
+            assert guide['content'] and not guide['eof'] and guide['topics']
             result = rpc('tools/call', {'name': 'feishu_file_create', 'arguments': {'name': 'smoke.txt', 'text': 'gateway smoke'}})
             file = result['structuredContent']['files'][0]
             resource = rpc('resources/read', {'uri': file['uri']})
@@ -80,7 +84,7 @@ def main():
                 raise AssertionError('unauthenticated download accepted')
             except HTTPError as exc:
                 assert exc.code == 401
-            report = {'startup': True, 'config_check': True, 'protocol': init['protocolVersion'], 'tools': len(listing['tools']), 'application_identity': True, 'resource_read': True, 'authenticated_download': True, 'unauthenticated_download_denied': True, 'live_feishu_calls': 0}
+            report = {'startup': True, 'config_check': True, 'protocol': init['protocolVersion'], 'tools': len(listing['tools']), 'instructions': True, 'guide': True, 'application_identity': True, 'resource_read': True, 'authenticated_download': True, 'unauthenticated_download_denied': True, 'live_feishu_calls': 0}
         finally:
             process.terminate()
             try:

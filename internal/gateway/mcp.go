@@ -34,9 +34,11 @@ func mcpResult(r Result) *mcp.CallToolResult {
 	return result
 }
 
+const Version = "0.3.0-dev"
+
 func (s *Service) mcpView(client Client) *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "Feishu-MCP-Gateway", Version: "0.2.0-dev"}, &mcp.ServerOptions{
-		Instructions:              "飞书操作始终以应用身份执行。写操作重试复用 idempotency_key；unknown 状态先核对回执。文件和 Job 标识只能在当前授权范围内使用。",
+	server := mcp.NewServer(&mcp.Implementation{Name: "Feishu-MCP-Gateway", Version: Version}, &mcp.ServerOptions{
+		Instructions:              s.instructions(client),
 		SupportedProtocolVersions: []string{"2026-07-28", "2025-11-25"},
 		Capabilities:              &mcp.ServerCapabilities{Tools: &mcp.ToolCapabilities{ListChanged: false}, Resources: &mcp.ResourceCapabilities{ListChanged: false}},
 		SetCacheable:              func(_ context.Context, _ mcp.Request, c *mcp.Cacheable) { c.CacheScope = "private"; c.TTLMs = 0 },
@@ -46,7 +48,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 		if client.ToolView == "compact" || !visible(client, op) {
 			continue
 		}
-		server.AddTool(&mcp.Tool{Name: op.Tool, Description: op.Description + "。执行身份固定为飞书应用；支持 async 登记后台操作。", InputSchema: op.InputSchema, OutputSchema: resultSchema(&op), Annotations: &mcp.ToolAnnotations{
+		server.AddTool(&mcp.Tool{Name: op.Tool, Description: s.toolDescription(op), InputSchema: op.InputSchema, OutputSchema: resultSchema(&op), Annotations: &mcp.ToolAnnotations{
 			// 所有操作都可能登记 Job/结果文件，保守描述本地副作用。
 			ReadOnlyHint: false, DestructiveHint: boolean(op.Risk != "read"), OpenWorldHint: boolean(true), IdempotentHint: op.Risk != "read",
 		}}, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -67,12 +69,18 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 	if client.AllowTransferTickets {
 		s.addTransferTool(server)
 	}
-	s.addUtility(server, "feishu_context", "查看当前接入的应用身份、模式和能力范围。", schemaObject(nil, nil), true, func(ctx context.Context, p Principal, args map[string]any) Result {
+	s.addGuide(server)
+	s.addUtility(server, "feishu_context", "查看当前接入的应用身份、工具视图、可用领域与操作数量，以及目录和指南版本。", schemaObject(nil, nil), true, func(ctx context.Context, p Principal, args map[string]any) Result {
 		c, a, err := s.currentConfig().checkPrincipal(p, false)
 		if err != nil {
 			return failed(err)
 		}
-		return Result{Status: "succeeded", Data: map[string]any{"app_connection_id": a.ID, "execution_identity": "bot", "identity_mode": c.IdentityMode, "actor": p.Actor, "packs": c.Packs, "catalog_source": s.Catalog.SourceCommit}}
+		total, brief := 0, []map[string]any{}
+		for _, d := range s.visibleDomains(c, p) {
+			total += d.Operations
+			brief = append(brief, map[string]any{"domain": d.Domain, "title": d.Title, "operations": d.Operations})
+		}
+		return Result{Status: "succeeded", Data: map[string]any{"app_connection_id": a.ID, "execution_identity": "bot", "identity_mode": c.IdentityMode, "actor": p.Actor, "packs": c.Packs, "tool_view": c.ToolView, "operations": total, "domains": brief, "catalog_source": s.Catalog.SourceCommit, "catalog_revision": s.catalogRevision, "guidance_revision": s.Guidance.revision}}
 	})
 	for _, action := range []string{"get", "cancel"} {
 		action := action
@@ -230,7 +238,8 @@ func (s *Service) addUtility(server *mcp.Server, name, description string, input
 		if err = schema.Validate(args); err != nil {
 			return mcpResult(failed(fault("invalid_arguments", err.Error()))), nil
 		}
-		if name != "feishu_context" && !strings.HasPrefix(name, "feishu_tools_") && !strings.HasPrefix(name, "feishu_execute_") {
+		// 发现与说明工具不计次；执行入口在 Invoke 中计次。
+		if name != "feishu_context" && name != "feishu_guide" && !strings.HasPrefix(name, "feishu_tools_") && !strings.HasPrefix(name, "feishu_execute_") {
 			if err := s.rate(p); err != nil {
 				return mcpResult(failed(err)), nil
 			}

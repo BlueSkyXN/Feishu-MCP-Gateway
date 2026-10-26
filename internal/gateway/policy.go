@@ -212,7 +212,24 @@ func (s *Service) Diagnostics() map[string]any {
 	s.limitsMu.Lock()
 	active := s.counts["global"]
 	s.limitsMu.Unlock()
-	data := map[string]any{"catalog_revision": CatalogRevision(), "operations": len(s.Catalog.Operations), "applications": len(c.Apps), "clients": len(c.Clients), "active": active, "policy_revision": s.policy.Load().revision}
+	topics := 0
+	for _, skill := range s.Guidance.Skills {
+		topics += len(skill.Topics)
+	}
+	// 每个接入的工具视图与开放范围，便于核对配置是否符合预期。
+	views := []map[string]any{}
+	for _, client := range c.Clients {
+		if client.Disabled {
+			continue
+		}
+		total, domains := 0, []string{}
+		for _, d := range s.visibleDomains(client, Principal{}) {
+			total += d.Operations
+			domains = append(domains, d.Domain)
+		}
+		views = append(views, map[string]any{"id": client.ID, "tool_view": client.ToolView, "identity_mode": client.IdentityMode, "resource_mode": client.ResourceMode, "operations": total, "domains": domains})
+	}
+	data := map[string]any{"version": Version, "catalog_revision": s.catalogRevision, "guidance_revision": s.Guidance.revision, "guidance": map[string]any{"source_commit": s.Guidance.SourceCommit, "operations": len(s.Guidance.Operations), "guides": len(s.Guidance.Skills), "topics": topics}, "operations": len(s.Catalog.Operations), "applications": len(c.Apps), "clients": len(c.Clients), "client_views": views, "active": active, "policy_revision": s.policy.Load().revision}
 	if cli, ok := s.executor.(*CLIExecutor); ok {
 		data["tokens"] = cli.broker.tokens.Stats()
 	}

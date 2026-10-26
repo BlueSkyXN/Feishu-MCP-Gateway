@@ -26,13 +26,17 @@ type Service struct {
 	ConfigPath  string
 	config      Config
 	Catalog     *Catalog
-	Store       *Store
-	executor    Executor
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	activeMu    sync.Mutex
-	active      map[string]context.CancelFunc
+	Guidance    *Guidance
+	search      *searchIndex
+	// 目录摘要计算一次即可：目录随二进制固定。
+	catalogRevision string
+	Store           *Store
+	executor        Executor
+	ctx             context.Context
+	cancel          context.CancelFunc
+	wg              sync.WaitGroup
+	activeMu        sync.Mutex
+	active          map[string]context.CancelFunc
 }
 
 func NewService(c Config, executor Executor) (*Service, error) {
@@ -47,12 +51,16 @@ func NewService(c Config, executor Executor) (*Service, error) {
 	if err = validateCatalogConfig(c, catalog); err != nil {
 		return nil, err
 	}
+	guidance, err := LoadGuidance(catalog)
+	if err != nil {
+		return nil, err
+	}
 	store, err := OpenStore(c)
 	if err != nil {
 		return nil, err
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &Service{config: c, Catalog: catalog, Store: store, executor: executor, ctx: ctx, cancel: cancel, active: map[string]context.CancelFunc{}}
+	s := &Service{config: c, Catalog: catalog, Guidance: guidance, search: newSearchIndex(catalog, guidance), catalogRevision: CatalogRevision(), Store: store, executor: executor, ctx: ctx, cancel: cancel, active: map[string]context.CancelFunc{}}
 
 	if cli, ok := executor.(*CLIExecutor); ok {
 		cli.store = store
