@@ -1,0 +1,135 @@
+> 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
+
+# `mail.+template-update`
+
+更新已有的个人邮件模板（全量替换式更新）。支持 `inspect` 只读 projection、`print_patch_template` 打印 patch 骨架、`patch_file` 结构化 patch、以及扁平的 `--set-*` flag。
+
+> **⚠️ 后端无乐观锁 → last-write-wins**。并发更新可能丢失最近的改动；CLI 在每次成功更新时会在 stderr 打印一条 warning 提示。
+
+如需创建新模板，使用 `mail.+template-create`（主题 `lark-mail-template-create`）。
+
+## 工作模式
+
+| 入口 | 行为 | 是否写库 |
+|------|------|---------|
+| `print_patch_template` | 打印 `patch_file` 的 JSON 骨架 | 否（纯本地） |
+| `inspect` | 返回当前模板完整 projection | 否（只 GET） |
+| `--set-*` / `attach` / `inline` | 扁平 flag 合并后 PUT | 是 |
+| `patch_file` | 结构化 patch + 扁平 flag 合并后 PUT | 是 |
+
+## 命令
+
+```bash
+
+# 追加新附件
+```
+
+## 参数
+
+### 定位
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `template_id=<id>` | 是* | 模板 ID，十进制整数字符串 |
+| `mailbox=<email>` | 否 | 所属邮箱，默认 `me` |
+
+\* `print_patch_template` 场景下可省略。
+
+### 只读 / 输出
+
+| 参数 | 说明 |
+|------|------|
+| `inspect` | 只 GET，不修改；返回完整模板 projection |
+| `print_patch_template` | 打印 patch 骨架（不访问网络），保存后作为 `patch_file` 的起点 |
+
+### 扁平 set-* flag（直接指定新值）
+
+| 参数 | 说明 |
+|------|------|
+| `set_name=<text>` | 替换名称，≤100 字符 |
+| `set_subject=<text>` | 替换默认主题 |
+| `set_template_content=<html>` | 替换正文。支持 `<img src="./local.png" />` 相对路径自动上传并改写 |
+| `set_template_content_file=<path>` | 从文件加载替换正文；与 `set_template_content` 互斥 |
+| `set_plain_text` | 标为纯文本模式（置 true）。**不提供不会置 false**；要把 HTML 模板翻回 false，请用 `patch_file` 的 `{"is_plain_text_mode": false}` |
+| `set_to=<emails>` | 用单次参数值替换默认收件人列表；多个地址仍在该值内用逗号分隔，传 `set_to=` 可清空 |
+| `set_cc=<emails>` | 用单次参数值替换默认抄送；多个地址仍在该值内用逗号分隔，传 `set_cc=` 可清空 |
+| `set_bcc=<emails>` | 用单次参数值替换默认密送；多个地址仍在该值内用逗号分隔，传 `set_bcc=` 可清空 |
+| `attach=<path>` | 追加非 inline 附件，不替换已有附件。多个附件请重复传 `attach`，每次只放一个相对路径，参数值用单引号包住；按传入顺序上传 |
+| `inline=<json>` | 追加 inline 图片，不替换已有附件。多个 inline 图片请重复传 `inline`，每次只放一个 JSON object，并用单引号包住：`'{"cid":"mycid","file_path":"./logo.png"}'`；`file_path` 必须是相对路径；CID 应唯一，例如随机十六进制字符串；在模板正文中用 `<img src="cid:mycid">` 引用；最终模板为纯文本模式时会被拒绝 |
+
+### 结构化 patch
+
+| 参数 | 说明 |
+|------|------|
+| `patch_file=<path>` | JSON patch 文件。结构同 `print_patch_template` 输出；任何 **非空字段**覆盖当前模板对应字段 |
+
+patch-file 字段（全部可选，未提供的字段保持当前模板原值）：
+
+```json
+{
+  "name": "string (≤100 chars, optional)",
+  "subject": "string (optional)",
+  "template_content": "string (HTML 或纯文本；本地 <img src> 会自动上传)",
+  "is_plain_text_mode": "bool (optional) — 显式 true/false 都生效",
+  "tos": [{"mail_address": "...", "name": "..."}],
+  "ccs": [{"mail_address": "...", "name": "..."}],
+  "bccs": [{"mail_address": "...", "name": "..."}]
+}
+```
+
+## 合并策略
+
+1. `GET` 当前模板完整内容
+2. 先应用扁平 `--set-*` flag（非空即覆盖）
+3. 再应用 `patch_file`（非空字段覆盖）——patch-file 优先级高于扁平 flag
+4. 重新扫描新正文中的 `<img>` 本地路径，上传到 Drive 并改写为 `cid:`
+5. `attach` 追加的新附件以新的 `emlProjectedSize` 独立计算 SMALL/LARGE
+6. 附件按 `(id, cid)` 去重后 `PUT` 整个模板
+
+> **所有原有附件保留**：只追加 `attach` 新附件；如需删除已有附件，目前只能通过 `patch_file` 的 `template_content` 改写正文去除相应 `<img>` 引用，或使用原生 API 整块重写。
+
+## DryRun 行为
+
+- 默认：打印 `GET /user_mailboxes/:id/templates/:tid` + Drive 上传步骤（如有 `<img>`、`attach` 或 `inline`）+ `PUT` 步骤。
+- `inspect`：只打印 `GET`。
+- `print_patch_template`：打印骨架，不走任何 API。
+
+## 返回值
+
+成功返回：
+
+```json
+{
+  "template": {
+    "template_id": "712345",
+    "name": "周报模板",
+    "subject": "每周五发布",
+    "template_content": "...",
+    "is_plain_text_mode": false,
+    "tos": [...],
+    "attachments": [...],
+    "create_time": "1714000000000"
+  }
+}
+```
+
+`inspect` 返回同样结构；`print_patch_template` 返回 patch JSON 骨架。
+
+## 错误码速查
+
+| errno | HTTP | 触发 |
+|-------|------|------|
+| `15080201 InvalidTemplateName` | 400 | `set_name` 为空或超 100 字符 |
+| `15080203 TemplateContentSizeLimit` | 400 | 更新后 `template_content` > 3 MB |
+| `15080204 InvalidTemplateID` | 404 | `template_id` 不存在或不属于当前用户 |
+| `15080207 InvalidTemplateParam` | 400 | 其他参数错误（含 `template_id` 无法 parseInt） |
+
+## 所需 scope
+
+`mail:user_mailbox.message:modify`, `mail:user_mailbox:readonly`
+
+## 相关
+
+- 创建模板：`mail.+template-create`（主题 `lark-mail-template-create`）
+- 套用模板发信：在 `mail.+send`（网关不提供：仅支持用户身份） / `mail.+draft-create`（网关不提供：仅支持用户身份） / `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） 中使用 `template_id`
+- 删除模板（原生 API）：`mail.user_mailbox.templates.delete`（params={"user_mailbox_id": "me", "template_id": "<id>"}）

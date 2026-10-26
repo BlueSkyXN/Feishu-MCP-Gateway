@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 BlueSkyXN
 # SPDX-License-Identifier: GPL-3.0-only
-"""从已固定的 lark-cli 源码快照生成目录；不执行 CLI，不请求飞书。"""
+"""从已固定的 lark-cli 源码快照生成目录和用法指南；不执行 CLI，不请求飞书。"""
 import argparse
 import json
 import re
 import subprocess
 from collections import Counter
 from pathlib import Path
+
+import lark_guidance
 
 
 def field_schema(field):
@@ -133,8 +135,11 @@ def main():
     parser.add_argument('--output', type=Path, default=Path('internal/gateway/catalog.json'))
     parser.add_argument('--coverage', type=Path, default=Path('docs/coverage.json'))
     parser.add_argument('--shortcuts', type=Path)
+    parser.add_argument('--guidance', type=Path, default=Path('internal/gateway/guidance'), help='用法指南输出目录；需要 --shortcuts')
     args = parser.parse_args()
     commit = subprocess.check_output(['git', '-C', str(args.source), 'rev-parse', 'HEAD'], text=True).strip()
+    if subprocess.check_output(['git', '-C', str(args.source), 'status', '--porcelain'], text=True).strip():
+        raise SystemExit('来源工作区有未提交修改，不能声称导入固定源码版本')
     operations, coverage = [], []
     for source in sorted((args.source / 'internal/registry/catalog/services').glob('*.json')):
         service = json.loads(source.read_text())
@@ -187,8 +192,10 @@ def main():
                 props['params']['properties']['page_token']['description'] = '使用 Gateway 上次返回的分页标识；不要填入原始飞书 token。'
             operations.append({'id': op_id, 'tool': 'feishu_' + op_id.replace('.', '_'), 'kind':'api','method':method['httpMethod'],'path':service['servicePath'].rstrip('/')+'/'+method['path'].lstrip('/'),'file_fields':list(file_fields),'query_fields':[k for k,v in method.get('parameters',{}).items() if v.get('location')=='query'],'parameter_defaults':{k:v['default'] for k,v in method.get('parameters',{}).items() if 'default' in v},'description': method['description'], 'pack': service['name'] + ('.read' if method['risk'] == 'read' else '.write'), 'risk': method['risk'], 'command': [service['name'], *path], 'input_schema': schema, 'data_schema': output, 'app_scopes': method.get('scopes', []), 'resource_bindings': RESOURCE_BINDINGS.get(op_id, {}), 'doc_url': method.get('docUrl', '')})
             item.update(status='adapter_ready', reason='generic_json; live_unverified')
+    rows = []
     if args.shortcuts:
         exported=json.loads(args.shortcuts.read_text())
+        rows = exported['shortcuts']
         if exported['source_commit']!=commit: raise SystemExit('shortcut/source commit mismatch')
         for row in exported['shortcuts']:
             item={'id':row['service']+'.'+row['command'],'source_commit':commit,'status':'excluded','reason':''};coverage.append(item)
@@ -197,11 +204,18 @@ def main():
             try:op=shortcut_operation(row,args.source)
             except (ValueError,KeyError) as exc:item['reason']='schema_review_required: '+str(exc);continue
             operations.append(op);item.update(status='adapter_ready',reason='shortcut; live_unverified')
+    # 描述来自 CLI 帮助：去掉用户身份说明，flag 写法改为本操作的 JSON 参数名。
+    index = lark_guidance.Index(operations, coverage)
+    for op in operations:
+        lark_guidance.clean_operation(index, op)
     envelope = {'source_commit': commit, 'operations': operations}
     for target, data in [(args.output, envelope), (args.coverage, coverage)]:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({'methods': len(coverage), 'enabled_adapters': len(operations), 'coverage': dict(Counter(x['reason'] for x in coverage))}, ensure_ascii=False))
+    summary = {'methods': len(coverage), 'enabled_adapters': len(operations), 'coverage': dict(Counter(x['reason'] for x in coverage))}
+    if args.shortcuts:
+        summary['guidance'] = lark_guidance.build(args.source, commit, operations, coverage, rows, args.guidance)
+    print(json.dumps(summary, ensure_ascii=False))
 
 
 if __name__ == '__main__':
