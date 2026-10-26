@@ -1,0 +1,3819 @@
+{
+ "operations": {
+  "application.+slash-command-create": {
+   "avoid_when": [
+    "The command already exists and the user wants to edit it → use `application.+slash-command-update`."
+   ],
+   "examples": [
+    {
+     "arguments": {
+      "command": "greet",
+      "description": "say hi",
+      "description_i18n": [
+       "zh_cn=问候"
+      ]
+     },
+     "description": "Create a localized slash command",
+     "operation_id": "application.+slash-command-create"
+    }
+   ],
+   "related": [
+    "application.+slash-command-update"
+   ],
+   "tips": [
+    "Changes may take about five minutes to appear in clients because of client-side caching; the server updates immediately."
+   ],
+   "use_when": [
+    "Use this for a new command name. On a name collision, update the existing command only when that is the user's intent."
+   ]
+  },
+  "application.+slash-command-delete": {
+   "examples": [
+    {
+     "arguments": {
+      "command": "greet"
+     },
+     "description": "Delete by name after explicit user confirmation",
+     "operation_id": "application.+slash-command-delete"
+    }
+   ],
+   "prerequisites": [
+    "Explicit user confirmation is required before passing 管理员预授权（high_risk_operations）; an agent must not self-approve the deletion.",
+    "Pass `command_id` from `application.+slash-command-list`, or pass `command` to let the CLI resolve the current id by name with a live list request."
+   ],
+   "related": [
+    "application.+slash-command-list"
+   ],
+   "tips": [
+    "Deleted commands may linger in clients for about five minutes because of client-side caching.",
+    "Recreating the same command name produces a new `command_id`."
+   ],
+   "use_when": [
+    "Use this only after the user explicitly confirms the target and the irreversible deletion."
+   ]
+  },
+  "application.+slash-command-list": {
+   "examples": [
+    {
+     "arguments": {},
+     "description": "List all slash commands of the currently bound app",
+     "operation_id": "application.+slash-command-list"
+    }
+   ],
+   "tips": [
+    "The upstream API returns all commands at once (maximum 100 per app); there is no pagination."
+   ],
+   "use_when": [
+    "Use this to inspect the current app's slash commands and obtain a stable `command_id` before an update or deletion."
+   ]
+  },
+  "application.+slash-command-update": {
+   "examples": [
+    {
+     "arguments": {
+      "command": "greet",
+      "description": "new text"
+     },
+     "description": "Update by name (the CLI resolves the current command id first)",
+     "operation_id": "application.+slash-command-update"
+    }
+   ],
+   "prerequisites": [
+    "Pass `command_id` from `application.+slash-command-list`, or pass `command` to let the CLI resolve the current id by name with a live list request."
+   ],
+   "related": [
+    "application.+slash-command-list"
+   ],
+   "tips": [
+    "PATCH is field-level partial: fields you do not pass are preserved server-side.",
+    "The command name cannot be changed. Renaming means deleting and recreating the command, which produces a new `command_id`."
+   ],
+   "use_when": [
+    "Use this to change description, localized descriptions, or icon while retaining the command name and `command_id`."
+   ]
+  },
+  "apps.+user-id-convert": {
+   "tips": [
+    "Example: `apps.+user-id-convert`（convert_type=\"open-id-to-miaoda\"，ids=\"ou_abc123,ou_def456\"）",
+    "Unresolved IDs are not an error: they land in data.missed with reason not_found, keyed by input position.",
+    "ID-form/direction mismatch (e.g. an ou_ id under miaoda-to-open-id) is dropped by the server and reported in missed; check the ID prefix matches `convert_type`."
+   ]
+  },
+  "base.+advperm-disable": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Disabling advanced permissions invalidates existing custom roles; confirm the target Base before passing 管理员预授权（high_risk_operations）."
+   ]
+  },
+  "base.+advperm-enable": {
+   "tips": [
+    "Caller must be a Base admin; enable advanced permissions before creating or updating roles."
+   ]
+  },
+  "base.+app-block-create": {
+   "tips": [
+    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}]}\"）",
+    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Monthly sales\"，type=\"column\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"group_by\\\":[{\\\"field_name\\\":\\\"Month\\\",\\\"sort\\\":{\\\"type\\\":\\\"group\\\",\\\"order\\\":\\\"asc\\\"}}]}]}\"）",
+    "Chart blocks use multi-datasource data_config: one top-level base_token shared by all sources, with table_name/series/count_all/group_by/filter inside each data_sources[] element (text needs none). App block commands carry no `base_token`.",
+    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Notes\"，type=\"text\"，data_config=\"{\\\"text\\\":\\\"# Sales overview\\\"}\"）",
+    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Open orders\"，type=\"list\"，sub_type=\"standard\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"table_name\\\":\\\"Orders\\\"}\"）",
+    "For list creates, omit optional columns/fields to use the product defaults. The CLI sends them only when explicitly provided.",
+    "Before creating data-backed blocks, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
+    "A list accepts exactly one base_token, and that Base must be in the same Workspace as the App.",
+    "Read lark-base-app-block-data-config.md as the SSOT for chart, list and text config; do not invent data_config from natural language.",
+    "Block type cannot be changed after creation and this phase has no delete command, so a wrong `type` can only be fixed in the UI. Confirm the type before creating.",
+    "Widget layout, position, size and display settings are not part of the public create/update protocol; the platform applies product defaults.",
+    "Record block_id for `base.+app-block-update`. For chart data reads, pass the returned chart_token to `base.+app-block-get-data` `block_id`.",
+    "Block names must be unique within the page; the CLI checks every existing block before creation.",
+    "Create blocks sequentially; do not parallelize multiple block creates for the same page."
+   ]
+  },
+  "base.+app-block-get": {
+   "tips": [
+    "`base.+app-block-get`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"）",
+    "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
+    "Returns WidgetDetail: widget_id, name, type, optional chart_token/list sub_type, and data_config.",
+    "For a text block, the Markdown content is in data_config.text — read it here; text has no `base.+app-block-get-data` endpoint.",
+    "For a chart's computed result, pass its chart_token to `base.+app-block-get-data` `block_id` together with `app_token` and `base_token`.",
+    "Read the current data_config here before replacing nested values with `base.+app-block-update`."
+   ]
+  },
+  "base.+app-block-get-data": {
+   "tips": [
+    "`base.+app-block-get-data`（app_token=\"<app_token>\"，base_token=\"<base_token>\"，block_id=\"<chart_token>\"）",
+    "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
+    "`block_id` must be a chart_token, not a widget_id.",
+    "Read `base_token` from the chart block data_config.base_token; do not choose an arbitrary `base.+app-get` ref key when the app references multiple Bases.",
+    "The response uses the same computed chart data protocol as `base.+dashboard-block-get-data`.",
+    "List and text blocks have no computed data; use `base.+app-block-get` for their metadata instead. For text specifically, `base.+app-block-get` returns the Markdown content in data_config.text."
+   ]
+  },
+  "base.+app-block-list": {
+   "tips": [
+    "`base.+app-block-list`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "A returned component with type=unsupported can only be identified in this list; `base.+app-block-get`, `base.+app-block-get-data`, and `base.+app-block-update` do not support it and will return an error.",
+    "Use block_id for `base.+app-block-get`/update. For chart data, pass chart_token to `base.+app-block-get-data` `block_id`.",
+    "These are page blocks, not dashboard blocks: do not pass a block_id from here to `base.+dashboard-block-get`."
+   ]
+  },
+  "base.+app-block-update": {
+   "tips": [
+    "`base.+app-block-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"，name=\"Monthly sales\"）",
+    "`base.+app-block-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true,\\\"filter\\\":{\\\"conjunction\\\":\\\"and\\\",\\\"conditions\\\":[{\\\"field_name\\\":\\\"Status\\\",\\\"operator\\\":\\\"is\\\",\\\"value\\\":\\\"Closed\\\"}]}}]}\"）",
+    "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
+    "Read lark-base-app-block-data-config.md as the SSOT; do not invent data_config from natural language.",
+    "Use `base.+app-block-get` first to inspect the current data_config before replacing nested values.",
+    "The type and sub_type of an existing Block are immutable after creation and are not part of data_config; `base.+app-block-update` accepts only the name and data_config fields. If a user asks to change type/sub_type, read the current Block and always state this constraint in the final answer, even when it already matches and no write is needed; if it differs, it can only be fixed in the UI.",
+    "Only explicitly provided data_config fields are sent; omitted fields stay unchanged. For charts, passing data_sources replaces the whole ordered array, and changing base_token requires sending the full data_sources.",
+    "Widget layout, position, size and display settings are not part of the public create/update protocol."
+   ]
+  },
+  "base.+app-create": {
+   "tips": [
+    "`base.+app-create`（name=\"Sales app\"，workspace_token=\"<workspace_token>\"）",
+    "`base.+app-create`（name=\"Sales app\"，workspace_token=\"<workspace_token>\"，theme_style=\"cloudBlue\"）",
+    "This command creates a new empty BaseApp; it does not copy an existing BaseApp or its pages and blocks.",
+    "Create or select a Base separately when the app needs data.",
+    "Record the returned app_token; page and block commands require it."
+   ]
+  },
+  "base.+app-get": {
+   "tips": [
+    "`base.+app-get`（app_token=\"<app_token>\"）",
+    "ref maps each Base token currently referenced by app widgets to the names of its referenced tables; table/field/record commands take the Base token keys.",
+    "The response includes page summaries. Use `base.+app-page-get` or `base.+app-block-list` for component details."
+   ]
+  },
+  "base.+app-page-create": {
+   "tips": [
+    "`base.+app-page-create`（app_token=\"<app_token>\"，name=\"Overview\"）",
+    "Page names must be unique within an app; the CLI checks existing pages before creation.",
+    "Record the returned page_id; every +app-block-* command needs it.",
+    "This release creates top-level pages only; PageGroup placement is not supported."
+   ]
+  },
+  "base.+app-page-delete": {
+   "tips": [
+    "`base.+app-page-delete`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "Deleting a page also deletes its blocks and cannot be recovered; the base data behind the blocks is untouched.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+app-page-get": {
+   "tips": [
+    "`base.+app-page-get`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "The response is PageDetail and always includes widget summaries. Use `base.+app-block-list` when you need paginated widget details."
+   ]
+  },
+  "base.+app-page-list": {
+   "tips": [
+    "`base.+app-page-list`（app_token=\"<app_token>\"）",
+    "Use the returned page_id for `base.+app-page-get`/update/delete and every +app-block-* command.",
+    "If a returned page has name=\"\", the current user has no permission to that page; do not treat it as an untitled page or use it as an operation target."
+   ]
+  },
+  "base.+app-page-update": {
+   "tips": [
+    "`base.+app-page-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Overview\"）",
+    "Page names must be unique within an app; the CLI excludes the current page while checking.",
+    "Renaming does not move the page; ordering and parent stay unchanged."
+   ]
+  },
+  "base.+base-block-create": {
+   "tips": [
+    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"folder\"，name=\"Project Docs\"）",
+    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"table\"，name=\"Tasks\"）",
+    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"docx\"，name=\"Spec\"，parent_id=\"<folder_block_id>\"）",
+    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"dashboard\"，name=\"Metrics\"）",
+    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"workflow\"，name=\"Approval Flow\"）",
+    "Creates a folder, table, docx, dashboard, or workflow entry.",
+    "Do not pass null for `parent_id`. Omit it to create at the root level.",
+    "Created resources still use their own commands for content operations, such as table/field/record/docx/dashboard/workflow commands."
+   ]
+  },
+  "base.+base-block-delete": {
+   "tips": [
+    "Example: `base.+base-block-delete`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "Deletes the block identified by `block_id`.",
+    "Recursive folder deletion is not supported. If a folder is not empty, move or delete its children first.",
+    "Different block types may have independent backing resources; deletion follows backend semantics.",
+    "Use `base.+base-block-list` first when you need to confirm the target block id.",
+    "If the user already explicitly confirmed this exact delete target, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+base-block-list": {
+   "tips": [
+    "Example: `base.+base-block-list`（base_token=\"<base_token>\"）",
+    "Example: `base.+base-block-list`（base_token=\"<base_token>\"，type=\"table\"）",
+    "Example: `base.+base-block-list`（base_token=\"<base_token>\"，parent_id=\"<folder_block_id>\"）",
+    "JQ crop: `base.+base-block-list`（base_token=\"<base_token>\"） | jq '.blocks[] | {type, name, block_id: .id, parent_id}'",
+    "JQ crop docx: `base.+base-block-list`（base_token=\"<base_token>\"，type=\"docx\"） | jq '.blocks[] | {name, docx_token}'",
+    "Blocks are resources managed directly by the base, such as folder, table, docx, dashboard, and workflow.",
+    "For table, dashboard, and workflow blocks, returned id is the table-id, dashboard-id, or workflow-id used by the corresponding commands.",
+    "For docx blocks, use the returned docx_token with docx commands.",
+    "For folder blocks, pass the returned id as `parent_id` when creating, listing, or moving blocks inside that folder.",
+    "This command returns the full backend list. It intentionally does not expose limit or offset.",
+    "Pass `type` to list only one resource type.",
+    "Pass `parent_id` to list only direct children of a folder.",
+    "Dashboard blocks are chart/widget blocks inside a dashboard; use +dashboard-block-* for those."
+   ]
+  },
+  "base.+base-block-move": {
+   "tips": [
+    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，parent_id=\"<folder_block_id>\"）",
+    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，after_id=\"<sibling_block_id>\"）",
+    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，before_id=\"<sibling_block_id>\"）",
+    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "Omit `parent_id` to move the block to root; do not pass null.",
+    "`before_id` and `after_id` are mutually exclusive.",
+    "When moving a folder, its children remain under that folder."
+   ]
+  },
+  "base.+base-block-rename": {
+   "tips": [
+    "Example: `base.+base-block-rename`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，name=\"New name\"）",
+    "Renames the block identified by `block_id`.",
+    "Block names must be unique in the base; use `base.+base-block-list` first when you need to check existing names.",
+    "Use `base.+base-block-list` first when you need to resolve the target block id from a visible name."
+   ]
+  },
+  "base.+base-copy": {
+   "tips": [
+    "BaseApp/AppMode copy is unsupported. Do not pass an app_token or use this command as a substitute.",
+    "Example: `base.+base-copy`（base_token=\"<base_token>\"，name=\"Copy of Project Tracker\"）",
+    "Use `without_content` when the user wants only structure.",
+    "If copied as bot, output may include permission_grant; report it so the user knows whether they can open the new Base."
+   ]
+  },
+  "base.+base-create": {
+   "tips": [
+    "Example: `base.+base-create`（name=\"Project Tracker\"，time_zone=\"Asia/Shanghai\"）",
+    "Strongly recommended initial table schema: `base.+base-create`（name=\"Project Tracker\"，table_name=\"Tasks\"，fields=\"[{\\\"name\\\":\\\"Title\\\",\\\"type\\\":\\\"text\\\"},{\\\"name\\\":\\\"Status\\\",\\\"type\\\":\\\"select\\\",\\\"options\\\":[{\\\"name\\\":\\\"Todo\\\"},{\\\"name\\\":\\\"Done\\\"}]}]\"）",
+    "Before using `fields`, read lark-base-field-schema.md or rely on the same field JSON shape used by `base.+field-create`; do not invent field properties.",
+    "If `table_name` and `fields` are both omitted, Base creates one initial table with the platform default schema.",
+    "If created as bot, output may include permission_grant; report it so the user knows whether they can open the new Base."
+   ]
+  },
+  "base.+base-get": {
+   "tips": [
+    "Use a real Base token; workspace tokens and wiki tokens are not accepted by this command."
+   ]
+  },
+  "base.+button-rule-bind": {
+   "tips": [
+    "Use this after `base.+workflow-create` and `base.+field-create`; do not put workflow_id in the field JSON.",
+    "workflow-id must be the public wkf ID returned by workflow commands; never pass an internal numeric workflow ID.",
+    "Binding is independent from workflow enablement. Query with `base.+button-rule-get`, then call `base.+workflow-enable` only if the user wants it active.",
+    "If binding fails after workflow and field creation, keep both IDs and retry this command instead of recreating them."
+   ]
+  },
+  "base.+button-rule-get": {
+   "tips": [
+    "Returns bound=false and target=null when the button field has no binding.",
+    "When target.type is workflow, target.id is a public wkf ID suitable for `base.+workflow-get`, `base.+workflow-enable`, and `base.+button-rule-bind`.",
+    "Use this after `base.+button-rule-bind` before enabling a newly created workflow."
+   ]
+  },
+  "base.+button-rule-unbind": {
+   "tips": [
+    "Unbind removes only the ButtonRule relation; it does not delete the field or workflow.",
+    "Repeat unbind is safe and should leave the button field with bound=false.",
+    "Use `base.+button-rule-get` after unbind when the agent needs readback evidence."
+   ]
+  },
+  "base.+dashboard-arrange": {
+   "tips": [
+    "Server-side smart layout is not deterministic or position-specific; use only when the user asks to arrange or beautify a dashboard, or to tidy up a dashboard created from scratch in this session.",
+    "For exact placement, set `position` on `base.+dashboard-block-create` / `base.+dashboard-block-update` instead; do not run this command as a substitute for coordinates the user asked for."
+   ]
+  },
+  "base.+dashboard-block-create": {
+   "tips": [
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\"）",
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Revenue\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":2}}\"）",
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Satisfaction NPS\"，type=\"nps\"，data_config=\"{\\\"table_name\\\":\\\"Survey\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Score\\\",\\\"mode\\\":\\\"integrated\\\"}],\\\"category_range\\\":[0,6,8,10]}\"）",
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Top Owners\"，type=\"ranking\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Owner\\\"}],\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\"）",
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Dashboard Note\"，type=\"text\"，data_config=\"{\\\"text\\\":\\\"# Sales Dashboard\\\"}\"）",
+    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\"，position=\"{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\"）",
+    "Before creating data-backed blocks, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
+    "data_config uses table and field names, not table_id or field_id.",
+    "Read lark-base-dashboard-block-config.md as the SSOT for chart templates, filters, metric rules, and type-specific fields; do not invent data_config from natural language.",
+    "`position` is optional precise layout in a 12-col grid; omit it to let the server auto-layout. Coordinate values are not validated locally; the server auto-arranges out-of-range or overlapping positions. To re-tidy an existing dashboard use `base.+dashboard-arrange` instead.",
+    "For funnel/stage charts backed by ordered helper data, set the intended group_by.sort in the initial create request; do not create first and then issue a second update just to fix sorting.",
+    "Record the returned block_id; block update/delete/get-data commands need it.",
+    "Create dashboard blocks sequentially; do not parallelize multiple block creates for the same dashboard."
+   ]
+  },
+  "base.+dashboard-block-delete": {
+   "tips": [
+    "`base.+dashboard-block-delete`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"）",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+dashboard-block-get": {
+   "tips": [
+    "`base.+dashboard-block-get`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"）",
+    "Use this command for block metadata such as name, type, layout, and data_config.",
+    "Text block content is stored in data_config.text; include it when the user asks for all dashboard content.",
+    "Use `base.+dashboard-block-get-data` when you need the computed chart result instead of metadata."
+   ]
+  },
+  "base.+dashboard-block-get-data": {
+   "tips": [
+    "`base.+dashboard-block-get-data`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "This command does not need `dashboard_id`.",
+    "Use `base.+dashboard-block-get` first when you need block metadata like name, type, or data_config.",
+    "This command returns computed chart protocol JSON directly, not wrapped block metadata.",
+    "For a complete dashboard export, read text blocks with `base.+dashboard-block-get`; their content is in data_config.text.",
+    "If a chart type does not support computed data, inspect its data_config with `base.+dashboard-block-get`, then use `base.+data-query` with the same real table, dimensions, measures, and filters; do not omit the block or guess values."
+   ]
+  },
+  "base.+dashboard-block-list": {
+   "tips": [
+    "`base.+dashboard-block-list`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"）",
+    "Use returned block_id and type values for `base.+dashboard-block-get`/update/delete/get-data.",
+    "For a complete dashboard, use `page_size` 100; while has_more=true, pass the returned page_token to `page_token` and continue until has_more=false."
+   ]
+  },
+  "base.+dashboard-block-update": {
+   "tips": [
+    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，name=\"Total Sales\"）",
+    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\"）",
+    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":0}}\"）",
+    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，position=\"{\\\"x\\\":6,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\"）",
+    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<ranking_block_id>\"，data_config=\"{\\\"limit_size\\\":20}\"）",
+    "Read lark-base-dashboard-block-config.md as the SSOT for data_config templates, filters, metric rules, and type-specific fields; do not invent data_config from natural language.",
+    "Use `base.+dashboard-block-get` first to inspect the current data_config before replacing nested values.",
+    "Block type cannot be changed; delete and recreate the block to change chart type.",
+    "data_config update merges top-level keys; each provided key is normally replaced as a whole, except number_format, whose subfields merge server-side.",
+    "`position` is optional precise layout in a 12-col grid; omit it to leave the current layout unchanged. Coordinate values are not validated locally; the server auto-arranges out-of-range or overlapping positions. To re-tidy an existing dashboard use `base.+dashboard-arrange` instead."
+   ]
+  },
+  "base.+dashboard-create": {
+   "tips": [
+    "Record the returned dashboard_id; dashboard block create/get/update/delete/arrange commands need it."
+   ]
+  },
+  "base.+dashboard-delete": {
+   "tips": [
+    "`base.+dashboard-delete`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"）",
+    "Deleting a dashboard also deletes its blocks and cannot be recovered.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+dashboard-get": {
+   "tips": [
+    "Use `base.+dashboard-block-list` or `base.+dashboard-block-get` when you need block-level details."
+   ]
+  },
+  "base.+dashboard-list": {
+   "tips": [
+    "Use returned dashboard_id values for `base.+dashboard-get`, `base.+dashboard-block-list`, and `base.+dashboard-block-create`."
+   ]
+  },
+  "base.+dashboard-share-update": {
+   "tips": [
+    "Boolean settings use PATCH semantics: pass `show_source=false` to explicitly turn it off.",
+    "Update exactly one field per invocation; run separate commands to change multiple share fields."
+   ]
+  },
+  "base.+data-query": {
+   "tips": [
+    "Read lark-base-record-query-and-analysis-sop.md before using this command; use `base.+data-query` only when that SOP selects the Cloud aggregation path.",
+    "After the SOP selects `base.+data-query`, read lark-base-data-query.md for its fewshots and DSL contract.",
+    "`dimensions` and `measures` cannot both be empty."
+   ]
+  },
+  "base.+field-create": {
+   "tips": [
+    "Example text: `base.+field-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，json={\"name\": \"Status\", \"type\": \"text\"}）",
+    "Example select: `base.+field-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]}）",
+    "`base.+field-create` defines storage schema only: choose a documented field type from explicit stored-value requirements and the user's semantics. Treat the field name or business purpose only as a clue to confirm; do not use it to invent derived behavior. Use style only to format the chosen type.",
+    "For explicitly requested derived, automatic, synchronized, or backfilled behavior, use documented formula, lookup, link, workflow, or automation only. If unsupported, do not probe code/web/OpenAPI, create a storage placeholder, or claim completion; report the boundary and alternatives.",
+    "Agent hint: for multiple fields in one table, prefer one array; array items are created sequentially.",
+    "For generated arrays, prefer `json` @file or an argv-safe subprocess call; do not double-escape JSON inside shell command substitution.",
+    "For large arrays, bound successful stdout with jq（网关不提供） 'if .ok then (.data | {created,total,field_get_recommended,next_step,verification_hint}) else . end'; this preserves the full partial-failure envelope. Omit the projection when individual field IDs are needed.",
+    "On successful simple fields, next_step:done means stop: do not list/get fields unless readback is explicitly requested; if needed, filter `base.+field-list` with jq（网关不提供） instead of printing every field."
+   ]
+  },
+  "base.+field-delete": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example: `base.+field-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"）"
+   ]
+  },
+  "base.+field-extension-get": {
+   "tips": [
+    "Example: `base.+field-extension-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"）",
+    "Returns current_extension; null means the field has no recognizable extension configuration."
+   ]
+  },
+  "base.+field-extension-update": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example update: `base.+field-extension-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，json={\"extension_id\": \"builtin_llm_completion\", \"inputs\": {\"prompt\": [{\"type\": \"text\", \"text\": \"Summarize \"}, {\"type\": \"field_ref\", \"field\": \"Description\"}]}}）",
+    "Example clear: `base.+field-extension-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，json={}）",
+    "Read lark-base-field-extension.md before constructing builtin_llm_completion prompt JSON."
+   ]
+  },
+  "base.+field-extension-update-cells": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example column: `base.+field-extension-update-cells`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，type=\"column\"，view_id=\"<view_id>\"）",
+    "Example row: `base.+field-extension-update-cells`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，type=\"row\"，record_id=[\"<record_id_1>\", \"<record_id_2>\"]）",
+    "Column updates may touch every visible record in the selected view; row updates must pass explicit record IDs."
+   ]
+  },
+  "base.+field-get": {
+   "tips": [
+    "Example: `base.+field-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"）",
+    "field-id accepts a field ID (fld...) or the field name from the current table.",
+    "Returns full field configuration; use it as the baseline before `base.+field-update`."
+   ]
+  },
+  "base.+field-search-options": {
+   "tips": [
+    "Example: `base.+field-search-options`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，keyword=\"Do\"）",
+    "Use only for select fields, whether multiple is false or true."
+   ]
+  },
+  "base.+field-update": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example text: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，json={\"name\": \"Status\", \"type\": \"text\"}）",
+    "Example select: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]}）",
+    "Example auto_number update: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"编号\"，json={\"name\": \"编号\", \"type\": \"auto_number\", \"style\": {\"rules\": [{\"type\": \"text\", \"text\": \"TASK-\"}, {\"type\": \"created_time\", \"date_format\": \"yyyyMM\"}, {\"type\": \"text\", \"text\": \"-\"}, {\"type\": \"incremental_number\", \"length\": 4}]}}）",
+    "Update uses full field-definition PUT semantics. Read the current field first with `base.+field-get`, then send the target state.",
+    "When `json`.type is \"auto_number\", updating the numbering rules also reapplies them to existing numbers; just submit the target field definition and do not add extra low-level parameters.",
+    "Type conversion is allowlist-based: only use CLI for safe conversions; otherwise migrate through a new field, or ask the user to finish high-risk conversions in the web UI.",
+    "Formula and lookup updates require reading the corresponding guide first.",
+    "Agent hint: use the `base` 领域 skill's field-update guide for JSON shape, type-conversion rules, and limits."
+   ]
+  },
+  "base.+form-create": {
+   "tips": [
+    "Record the returned form_id; form question create/list/update/delete commands need it."
+   ]
+  },
+  "base.+form-delete": {
+   "tips": [
+    "Use `base.+form-list` or `base.+form-get` first when the form target is ambiguous.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+form-questions-create": {
+   "tips": [
+    "If the form may already contain questions and has not been checked, run `base.+form-questions-list` for the same `base_token`, `table_id`, and `form_id`. A verified empty form can create directly.",
+    "New field questions create fields in the form's table; question IDs are field IDs. Use use_existing_field=true with field_id to add an existing field without creating another field.",
+    "Unless the user explicitly requests a separate same-title question, update an existing title with `base.+form-questions-update` instead of creating a duplicate."
+   ]
+  },
+  "base.+form-questions-delete": {
+   "tips": [
+    "Run `base.+form-questions-list` first and use returned question IDs; question IDs are field IDs.",
+    "Default behavior is destructive: it deletes the underlying fields and all record data in those fields.",
+    "Use `keep_field` when you only want to remove questions from the form while preserving fields and data; those fields can be added back with `base.+form-questions-create` using use_existing_field=true and field_id.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+form-questions-list": {
+   "tips": [
+    "Use returned question id values for `base.+form-questions-update` and `base.+form-questions-delete`."
+   ]
+  },
+  "base.+form-questions-update": {
+   "tips": [
+    "Update uses full question overwrite semantics, not a patch.",
+    "Run `base.+form-questions-list` first and include existing title/description/required/option_display_mode/visible_rule values you want to keep.",
+    "Omitted fields reset to defaults; empty strings, null, and empty arrays are written as empty/clear when accepted by the API."
+   ]
+  },
+  "base.+form-share-update": {
+   "tips": [
+    "Boolean settings use PATCH semantics: pass `allow_anonymous=false` or another boolean flag with =false to explicitly turn it off.",
+    "`allow_anonymous` controls submitter identity and `require_login` controls sign-in; run separate update commands to change both settings.",
+    "Update exactly one field per invocation; run separate commands to change multiple share fields."
+   ]
+  },
+  "base.+form-submit": {
+   "tips": [
+    "Example (no attachments): `share_token` shrXXXX `json` '{\"fields\":{\"Service Rating\":5,\"Review\":\"Good service\"}}'",
+    "Example (with attachments): `share_token` shrXXXX `base_token` basXXX `json` '{\"fields\":{\"Service Rating\":5},\"attachments\":{\"Attachment\":[\"./report.pdf\"]}}'",
+    "\"fields\" maps field names to cell values; \"attachments\" maps field names to local file path arrays — the CLI uploads them in parallel and merges them into the submission.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+record-batch-create": {
+   "tips": [
+    "Happy path field: create_records is an array of independent record field maps.",
+    "Example: {\"create_records\":[{\"Name\":\"Task A\",\"Status\":[\"Todo\"]},{\"Name\":\"Task B\",\"Score\":20}]}.",
+    "Before writing, use `base.+field-list` to confirm real writable fields; do not write system fields, formula, lookup, or attachment fields as normal CellValue.",
+    "Batch create supports max 200 records per call.",
+    "After batch-creating known helper rows, use the returned record IDs and your submitted rows; do not immediately `base.+record-list` the same table unless you need server-normalized formula/lookup values or failure diagnosis.",
+    "CellValue happy path: text/phone/url -> \"text\"; number/currency/percent/rating -> 12.5; select -> [\"Todo\"] or [\"Tag A\",\"Tag B\"] (when multiple=false, the array can contain only one option); datetime -> \"2026-03-24 10:00\"; checkbox -> true/false.",
+    "ID-based CellValue: user/group/link fields use arrays like [{\"id\":\"ou_xxx\"}], [{\"id\":\"oc_xxx\"}], [{\"id\":\"rec_xxx\"}]; location uses {\"lng\":116.397428,\"lat\":39.90923}; null clears a cell when allowed.",
+    "User and group fields always use arrays; when multiple=false, the array can contain only one item.",
+    "Do not guess user/chat/linked-record IDs or location coordinates; resolve them first with the relevant contact/im/record lookup flow."
+   ]
+  },
+  "base.+record-batch-update": {
+   "tips": [
+    "Happy path field: update_records maps each record ID to its own field map.",
+    "Example: {\"update_records\":{\"recA\":{\"Status\":[\"Done\"]},\"recB\":{\"Score\":20}}}.",
+    "The response contains only optional ignored_fields and does not check whether record IDs exist; read records back when confirmation is required.",
+    "Before writing, use `base.+field-list` to confirm real writable fields; do not write system fields, formula, lookup, or attachment fields as normal CellValue.",
+    "Batch update supports max 200 records per call.",
+    "CellValue happy path: text/phone/url -> \"text\"; number/currency/percent/rating -> 12.5; select -> [\"Todo\"] or [\"Tag A\",\"Tag B\"] (when multiple=false, the array can contain only one option); datetime -> \"2026-03-24 10:00\"; checkbox -> true/false.",
+    "ID-based CellValue: user/group/link fields use arrays like [{\"id\":\"ou_xxx\"}], [{\"id\":\"oc_xxx\"}], [{\"id\":\"rec_xxx\"}]; location uses {\"lng\":116.397428,\"lat\":39.90923}; null clears a cell when allowed.",
+    "User and group fields always use arrays; when multiple=false, the array can contain only one item.",
+    "Do not guess user/chat/linked-record IDs or location coordinates; resolve them first with the relevant contact/im/record lookup flow."
+   ]
+  },
+  "base.+record-delete": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example: `base.+record-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id_1>\", \"<record_id_2>\"]）"
+   ]
+  },
+  "base.+record-download-attachment": {
+   "tips": [
+    "Example: `base.+record-download-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，file_token=[\"<file_token>\"]，output=\"./downloads/\"）",
+    "Omit `file_token` to download every attachment in the record.",
+    "Base attachments should be downloaded with this command; other download commands may fail for Base attachment files.",
+    "With one `file_token`, `output` may be a file path or directory; with multiple or omitted `file_token` values, `output` must be an existing directory."
+   ]
+  },
+  "base.+record-get": {
+   "tips": [
+    "Example: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]）",
+    "Example with projection: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"rec_001\", \"rec_002\"]，field_id=[\"Name\", \"Status\"]）",
+    "Example for analysis input: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]，field_id=[\"<field>\"]，output=\"./record.ndjson\"）",
+    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
+    "Use `field_id` as a projection boundary to avoid loading large cell values into context when they are not needed.",
+    "Use `base.+record-get` when record_id is already known; otherwise use `base.+record-search` or `base.+record-list`."
+   ]
+  },
+  "base.+record-history-list": {
+   "tips": [
+    "Example: `base.+record-history-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"）",
+    "This reads one record's history only; it is not a table-wide audit scan."
+   ]
+  },
+  "base.+record-list": {
+   "tips": [
+    "Example: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，limit=50）",
+    "Example with projection: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=[\"Name\", \"Status\"]，limit=50）",
+    "Example for analysis: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=[\"Name\", \"Status\"]，output=\"./records.ndjson\"）",
+    "Text equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"==\",\"Launch plan\"`}'",
+    "Text contains/like filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"intersects\",\"urgent\"`}'",
+    "Number equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Score\",\"==\",95`}'",
+    "Date equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Due Date\",\"==\",\"ExactDate(2026-06-02)\"`}'",
+    "Option intersection filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Tags\",\"intersects\",[\"P0\",\"Blocked\"`]}'",
+    "Sort priority follows `sort_json` array order: `sort_json` '[{\"field\":\"Updated\",\"desc\":true},{\"field\":\"Title\",\"desc\":false}]'",
+    "Query priority: `filter_json` overrides `view_id`'s view filter JSON; `sort_json` overrides `view_id`'s view sort config.",
+    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
+    "Use `field_id` repeatedly to keep output small and aligned with the task."
+   ]
+  },
+  "base.+record-remove-attachment": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example: `base.+record-remove-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，field_id=\"<attachment_field_id>\"，file_token=[\"<file_token>\"]）",
+    "Repeat `file_token` to remove multiple attachments from the same cell in one call.",
+    "This is a high-risk write command and requires 管理员预授权（high_risk_operations）."
+   ]
+  },
+  "base.+record-search": {
+   "tips": [
+    "Happy path fields: keyword (string), search_fields (1-20 field names/ids), select_fields (optional projection, <=50), view_id (optional), offset (default 0), limit (default 10 inline or 2000 for ndjson; inline range 1-200, ndjson range 1-2000).",
+    "JSON constraints: keyword length >=1; search_fields length 1-20; select_fields length <=50; offset >=0 defaults to 0; omitted limit uses 10 inline or 2000 for ndjson.",
+    "view_id scopes search to records in that view; when select_fields is omitted, returned fields follow that view's visible fields.",
+    "Example: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，field_id=[\"Name\", \"Status\"]，limit=20）",
+    "Example with filter/sort JSON: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，filter_json={\"file_id\": \"<file_id>\"}，sort_json=[{\"field\": \"Updated\", \"desc\": true}]）",
+    "Example for analysis: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，field_id=[\"Name\", \"Status\"]，output=\"./records.ndjson\"）",
+    "Text equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"==\",\"Launch plan\"`}'",
+    "Text contains/like filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"intersects\",\"urgent\"`}'",
+    "Option intersection filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Tags\",\"intersects\",[\"P0\",\"Blocked\"`]}'",
+    "Sort priority follows `sort_json` array order.",
+    "Query priority: `filter_json` overrides `view_id`'s view filter JSON; `sort_json` overrides `view_id`'s view sort config.",
+    "Use `base.+record-search` flag mode for keyword matching; combine `filter_json` or `sort_json` to narrow or order matches. For filter/sort-only reads, use `base.+record-list`.",
+    "Use `json` only when you need to pass the full search body directly.",
+    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset."
+   ]
+  },
+  "base.+record-share-link-create": {
+   "tips": [
+    "Example: `base.+record-share-link-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]）",
+    "Max 100 record IDs per call; duplicate IDs are ignored.",
+    "Output record_share_links maps record_id to URL; records without permission or missing records may be absent."
+   ]
+  },
+  "base.+record-upload-attachment": {
+   "tips": [
+    "Example: `base.+record-upload-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，field_id=\"<attachment_field_id>\"，file=[{\"file_id\": \"<file_id>\"}]）",
+    "Repeat `file` to append multiple attachments: `file` ./report.pdf `file` ./screenshot.png",
+    "Reuse returned file_token values for download/remove"
+   ]
+  },
+  "base.+record-upsert": {
+   "tips": [
+    "Happy path JSON is a top-level field map: each key is a real field name or field ID, each value is that field's CellValue.",
+    "Without `record_id` this creates a record; with `record_id` this updates that record. It does not auto-upsert by business key.",
+    "Before writing, use `base.+field-list` to confirm real writable fields; do not write system fields, formula, lookup, or attachment fields as normal CellValue.",
+    "Sub-record/child-record path: when a one-way/two-way link field represents hierarchy, create a normal record and set that link field to a parent record reference array, e.g. {\"Parent Link\":[{\"id\":\"rec_xxx\"}]}; do not look for parent_record_id or a separate child-record API.",
+    "CellValue happy path: text/phone/url -> \"text\"; number/currency/percent/rating -> 12.5; select -> [\"Todo\"] or [\"Tag A\",\"Tag B\"] (when multiple=false, the array can contain only one option); datetime -> \"2026-03-24 10:00\"; checkbox -> true/false.",
+    "ID-based CellValue: user/group/link fields use arrays like [{\"id\":\"ou_xxx\"}], [{\"id\":\"oc_xxx\"}], [{\"id\":\"rec_xxx\"}]; location uses {\"lng\":116.397428,\"lat\":39.90923}; null clears a cell when allowed.",
+    "User and group fields always use arrays; when multiple=false, the array can contain only one item.",
+    "Do not guess user/chat/linked-record IDs or location coordinates; resolve them first with the relevant contact/im/record lookup flow."
+   ]
+  },
+  "base.+role-create": {
+   "tips": [
+    "Requires advanced permissions to be enabled and the caller to be a Base admin.",
+    "Use lark-base-advanced-permission-and-role.md as the module entry and lark-base-role-config.md as the role permission schema.",
+    "Create supports custom_role only."
+   ]
+  },
+  "base.+role-delete": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Requires advanced permissions to be enabled and the caller to be a Base admin.",
+    "Only custom roles can be deleted; system roles cannot be deleted.",
+    "Use `base.+role-get` first if the role target is ambiguous, then pass 管理员预授权（high_risk_operations） to confirm deletion."
+   ]
+  },
+  "base.+role-get": {
+   "tips": [
+    "Requires advanced permissions to be enabled and the caller to be a Base admin.",
+    "Use before `base.+role-update` to inspect the current full permission config."
+   ]
+  },
+  "base.+role-list": {
+   "tips": [
+    "Requires advanced permissions to be enabled and the caller to be a Base admin.",
+    "Returns role summaries; use `base.+role-get` for the full permission config."
+   ]
+  },
+  "base.+role-update": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Requires advanced permissions to be enabled and the caller to be a Base admin.",
+    "Update is a delta merge: only changed fields are updated, others remain unchanged.",
+    "Use lark-base-advanced-permission-and-role.md as the module entry and lark-base-role-config.md as the role permission schema."
+   ]
+  },
+  "base.+table-copy": {
+   "tips": [
+    "Example: `base.+table-copy`（base_token=\"<base_token>\"，table_id=\"Tasks\"，name=\"Tasks copy\"）",
+    "table-id accepts a table ID or name in the current Base.",
+    "The default copies schema only; use `range` all only when records must also be copied.",
+    "Use `wait` with `range` all to wait locally; otherwise continue with the returned next_command."
+   ]
+  },
+  "base.+table-copy-status": {
+   "tips": [
+    "Use the opaque task_id returned by `base.+table-copy`; this command queries status once.",
+    "If state is init or process, run the returned next_command later."
+   ]
+  },
+  "base.+table-create": {
+   "tips": [
+    "Before using `fields`, read lark-base-field-schema.md or rely on the same field JSON shape used by `base.+field-create`; do not invent field properties.",
+    "The first `fields` item becomes the primary field."
+   ]
+  },
+  "base.+table-delete": {
+   "tips": [
+    "Example: `base.+table-delete`（base_token=\"<base_token>\"，table_id=\"Old Tasks\"）",
+    "table-id accepts a table ID (tbl...) or the table name in the current Base.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+   ]
+  },
+  "base.+table-get": {
+   "tips": [
+    "Example: `base.+table-get`（base_token=\"<base_token>\"，table_id=\"Tasks\"）",
+    "table-id accepts a table ID (tbl...) or the table name in the current Base."
+   ]
+  },
+  "base.+template-categories": {
+   "tips": [
+    "Use this first when the user asks to browse template categories."
+   ]
+  },
+  "base.+template-list": {
+   "tips": [
+    "Use `category_key` with a key returned by `base.+template-categories`; omit it to read the recommended category.",
+    "Returned template.token is the Base template token. To create from it, run `base.+base-copy` `base_token` <token>."
+   ]
+  },
+  "base.+template-search": {
+   "tips": [
+    "Use this when the user wants to create a new Base and has no owned/recent Base anchor.",
+    "Do not use `drive.+search` for marketplace templates; drive search only finds user-accessible Drive/Wiki objects.",
+    "Returned template.token is the Base template token. To create from it, run `base.+base-copy` `base_token` <token>."
+   ]
+  },
+  "base.+url-resolve": {
+   "tips": [
+    "Example: `base.+url-resolve`（url=\"https://example.larkoffice.com/base/<base_token>?table=<table_id>&view=<view_id>\"）",
+    "BaseApp example: `base.+url-resolve`（url=\"https://example.larkoffice.com/app/<app_token>?pre_pathname=/base/workspace/<workspace_token>&pageId=<page_id>\"）",
+    "Only URLs are accepted. For Base titles or keywords, use `base.+title-resolve`（网关不提供：仅支持用户身份） --title."
+   ]
+  },
+  "base.+view-create": {
+   "tips": [
+    "Set the view name and type in `json`; `name`, --view-name, and --view-type are not supported.",
+    "Minimal: `json` '{\"name\":\"Main\"}' creates a grid view.",
+    "Read lark-base-view.md for view selection, supported configurations, and lifecycle examples.",
+    "Do not pass form as a view type; form views are managed through form commands.",
+    "Use `base.+view-set-visible-fields` after creation when the user needs a specific field order or visibility."
+   ]
+  },
+  "base.+view-delete": {
+   "tips": [
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "Example: `base.+view-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，view_id=\"Old View\"）"
+   ]
+  },
+  "base.+view-set-card": {
+   "tips": [
+    "Supported view types: gallery, kanban.",
+    "cover_field should be an attachment field id/name, or null to clear.",
+    "Use `base.+view-get-card` first when updating an existing card view configuration."
+   ]
+  },
+  "base.+view-set-filter": {
+   "tips": [
+    "Agent hint: use the `base` 领域 skill's view-set-filter guide for usage and limits."
+   ]
+  },
+  "base.+view-set-group": {
+   "tips": [
+    "Supported view types: grid, kanban, gantt.",
+    "Use a JSON object, not a bare array; grouping fields must be supported by the current view.",
+    "group_config supports max 3 group items.",
+    "Use `base.+view-get-group` first when modifying an existing grouping configuration."
+   ]
+  },
+  "base.+view-set-sort": {
+   "tips": [
+    "Supported view types: grid, kanban, gallery, gantt.",
+    "Use a JSON object, not a bare array; sorting fields must be supported by the current view.",
+    "sort_config supports max 10 sort items.",
+    "Use `base.+view-get-sort` first when modifying an existing sort configuration."
+   ]
+  },
+  "base.+view-set-timebar": {
+   "tips": [
+    "Supported view types: calendar, gantt.",
+    "start_time, end_time, and title are required; use date/time fields for start_time and end_time.",
+    "Use `base.+view-get-timebar` first when modifying an existing timebar configuration."
+   ]
+  },
+  "base.+view-set-visible-fields": {
+   "tips": [
+    "Supported view types: grid, kanban, gallery, calendar, gantt and form.",
+    "For form views, use field IDs.",
+    "Use a JSON object, not a bare array; primary field may be forced to the first position by the API.",
+    "visible_fields controls both visibility and order; include every field that should remain visible."
+   ]
+  },
+  "base.+workflow-create": {
+   "tips": [
+    "`base.+workflow-create`（base_token=\"<base_token>\"，json=\"<内容>\"）",
+    "client_token is required and should be unique per create request.",
+    "New workflows are created disabled; call `base.+workflow-enable` after creation when the user wants it active.",
+    "Before constructing steps, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
+    "Step ids must be unique, and every next/children link must reference an existing step id.",
+    "Use lark-base-workflow.md as the module entry and lark-base-workflow-schema.md as the steps JSON SSOT; do not invent steps[].type/data/next/children from natural language."
+   ]
+  },
+  "base.+workflow-disable": {
+   "tips": [
+    "workflow-id must start with wkf; do not pass a tbl table ID from the same URL.",
+    "Disable only changes workflow state; it does not delete the workflow or its steps."
+   ]
+  },
+  "base.+workflow-enable": {
+   "tips": [
+    "workflow-id must start with wkf; do not pass a tbl table ID from the same URL.",
+    "Enable only changes workflow state; it does not modify steps.",
+    "New workflows are created disabled; enable after creation only when the user wants it active."
+   ]
+  },
+  "base.+workflow-get": {
+   "tips": [
+    "workflow-id must start with wkf; use `base.+workflow-list` if the ID is unknown.",
+    "steps may be an empty array; that is valid for an unconfigured workflow.",
+    "Use `base.+workflow-get` before `base.+workflow-update`, then edit the returned definition and keep fields you do not intend to change.",
+    "Read lark-base-workflow-schema.md when interpreting or reusing returned steps."
+   ]
+  },
+  "base.+workflow-list": {
+   "tips": [
+    "Returns workflow_id values with wkf prefix; pass those IDs to `base.+workflow-get`/enable/disable/update.",
+    "This shortcut auto-paginates and returns all matched workflows."
+   ]
+  },
+  "base.+workflow-update": {
+   "tips": [
+    "`base.+workflow-update`（base_token=\"<base_token>\"，workflow_id=\"<workflow_id>\"，json=\"<内容>\"）",
+    "PUT uses full replacement semantics; omitting steps clears the existing workflow steps.",
+    "Use `base.+workflow-get` first, then edit the returned definition and keep title/status/steps fields you do not intend to change.",
+    "workflow-id must start with wkf; do not pass a tbl table ID.",
+    "Step ids must be unique, and every next/children link must reference an existing step id.",
+    "Updating does not enable or disable a workflow; call `base.+workflow-enable` or `base.+workflow-disable` separately.",
+    "Use lark-base-workflow.md as the module entry and lark-base-workflow-schema.md as the steps JSON SSOT; do not invent steps[].type/data/next/children from natural language."
+   ]
+  },
+  "base.+workspace-create": {
+   "tips": [
+    "`base.+workspace-create`（name=\"Growth team\"）",
+    "Record the returned workspace_token and url; `base.+workspace-entity-list`, `base.+workspace-move-in`, and `base.+app-create` need the token."
+   ]
+  },
+  "base.+workspace-entity-list": {
+   "tips": [
+    "`base.+workspace-entity-list`（workspace_token=\"<workspace_token>\"，type=\"baseapp\"）"
+   ]
+  },
+  "base.+workspace-move-in": {
+   "tips": [
+    "`base.+workspace-move-in`（workspace_token=\"<workspace_token>\"，entity_token=\"<base_token>\"）",
+    "This moves the entity into the workspace tree; it does not create the Base or App.",
+    "The current OpenAPI does not accept entity_type or ordering fields for move-in."
+   ]
+  },
+  "calendar.+delete": {
+   "tips": [
+    "Deleting an entire recurring series also removes every exception; pass `apply_to=all` to confirm intent.",
+    "Deleting `this-and-following` truncates the master (UNTIL = midnight of the pivot day in the event's timezone) and removes exceptions on/after that instance."
+   ]
+  },
+  "calendar.+freebusy": {
+   "tips": [
+    "`type=busy` merges adjacent busy intervals, so item count != event count. For events/rsvp use `type=raw_busy` (own or others' calendars); for own attendees/details use `calendar.+get` / `calendar.+list-attendees`.",
+    "Multi-user scheduling raw view: use `type common_free min_duration <dur>` and let the CLI compute the intersection instead of merging by hand."
+   ]
+  },
+  "calendar.+transfer": {
+   "tips": [
+    "Transferring is irreversible and also moves meeting minutes, notes and attachments to the new organizer; pass 管理员预授权（high_risk_operations） to confirm.",
+    "Example: `calendar.+transfer`（event_id=\"<uid_originalTime>\"，to_user_id=\"ou_xxx\"）"
+   ]
+  },
+  "contact.+get-user": {
+   "avoid_when": [
+    "You don't have the user's id yet, or want to match by name/keyword → use `contact.+search-user`（网关不提供：仅支持用户身份）",
+    "Running as a user — `contact.+search-user`（网关不提供：仅支持用户身份） --user-ids covers by-id reads and more in one tool"
+   ],
+   "tips": [
+    "`user_id_type` must match the id you pass (default open_id)"
+   ],
+   "topics": [
+    "lark-contact-get-user"
+   ],
+   "use_when": [
+    "Fetch one user's profile by id, or your own with `user_id` omitted. Use it under bot identity — `contact.+search-user`（网关不提供：仅支持用户身份） is user-only."
+   ]
+  },
+  "docs.+create": {
+   "tips": [
+    "Match `doc_format` to `content`: XML is the default for rich DocxXML; use `doc_format=markdown` for Markdown input.",
+    "Before authoring `content`, read the matching XML or Markdown guide under Related skills when available, unless already read. For XML, use only documented DocxXML tags.",
+    "For multiline `content`, pass a JSON string or `{\"file_id\": …}` to avoid shell-escaping damage."
+   ],
+   "topics": [
+    "lark-doc-create-workflow",
+    "lark-doc-create",
+    "lark-doc-xml",
+    "lark-doc-md"
+   ],
+   "use_when": [
+    "Create a new Lark document from DocxXML or Markdown, optionally in a folder or Wiki node."
+   ]
+  },
+  "docs.+fetch": {
+   "topics": [
+    "lark-doc-fetch"
+   ],
+   "use_when": [
+    "Read an entire Lark document, or limit the result to an outline, section, block range, or keyword match."
+   ]
+  },
+  "docs.+history-list": {
+   "topics": [
+    "lark-doc-history"
+   ]
+  },
+  "docs.+history-revert": {
+   "prerequisites": [
+    "`history_version_id` from `docs.+history-list`"
+   ],
+   "related": [
+    "docs.+history-list"
+   ],
+   "topics": [
+    "lark-doc-history"
+   ]
+  },
+  "docs.+history-revert-status": {
+   "prerequisites": [
+    "`task_id` from `docs.+history-revert`"
+   ],
+   "related": [
+    "docs.+history-revert"
+   ],
+   "topics": [
+    "lark-doc-history"
+   ]
+  },
+  "docs.+script": {
+   "tips": [
+    "parse preflights draft resources when a Presentation Decision is loaded, repairs common malformed XML in memory, and returns the text and block profile",
+    "for parse results, ok reports command execution and data.assessment.status reports whether all available presentation and resource checks passed"
+   ]
+  },
+  "docs.+update": {
+   "tips": [
+    "Prefer `str_replace` or `block_*` commands for targeted edits. Use `overwrite` only when replacing the entire document is intended; it can discard unrelated rich content.",
+    "Before a `block_*` edit, fetch the target with `docs.+fetch`（detail=\"with-ids\"） and a narrow `scope`; refetch after structural changes before reusing block IDs.",
+    "Before authoring `content`, read the matching XML or Markdown guide under Related skills when available, unless already read. For XML, use only documented DocxXML tags.",
+    "Match `doc_format` to `content`; for multiline content, pass a JSON string or `{\"file_id\": …}`."
+   ],
+   "topics": [
+    "lark-doc-update",
+    "lark-doc-xml",
+    "lark-doc-md"
+   ],
+   "use_when": [
+    "Apply targeted text or block edits, append content, or deliberately replace an entire Lark document."
+   ]
+  },
+  "drive.+add-reply": {
+   "tips": [
+    "`content` uses the same JSON as `drive.+add-comment`: '[{\"type\":\"text\",\"text\":\"正文\"}]' (types: text, mention_user, link).",
+    "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
+    "Whole-document comments (is_whole=true) and solved comments (is_solved=true) do not accept replies; check the comment state via `drive.+list-comments` first."
+   ]
+  },
+  "drive.+batch-query-comments": {
+   "tips": [
+    "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
+    "`comment_ids` accepts comma-separated values and repeated flags, up to 100 IDs per call.",
+    "`need_relation` returns the docx comment anchor (items[].relation with the block position); see the `drive` 领域 comment-location guide.",
+    "Wiki URLs/tokens are resolved to the underlying document automatically."
+   ]
+  },
+  "drive.+copy": {
+   "tips": [
+    "The source type must match the real file type; the API rejects mismatches.",
+    "A wiki URL or `token` with `type` wiki is resolved through wiki node_by_token, then its underlying Drive resource is copied.",
+    "Use `extra=target_type=docx` with a legacy doc source to create the copy as a new-version docx.",
+    "`folder_token=my_space` resolves the caller's My Space root folder automatically; resolution needs the drive:drive.metadata:readonly (or drive:drive) scope.",
+    "In bot mode, the CLI also tries to grant the current CLI user full_access on the new copy; the outcome is reported in the permission_grant output field."
+   ]
+  },
+  "drive.+create-folder": {
+   "tips": [
+    "Omit `folder_token` to create the folder in the caller's root folder."
+   ]
+  },
+  "drive.+delete-reply": {
+   "tips": [
+    "Reply IDs come from `drive.+list-comments` (items[].reply_list.replies[].reply_id).",
+    "Deletion is permanent; there is no undo or trash for comment replies.",
+    "Wiki URLs/tokens are resolved to the underlying document automatically."
+   ]
+  },
+  "drive.+list-replies": {
+   "tips": [
+    "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
+    "The root reply (the comment body itself) is the earliest-created reply: it is items[0] of the FIRST page only (no `page_token`); items[0] of later pages is a regular reply.",
+    "Wiki URLs/tokens are resolved to the underlying document automatically."
+   ]
+  },
+  "drive.+member-add": {
+   "tips": [
+    "Resource type is auto-inferred from URL paths; pass `type` when `token` is a bare token.",
+    "Supported `member_type` values: email, openid, unionid, openchat, opendepartmentid, groupid, appid, wikispaceid.",
+    "When `member_type=wikispaceid,` pass `member_kind` wiki_space_member, wiki_space_viewer, or wiki_space_editor.",
+    "`member_type` is required; if the ID prefix conflicts with `member_type` (e.g. ou_xxx with email), the command rejects it.",
+    "`perm` defaults to view (safest); use dry-run（网关不提供，改为先读取核对） first when granting edit or full_access.",
+    "For wiki nodes, `perm_type` defaults to container (current page and sub-pages), except `member_type=wikispaceid` where `member_kind` provides the wiki-space role."
+   ]
+  },
+  "drive.+member-list": {
+   "tips": [
+    "`token` accepts a Lark URL or bare token; pass `type` when using a bare token.",
+    "Use `type` folder for Drive folders.",
+    "`fields` is omitted by default; pass `fields` '*' or a comma-separated subset when extra collaborator fields are needed.",
+    "`perm_type` only applies to wiki nodes."
+   ]
+  },
+  "drive.+member-remove": {
+   "tips": [
+    "This command removes exactly one collaborator; run separate commands for multiple members.",
+    "Resource type is auto-inferred from URL paths; pass `type` when `token` is a bare token.",
+    "When `member_type=wikispaceid,` pass `member_kind` wiki_space_member, wiki_space_viewer, or wiki_space_editor.",
+    "For ordinary wiki collaborators, `perm_type` defaults to container; use single_page to remove only the current-page permission.",
+    "A successful response confirms that the removal request completed; it does not prove the permission previously existed."
+   ]
+  },
+  "drive.+permission-get-setting": {
+   "tips": [
+    "`token` accepts a Lark URL or bare token; pass `type` when using a bare token.",
+    "Use `type` folder for Drive folders. This shortcut reads the target's own permission settings; it does not recurse into child documents."
+   ]
+  },
+  "drive.+pull": {
+   "tips": [
+    "Only entries with type=file are downloaded; online docs (docx, sheet, bitable, mindnote, slides) and shortcuts are skipped.",
+    "Subfolders recurse and are reproduced as local directories under `local_dir`; missing parents are created automatically.",
+    "For repeat syncs, `if_exists=smart` is the recommended best-effort incremental mode: it compares local mtime with Drive modified_time and skips downloads when the local copy is already up to date.",
+    "Duplicate remote rel_path conflicts fail by default. Use `on_duplicate_remote=rename` to download duplicate files with stable hashed suffixes.",
+    "`delete_local` requires 管理员预授权（high_risk_operations）; without 管理员预授权（high_risk_operations） the command is rejected upfront so a stray flag never deletes anything."
+   ]
+  },
+  "drive.+push": {
+   "tips": [
+    "This is a file-level mirror: only type=file entries are uploaded, overwritten or deleted. Online docs (docx, sheet, bitable, mindnote, slides), shortcuts, and remote-only directories are never touched.",
+    "Local directory structure (including empty directories) is mirrored to Drive via create_folder; existing remote folders are reused.",
+    "For repeat syncs, `if_exists=smart` is a best-effort incremental mode: it compares local mtime with Drive modified_time and skips uploads when the remote copy is already up to date; otherwise it falls through to the same overwrite path as `if_exists=overwrite.`",
+    "Duplicate remote rel_path conflicts fail by default before upload, overwrite, or delete. Use `on_duplicate_remote=newest|oldest` only when the conflict is duplicate files and you explicitly want to target one.",
+    "Default `if_exists=skip` is the safe choice while the upload_all overwrite-version field is rolling out. Pass `if_exists=overwrite` to replace remote bytes; on tenants without the field it surfaces a structured api_error and the run exits non-zero. The same caveat applies when `if_exists=smart` decides the remote file is older and falls through to overwrite.",
+    "`delete_remote` requires 管理员预授权（high_risk_operations）; without 管理员预授权（high_risk_operations） the command is rejected upfront so a stray flag never deletes anything.",
+    "`delete_remote` 管理员预授权（high_risk_operations） also requires the space:document:delete scope. Validate runs a dynamic pre-flight check when the flag is on, so a missing grant fails the run before any upload — preventing a half-synced state where files were uploaded but the cleanup pass cannot delete.",
+    "Item-level failures (upload, overwrite, folder, delete) bump summary.failed and the run exits non-zero. If any upload or folder step fails, the `delete_remote` phase is skipped entirely so a partial upload never triggers remote deletion."
+   ]
+  },
+  "drive.+react-reply": {
+   "tips": [
+    "Reply IDs come from `drive.+list-replies` (items[].reply_id); reacting to the root reply reacts to the comment itself.",
+    "`emoji` is case-sensitive and validated locally against the platform reaction_type list (the server accepts and persists arbitrary strings as broken reactions); the full list is in the `drive` 领域 reactions guide.",
+    "Read reactions back via `need_reaction` on `drive.+list-replies` / `drive.+batch-query-comments`; entries with count=0 are leftovers of removed reactions — filter by count>0.",
+    "add and delete are idempotent: re-adding an existing reaction or deleting an absent one succeeds without change. delete only cancels the current identity's reaction."
+   ]
+  },
+  "drive.+resolve-comment": {
+   "tips": [
+    "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
+    "To reopen a solved comment, use `drive.+restore-comment`.",
+    "Back-to-back solved-state flips on the same comment can hit server rate limiting (HTTP 429); space out consecutive calls or retry after a short delay.",
+    "Wiki URLs/tokens are resolved to the underlying document automatically."
+   ]
+  },
+  "drive.+restore-comment": {
+   "tips": [
+    "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
+    "To mark a comment solved, use `drive.+resolve-comment`.",
+    "Back-to-back solved-state flips on the same comment can hit server rate limiting (HTTP 429); space out consecutive calls or retry after a short delay.",
+    "Wiki URLs/tokens are resolved to the underlying document automatically."
+   ]
+  },
+  "drive.+search": {
+   "tips": [
+    "Time flags accept relative (e.g. 7d, 1m, 1y), absolute (2026-04-01, RFC3339), or unix seconds.",
+    "my_edit_time and my_comment_time are hour-aggregated server-side; sub-hour inputs are snapped and a notice is printed to stderr.",
+    "Use `created_by_me` for \"docs I created\". Use `mine` for \"docs I own\" (owner semantic).",
+    "`folder_tokens` limits to doc-only search; `space_ids` limits to wiki-only. They cannot be combined."
+   ]
+  },
+  "drive.+status": {
+   "tips": [
+    "Only entries with type=file are compared; online docs (docx, sheet, bitable, mindnote, slides) and shortcuts are skipped.",
+    "Default detection=exact downloads files present on both sides and SHA-256 hashes them in memory; expect noticeable I/O on large folders.",
+    "Pass `quick` for the recommended fast preflight mode: it compares local mtime with Drive modified_time, skips remote downloads, and reports detection=quick as a best-effort diff."
+   ]
+  },
+  "drive.+sync": {
+   "tips": [
+    "Two-way sync: new remote files are pulled, new local files are pushed, and conflicts (both sides modified) are resolved by `on_conflict`.",
+    "Default `on_conflict=remote-wins` pulls the remote version when both sides changed a file. Use local-wins to push instead, keep-both to rename and keep both copies, or ask for interactive resolution.",
+    "Pass `quick` for faster best-effort diff detection using modified_time instead of SHA-256 hash (no remote file downloads needed during diffing).",
+    "Because `drive.+sync` acts on the diff, `quick` can still pull, overwrite, or rename files when timestamps differ even if file contents are actually unchanged.",
+    "Actual sync execution pre-flights download, upload, and folder-create scopes before listing or walking, so missing grants fail before any partial sync can start.",
+    "Only entries with type=file are synced; online docs (docx, sheet, bitable, mindnote, slides) and shortcuts are skipped."
+   ]
+  },
+  "drive.+update-reply": {
+   "tips": [
+    "`content` uses the same JSON as `drive.+add-comment`: '[{\"type\":\"text\",\"text\":\"正文\"}]' (types: text, mention_user, link).",
+    "The update replaces the whole reply content; there is no partial edit.",
+    "Reply IDs come from `drive.+list-replies` (items[].reply_id); updating a comment's root reply rewrites the comment body itself."
+   ]
+  },
+  "drive.+update-title": {
+   "tips": [
+    "`type` must match the real resource type; a mismatched type fails with 981003 not found, the same code an unknown token returns.",
+    "For a wiki node pass the node token from the /wiki/ URL with `type` wiki; the underlying document token is not accepted there. Renaming either side keeps node and document titles in sync.",
+    "For `type` file the title replaces the whole file name, extension included. By default the CLI reads the current name and appends its extension when the title has none, reporting it in the extension_appended output field; a title that changes the extension is rejected unless `on_extension_mismatch=allow.`",
+    "An empty title is rejected locally; the API would accept it and leave the resource with a blank title.",
+    "Renames are rate limited (99991400): serialize bulk renames instead of running them in parallel, and retry later with exponential backoff.",
+    "981004 forbidden means the identity lacks edit permission on the target, not a missing scope; the scope codes are 99991672 (app scope not applied) and 99991679 (user did not grant it)."
+   ]
+  },
+  "drive.+upload": {
+   "tips": [
+    "Omit both `folder_token` and `wiki_token` to upload into the caller's Drive root folder.",
+    "Use `wiki_token` <wiki_node_token> to upload under a wiki node; the shortcut maps this to parent_type=wiki automatically.",
+    "Pass `file_token` <file_token> to overwrite an existing Drive file in place; the shortcut forwards file_token to the upload API.",
+    "In bot mode, automatic full_access grant only applies to newly uploaded files; overwrite via `file_token` does not modify existing file permissions."
+   ]
+  },
+  "im.+chat-create": {
+   "avoid_when": [
+    "The chat already exists and only its name or description should change → use `im.+chat-update`."
+   ],
+   "examples": [
+    {
+     "arguments": {
+      "name": "My Group"
+     },
+     "description": "Create a private group with the configured identity",
+     "operation_id": "im.+chat-create"
+    }
+   ],
+   "related": [
+    "im.+chat-update"
+   ],
+   "topics": [
+    "lark-im-chat-create",
+    "lark-im-chat-identity"
+   ],
+   "use_when": [
+    "Use this when a new group or topic chat is needed. Choose the calling identity deliberately because it affects ownership and member visibility."
+   ]
+  },
+  "im.+chat-list": {
+   "avoid_when": [
+    "Looking up a group by name or member → use `im.+chat-search`."
+   ],
+   "examples": [
+    {
+     "arguments": {},
+     "description": "List joined group chats",
+     "operation_id": "im.+chat-list"
+    }
+   ],
+   "related": [
+    "im.+chat-search"
+   ],
+   "topics": [
+    "lark-im-chat-list"
+   ],
+   "use_when": [
+    "Use this to enumerate chats the current identity has joined."
+   ]
+  },
+  "im.+chat-members-list": {
+   "examples": [
+    {
+     "arguments": {
+      "chat_id": "oc_xxx"
+     },
+     "description": "List one page of users and bots",
+     "operation_id": "im.+chat-members-list"
+    }
+   ],
+   "tips": [
+    "Default fetches a single page; pass `page_all` to walk every page.",
+    "With `page_all` and no explicit `page_size`, the max page size is used to minimize round-trips.",
+    "truncations[] in the result means the server capped a bucket due to security config — the member list is incomplete."
+   ],
+   "topics": [
+    "lark-im-chat-members-list"
+   ],
+   "use_when": [
+    "Use this instead of the raw member methods when you need users and bots separated and truncation reported explicitly."
+   ]
+  },
+  "im.+chat-messages-list": {
+   "avoid_when": [
+    "Searching across conversations → use `im.+messages-search`.",
+    "Fetching full details for known message ids → use `im.+messages-mget`."
+   ],
+   "examples": [
+    {
+     "arguments": {
+      "chat_id": "oc_xxx"
+     },
+     "description": "List messages in a group chat",
+     "operation_id": "im.+chat-messages-list"
+    }
+   ],
+   "related": [
+    "im.+messages-search",
+    "im.+messages-mget"
+   ],
+   "topics": [
+    "lark-im-chat-messages-list"
+   ],
+   "use_when": [
+    "Use this for message history when the conversation is already known."
+   ]
+  },
+  "im.+chat-search": {
+   "examples": [
+    {
+     "arguments": {
+      "query": "project"
+     },
+     "description": "Search visible groups by keyword",
+     "operation_id": "im.+chat-search"
+    }
+   ],
+   "topics": [
+    "lark-im-chat-search"
+   ],
+   "use_when": [
+    "Use this to resolve a visible group name or member set to a stable chat_id before another operation."
+   ]
+  },
+  "im.+chat-update": {
+   "examples": [
+    {
+     "arguments": {
+      "chat_id": "oc_xxx",
+      "name": "New Group Name"
+     },
+     "description": "Rename a group",
+     "operation_id": "im.+chat-update"
+    }
+   ],
+   "topics": [
+    "lark-im-chat-update",
+    "lark-im-chat-identity"
+   ],
+   "use_when": [
+    "Use this for name or description changes after identifying the group and an owner/admin-capable identity."
+   ]
+  },
+  "im.+message-read-users": {
+   "examples": [
+    {
+     "arguments": {
+      "message_id": "om_xxx"
+     },
+     "description": "List readers for one message",
+     "operation_id": "im.+message-read-users"
+    }
+   ],
+   "topics": [
+    "lark-im-message-read-status"
+   ]
+  },
+  "im.+messages-edit": {
+   "avoid_when": [
+    "Editing an interactive card → use `im.messages.patch`.",
+    "Sending a corrected message as a new message → use `im.+messages-send`."
+   ],
+   "examples": [
+    {
+     "arguments": {
+      "markdown": "Updated content",
+      "message_id": "om_xxx",
+      "set_attachments": [
+       "file_xxx"
+      ]
+     },
+     "description": "Edit a message to a post with an attachment zone",
+     "operation_id": "im.+messages-edit"
+    }
+   ],
+   "prerequisites": [
+    "Confirm the target message id, the new content, and that the calling identity (bot) is the original sender before editing."
+   ],
+   "related": [
+    "im.messages.patch",
+    "im.+messages-send"
+   ],
+   "tips": [
+    "Omit attachment flags to preserve the current attachment zone.",
+    "`set_attachments` replaces the attachment set; `clear_attachments` removes it.",
+    "`content` that already carries a `files` array cannot be combined with the attachment flags."
+   ],
+   "topics": [
+    "lark-im-messages-edit"
+   ],
+   "use_when": [
+    "Use this to edit an already-sent **text or rich-text (post)** message, including its attachment zone."
+   ]
+  },
+  "im.+messages-mget": {
+   "avoid_when": [
+    "Discovering messages by chat or keyword → use `im.+chat-messages-list` or `im.+messages-search`."
+   ],
+   "examples": [
+    {
+     "arguments": {
+      "message_ids": "om_xxx"
+     },
+     "description": "Fetch one known message",
+     "operation_id": "im.+messages-mget"
+    }
+   ],
+   "related": [
+    "im.+chat-messages-list",
+    "im.+messages-search"
+   ],
+   "topics": [
+    "lark-im-messages-mget"
+   ],
+   "use_when": [
+    "Use this when one or more message_ids are already known and full message details are needed."
+   ]
+  },
+  "im.+messages-reply": {
+   "examples": [
+    {
+     "arguments": {
+      "message_id": "om_xxx",
+      "text": "Received"
+     },
+     "description": "Reply with plain text using the configured identity",
+     "operation_id": "im.+messages-reply"
+    }
+   ],
+   "prerequisites": [
+    "Confirm the target message, reply content, and sending identity before sending."
+   ],
+   "topics": [
+    "lark-im-messages-reply"
+   ],
+   "use_when": [
+    "Use this when the response must remain attached to a specific message or thread."
+   ]
+  },
+  "im.+messages-resources-download": {
+   "examples": [
+    {
+     "arguments": {
+      "file_key": "img_v3_xxx",
+      "message_id": "om_xxx",
+      "type": "image"
+     },
+     "description": "Download an image resource to the current directory",
+     "operation_id": "im.+messages-resources-download"
+    }
+   ],
+   "topics": [
+    "lark-im-messages-resources-download"
+   ],
+   "use_when": [
+    "Use this after a read command exposes a message_id and matching file_key and the binary content is actually needed."
+   ]
+  },
+  "im.+messages-search": {
+   "examples": [
+    {
+     "arguments": {
+      "query": "project progress"
+     },
+     "description": "Search messages by keyword",
+     "operation_id": "im.+messages-search"
+    }
+   ],
+   "topics": [
+    "lark-im-messages-search"
+   ],
+   "use_when": [
+    "Use this to find messages across conversations by keyword or structured filters."
+   ]
+  },
+  "im.+messages-send": {
+   "examples": [
+    {
+     "arguments": {
+      "chat_id": "oc_xxx",
+      "text": "Hello"
+     },
+     "description": "Send plain text using the configured identity",
+     "operation_id": "im.+messages-send"
+    }
+   ],
+   "prerequisites": [
+    "Confirm the recipient, content, and sending identity before sending."
+   ],
+   "topics": [
+    "lark-im-messages-send"
+   ],
+   "use_when": [
+    "Use this for new outbound content. Select text, markdown, exact JSON, or one media flag according to the content shape."
+   ]
+  },
+  "im.+threads-messages-list": {
+   "examples": [
+    {
+     "arguments": {
+      "thread": "omt_xxx"
+     },
+     "description": "List replies in a thread",
+     "operation_id": "im.+threads-messages-list"
+    }
+   ],
+   "topics": [
+    "lark-im-threads-messages-list"
+   ],
+   "use_when": [
+    "Use this when a message or thread id is known and the replies inside that thread are needed."
+   ]
+  },
+  "im.chat.members.create": {
+   "examples": [
+    {
+     "arguments": {
+      "data": {
+       "id_list": [
+        "ou_aaa",
+        "ou_bbb"
+       ]
+      },
+      "params": {
+       "chat_id": "oc_xxx",
+       "member_id_type": "open_id",
+       "succeed_type": 1
+      }
+     },
+     "description": "Add reachable users and report invalid ids separately",
+     "operation_id": "im.chat.members.create"
+    }
+   ],
+   "prerequisites": [
+    "Create the group first, then add members as a user who is already in that group."
+   ],
+   "topics": [
+    "lark-im-chat-create",
+    "lark-im-chat-identity"
+   ],
+   "use_when": [
+    "Use this raw method for the skill's two-step recovery flow when a bot-created group cannot invite users because they are invisible to the bot."
+   ]
+  },
+  "im.images.create": {
+   "avoid_when": [
+    "Sending an image once → use `im.+messages-send` `image` to upload and send in one step."
+   ],
+   "related": [
+    "im.+messages-send"
+   ],
+   "topics": [
+    "lark-im-messages-send"
+   ],
+   "use_when": [
+    "Use this raw upload when an image_key must be reused."
+   ]
+  },
+  "im.reactions.batch_query": {
+   "examples": [
+    {
+     "arguments": {
+      "data": {
+       "page_size_per_message": 10,
+       "queries": [
+        {
+         "message_id": "om_xxx"
+        },
+        {
+         "message_id": "om_yyy"
+        }
+       ],
+       "reaction_type": "LAUGH"
+      },
+      "params": {
+       "user_id_type": "open_id"
+      }
+     },
+     "description": "Query the first page of reactions for two messages",
+     "operation_id": "im.reactions.batch_query"
+    }
+   ],
+   "topics": [
+    "lark-im-reactions"
+   ],
+   "use_when": [
+    "Use this raw method only for standalone message ids; message-reading shortcuts already attach reactions."
+   ]
+  },
+  "im.reactions.create": {
+   "examples": [
+    {
+     "arguments": {
+      "data": {
+       "reaction_type": {
+        "emoji_type": "SMILE"
+       }
+      },
+      "params": {
+       "message_id": "om_xxx"
+      }
+     },
+     "description": "Add a smile reaction",
+     "operation_id": "im.reactions.create"
+    }
+   ],
+   "topics": [
+    "lark-im-reactions"
+   ],
+   "use_when": [
+    "Use this raw method to add an emoji reaction, not a text reply."
+   ]
+  },
+  "im.reactions.delete": {
+   "examples": [
+    {
+     "arguments": {
+      "params": {
+       "message_id": "om_xxx",
+       "reaction_id": "ZCaCIjUBVVWSrm5L-3ZTw_xxx"
+      }
+     },
+     "description": "Delete one reaction record",
+     "operation_id": "im.reactions.delete"
+    }
+   ],
+   "prerequisites": [
+    "Obtain reaction_id from `im.reactions.list` or the `im.reactions.create` response."
+   ],
+   "related": [
+    "im.reactions.list",
+    "im.reactions.create"
+   ],
+   "topics": [
+    "lark-im-reactions"
+   ],
+   "use_when": [
+    "Use this raw method only for a reaction created by the calling identity."
+   ]
+  },
+  "im.reactions.list": {
+   "examples": [
+    {
+     "arguments": {
+      "params": {
+       "message_id": "om_xxx"
+      }
+     },
+     "description": "List reactions on one message",
+     "operation_id": "im.reactions.list"
+    }
+   ],
+   "topics": [
+    "lark-im-reactions"
+   ],
+   "use_when": [
+    "Use this raw method for reaction records on one standalone message; message-reading shortcuts already enrich reactions automatically."
+   ]
+  },
+  "markdown.+create": {
+   "tips": [
+    "Omit both `folder_token` and `wiki_token` to create the Markdown file in the caller's Drive root folder.",
+    "Use `wiki_token` <wiki_node_token> to create the Markdown file under a wiki node; the shortcut maps this to parent_type=wiki automatically.",
+    "`folder_token` and `wiki_token` also accept full Lark URLs and normalize them to the required token."
+   ]
+  },
+  "minutes.+apply-permission": {
+   "topics": [
+    "lark-minutes-apply-permission"
+   ]
+  },
+  "minutes.+detail": {
+   "topics": [
+    "lark-minutes-detail"
+   ]
+  },
+  "minutes.+download": {
+   "topics": [
+    "lark-minutes-download"
+   ]
+  },
+  "minutes.+search": {
+   "topics": [
+    "lark-minutes-search"
+   ]
+  },
+  "note.+detail": {
+   "topics": [
+    "lark-note-detail"
+   ]
+  },
+  "sheets.+batch-chart-create": {
+   "tips": [
+    "Each operation directly contains `sheets.+chart-create-basic` flags such as sheet_name, chart_type, and data_range; do not wrap it in shortcut/input. The legacy wrapped shape remains accepted for compatibility.",
+    "dry-run（网关不提供，改为先读取核对） prints the translated internal MCP body (tool_name / operation / basic_chart) for inspection only; never copy that body back into `operations`.",
+    "Inspect succeeded, failed, and results after execution. Keep successful charts, retry only failed indexes, then call `sheets.+chart-list` once per affected sheet and repair mismatches with `sheets.+batch-chart-update` instead of deleting/recreating charts."
+   ]
+  },
+  "sheets.+batch-update": {
+   "tips": [
+    "high-risk-write: preview with dry-run（网关不提供，改为先读取核对）, get the user's explicit consent, then re-run with 管理员预授权（high_risk_operations） appended — do not pass 管理员预授权（high_risk_operations） before the user has confirmed (without it the call exits 10 asking for confirmation).",
+    "Execution is fail-fast, NOT transactional: on \"N succeeded, M failed\" the succeeded sub-ops stay applied (no rollback) — fix the failure and resend ONLY the operations from the first failed index onward; resending the whole batch re-applies the succeeded ones. Pass `continue_on_error` to keep going past failures instead.",
+    "Each sub-op is {shortcut, input}. Do NOT pass input.operation (implied by shortcut name). Repeated input.excel_id / input.spreadsheet_token / input.url fields are ignored; the top-level locator wins.",
+    "Chart operations are supported, but prefer `sheets.+batch-chart-create` / `sheets.+batch-chart-update` for chart-only work because their contracts and partial-failure recovery are simpler."
+   ]
+  },
+  "sheets.+cells-batch-clear": {
+   "tips": [
+    "high-risk-write — always preview with dry-run（网关不提供，改为先读取核对）; clear is not undoable.",
+    "Every `ranges` item must carry a sheet prefix (e.g. \"Sheet1!A1:A10\"); all ranges are cleared with the same `scope`.",
+    "Can't delete an embedded pivot/chart by clearing cells — remove the object itself with `sheets.+pivot-delete` / `sheets.+chart-delete`."
+   ]
+  },
+  "sheets.+cells-batch-set-style": {
+   "tips": [
+    "DEPRECATED: superseded by `sheets.+styles-put`, whose one spec also covers merges, row/col sizes and freeze — prefer it for new work.",
+    "Example: `sheets.+cells-batch-set-style`（url=\"<URL>\"，ranges=\"[\\\"Sheet1!A1:B2\\\",\\\"汇总!C1:C9\\\"]\"，font_weight=\"bold\"）",
+    "Every range carries its sheet-NAME prefix (Sheet1!A1:B2, not a sheet_id) — there is no `sheet_id` / `sheet_name` flag here."
+   ]
+  },
+  "sheets.+cells-clear": {
+   "tips": [
+    "high-risk-write — pass 管理员预授权（high_risk_operations） to confirm (exit 10 without it), or preview with dry-run（网关不提供，改为先读取核对） first; clear is not undoable.",
+    "Can't delete an embedded pivot/chart by clearing cells — remove the object itself with `sheets.+pivot-delete` / `sheets.+chart-delete`."
+   ]
+  },
+  "sheets.+cells-replace": {
+   "tips": [
+    "Always preview with dry-run（网关不提供，改为先读取核对） before running — replace can mutate every matching cell across the sheet."
+   ]
+  },
+  "sheets.+cells-set": {
+   "tips": [
+    "Example: `sheets.+cells-set`（url=\"<URL>\"，sheet_name=\"Sheet1\"，range=\"A1:B1\"，cells=\"`{\\\"value\\\":\\\"名称\\\"},{\\\"formula\\\":\\\"=SUM(B2:B9)\\\"}`\"）",
+    "`cells` is always a 2D array (rows × cells), even for one cell: `{\"value\":…}`.",
+    "Scattered regions (e.g. fixing formulas across ranges/sheets): `writes` '[{\"sheet_name\":…,\"range\":…,\"cells\":`…`}, …]' — one batch request (fail-fast, no rollback), sheet selector inside each item."
+   ]
+  },
+  "sheets.+cells-set-image": {
+   "tips": [
+    "`range` must be a single cell. The uploaded image becomes a cell-internal embed; use `sheets.+float-image-create` for floating images."
+   ]
+  },
+  "sheets.+cells-set-style": {
+   "tips": [
+    "Example: `sheets.+cells-set-style`（url=\"<URL>\"，sheet_name=\"Sheet1\"，range=\"A1:D1\"，font_weight=\"bold\"，background_color=\"#F0F0F0\"，horizontal_alignment=\"center\"）",
+    "Borders take JSON: `border_styles` '{\"top\":{\"style\":\"solid\",\"weight\":\"thin\",\"color\":\"#000000\"}}' (sides: top/bottom/left/right)."
+   ]
+  },
+  "sheets.+changeset-get": {
+   "tips": [
+    "Pass only `start_revision` to diff against the latest version; add `end_revision` to bound the range.",
+    "The version gap is capped at 20 revisions (end - start + 1 <= 20)."
+   ]
+  },
+  "sheets.+chart-config-update": {
+   "tips": [
+    "dry-run（网关不提供，改为先读取核对） validates the request shape only; execution reads the current chart snapshot, so X-axis bounds can still be rejected unless the existing bottom X axis is continuous (valueType=linear)."
+   ]
+  },
+  "sheets.+cols-resize": {
+   "tips": [
+    "Example: `sheets.+cols-resize`（url=\"<URL>\"，sheet_name=\"Sheet1\"，range=\"A:C\"，width=120）",
+    "Different widths per column in one batch request: `widths` '{\"A\":80,\"C:E\":120}'. Widths are pixels (px ≈ chars × 8 + 16), not Excel character units."
+   ]
+  },
+  "sheets.+dim-delete": {
+   "tips": [
+    "Row/column deletion is irreversible. Always preview with dry-run（网关不提供，改为先读取核对） first.",
+    "Scattered ranges: `ranges` '[\"5:5\",\"8:8\",\"11:13\"]' deletes them in one batch request (fail-fast, no rollback) — the CLI orders positions descending, so indexes never shift under you."
+   ]
+  },
+  "sheets.+dim-freeze": {
+   "tips": [
+    "Example: `sheets.+dim-freeze`（url=\"<URL>\"，sheet_name=\"Sheet1\"，rows=1，cols=2） (holds the header row and the first 2 columns in one call)",
+    "Freezing is not additive: `dimension` row `count` 1 followed by `dimension` column `count` 2 leaves ONLY the columns frozen. Pass `rows`/`cols` together instead of calling twice",
+    "To unfreeze one axis but keep the other, state the survivor: `rows` 0 `cols` 2. Bare `count` 0 clears both"
+   ]
+  },
+  "sheets.+dim-insert": {
+   "tips": [
+    "Example: `sheets.+dim-insert`（url=\"<URL>\"，sheet_name=\"Sheet1\"，position=\"3\"，count=2，inherit_style=\"before\"）",
+    "Rows vs columns comes from `position` alone: a row number (3) inserts rows, a column letter (C) inserts columns — there is no `dimension` flag."
+   ]
+  },
+  "sheets.+history-list": {
+   "tips": [
+    "Capture a history_version_id from the result to feed `sheets.+history-revert`.",
+    "For older history, capture next_end_version from the response and pass it as `end_version` on the next call (omitted by the server when the earliest page is reached)."
+   ]
+  },
+  "sheets.+history-revert": {
+   "tips": [
+    "Revert overwrites the current spreadsheet content. Always run with dry-run（网关不提供，改为先读取核对） first to verify the target spreadsheet and history_version_id.",
+    "Revert is asynchronous — pass the returned id to `sheets.+history-revert-status` to track in-progress / success / failure."
+   ]
+  },
+  "sheets.+pivot-create": {
+   "tips": [
+    "Placement: omit `target_sheet_id` / `target_sheet_name` and the backend auto-creates a fresh sub-sheet for the pivot — zero overwrite risk. This is the default and the recommended path.",
+    "Only pass `target_sheet_id`/-name to land in an existing sheet; if that sheet holds the source data you MUST set `target_position` (or `range`) outside the data, else the pivot overwrites it and the anchor shows #REF!.",
+    "Removing a stray pivot is `sheets.+pivot-delete` (get its id from `sheets.+pivot-list`); `sheets.+cells-clear` / `sheets.+cells-batch-clear` only clear cell values/formats and cannot delete the pivot object."
+   ]
+  },
+  "sheets.+revision-get": {
+   "tips": [
+    "The revision is the version anchor for recover / undo; every read and write tool response already carries it."
+   ]
+  },
+  "sheets.+sheet-copy": {
+   "tips": [
+    "Example: `sheets.+sheet-copy`（url=\"<URL>\"） 数据源 `title` 数据源-副本",
+    "`sheet_name` / `sheet_id` selects the SOURCE sheet; the copy's new name goes in `title`."
+   ]
+  },
+  "sheets.+sheet-create": {
+   "tips": [
+    "`sheets.+sheet-create` makes an empty sub-sheet. To create a sub-sheet and fill it with typed data and/or styles in one step, use `sheets.+table-put` (missing sheets named in the payload are created automatically) with its `sheets` and `styles` flags."
+   ]
+  },
+  "sheets.+sheet-delete": {
+   "tips": [
+    "Sheet deletion is irreversible. Always run with dry-run（网关不提供，改为先读取核对） first to verify the target sheet_id/sheet_name."
+   ]
+  },
+  "sheets.+sheet-info": {
+   "tips": [
+    "Frozen rows / columns are top-level fields and are returned regardless of `include`."
+   ]
+  },
+  "sheets.+sheet-list": {
+   "tips": [
+    "`sheets.+workbook-info` is the documented command for this: it returns these same sheets alongside the rest of the workbook structure."
+   ]
+  },
+  "sheets.+sheet-move": {
+   "tips": [
+    "Pass `source_index` when you already know it to avoid the extra read; otherwise CLI derives it from `sheet_id`/`sheet_name`."
+   ]
+  },
+  "sheets.+styles-put": {
+   "tips": [
+    "Example: `sheets.+styles-put`（url=\"<URL>\"，styles={\"styles\": [{\"name\": \"Sheet1\", \"cell_styles\": [{\"range\": \"A1:F1\", \"font_weight\": \"bold\"}], \"freeze\": {\"rows\": 1}}]}）",
+    "Same `styles` vocabulary as `sheets.+workbook-create` / `sheets.+table-put`; one item per target sheet, name = the real sheet name.",
+    "A spec of up to 100 operations goes out as ONE atomic batch request; a larger one is split, and each request is atomic only on its own — a later failure leaves the earlier requests applied.",
+    "Style stamps are safe to re-run. Merges are not: re-sending an applied merge_cells can be rejected as an overlap, so after a partial failure read the sheet back (`sheets.+cells-get` `include` style) and resend only the merges that did not land."
+   ]
+  },
+  "sheets.+table-get": {
+   "tips": [
+    "Output is the same shape `sheets.+table-put` consumes — pipe it back in, or load sheets[].rows into a DataFrame keyed by columns[].name.",
+    "Column types are inferred per column, but only when every non-empty cell agrees; a column mixing types (e.g. numbers + \"N/A\") degrades to string — lossless and round-trips cleanly. Numeric coercion of dirty cells is the caller's job (pandas to_numeric(errors=\"coerce\") on the string column)."
+   ]
+  },
+  "sheets.+table-put": {
+   "tips": [
+    "Example: `sheets.+table-put`（url=\"<URL>\"，sheets=\"{\\\"sheets\\\":[{\\\"name\\\":\\\"S1\\\",\\\"columns\\\":[\\\"City\\\",\\\"Rev\\\"],\\\"dtypes\\\":{\\\"Rev\\\":\\\"float64\\\"},\\\"data\\\":`\\\"SH\\\",1234.5`}]}\"）",
+    "Writes into an existing spreadsheet — pass `url` or `spreadsheet_token`. To create a new workbook first, use `sheets.+workbook-create`, then point `spreadsheet_token` here.",
+    "Payload sheets are matched to existing sub-sheets by name (created when absent). Date columns take ISO yyyy-mm-dd strings — converted to real dates (serial + date format).",
+    "`styles` applies number formats, colors, merges, and row/col sizes in the same call (same shape as `sheets.+workbook-create`'s `styles`): one styles item per written sheet, name-matched. Skips the separate `sheets.+cells-set-style` round-trip."
+   ]
+  },
+  "sheets.+workbook-create": {
+   "tips": [
+    "`values` is an optional untyped fill (one JSON 2D array). It writes through the same batched set_cell_range path as `sheets`; pair it with `styles` to set number formats, colors, merges, and row/col sizes. Partial failure leaves the spreadsheet created but empty.",
+    "`sheets` writes typed, type-faithful data (dates → real dates, numbers keep precision) in one step — the create + typed write that `sheets.+table-put` can't do on its own. Mutually exclusive with `values`; the new workbook's default sheet becomes the first sheet (no empty Sheet1 left behind)."
+   ]
+  },
+  "sheets.+workbook-export": {
+   "tips": [
+    "Polls for a bounded window; if the export is still running it returns a resume reference instead of blocking. Pass `output_path` to download the file once ready (omit it to only create the export task and get the file token back)."
+   ]
+  },
+  "sheets.+workbook-info": {
+   "tips": [
+    "First step for every sheets task — capture sheet_id from the result before doing any sheet-level operation."
+   ]
+  },
+  "slides.+add-slide": {
+   "tips": [
+    "<img src=\"@path\"> placeholders resolve against the current directory, not the directory of the `slide` file, and are deduplicated per call: a page-by-page loop re-uploads a shared image once per page, so upload it once with `slides.+media-upload` and reuse the file_token instead."
+   ],
+   "topics": [
+    "lark-slides-add-slide"
+   ]
+  },
+  "slides.+create": {
+   "topics": [
+    "lark-slides-create"
+   ]
+  },
+  "slides.+delete-slide": {
+   "tips": [
+    "Deletion is not undoable in place; recover a wrongly deleted page with `slides.+history-list` then `slides.+history-revert`.",
+    "Use dry-run（网关不提供，改为先读取核对） to confirm which presentation and slide_id will be hit before running."
+   ],
+   "topics": [
+    "lark-slides-delete-slide"
+   ]
+  },
+  "slides.+history-list": {
+   "topics": [
+    "lark-slides-history"
+   ]
+  },
+  "slides.+history-revert": {
+   "prerequisites": [
+    "`history_version_id` from `slides.+history-list`"
+   ],
+   "related": [
+    "slides.+history-list"
+   ],
+   "topics": [
+    "lark-slides-history"
+   ]
+  },
+  "slides.+history-revert-status": {
+   "prerequisites": [
+    "`task_id` from `slides.+history-revert`"
+   ],
+   "related": [
+    "slides.+history-revert"
+   ],
+   "topics": [
+    "lark-slides-history"
+   ]
+  },
+  "slides.+media-upload": {
+   "topics": [
+    "lark-slides-media-upload"
+   ]
+  },
+  "slides.+replace-pages": {
+   "topics": [
+    "lark-slides-update-slide",
+    "slides-editing",
+    "references-xml-xml-schema-quick-ref"
+   ]
+  },
+  "slides.+replace-slide": {
+   "topics": [
+    "lark-slides-replace-slide",
+    "slides-editing",
+    "references-xml-xml-schema-quick-ref"
+   ]
+  },
+  "slides.+screenshot": {
+   "topics": [
+    "lark-slides-screenshot"
+   ]
+  },
+  "slides.+update": {
+   "tips": [
+    "Read the page first with `slides.+xml-get`（slide_id=\"<id>\"）, edit that XML, hand it back whole",
+    "Anything left out of `content` is removed from the page — pass the full page, not a fragment",
+    "Editing one element is cheaper with `slides.+replace-slide`",
+    "<img src=\"@path\"> placeholders resolve against the current directory, not the directory of an @file passed to `content`, and are deduplicated per call"
+   ],
+   "topics": [
+    "lark-slides-update-slide",
+    "slides-editing",
+    "references-xml-xml-schema-quick-ref"
+   ],
+   "use_when": [
+    "Hidden alias of `slides.+update-slide`; kept so the shorter spelling resolves."
+   ]
+  },
+  "slides.+update-slide": {
+   "tips": [
+    "Read the page first with `slides.+xml-get`（slide_id=\"<id>\"）, edit that XML, hand it back whole",
+    "Anything left out of `content` is removed from the page — pass the full page, not a fragment",
+    "Editing one element is cheaper with `slides.+replace-slide`",
+    "<img src=\"@path\"> placeholders resolve against the current directory, not the directory of an @file passed to `content`, and are deduplicated per call"
+   ],
+   "topics": [
+    "lark-slides-update-slide",
+    "slides-editing",
+    "references-xml-xml-schema-quick-ref"
+   ]
+  },
+  "slides.+xml-get": {
+   "topics": [
+    "lark-slides-xml-presentations-get"
+   ]
+  },
+  "vc.+detail": {
+   "topics": [
+    "lark-vc-detail"
+   ]
+  },
+  "vc.+meeting-countdown": {
+   "topics": [
+    "lark-vc-meeting-countdown"
+   ]
+  },
+  "vc.+meeting-end": {
+   "topics": [
+    "lark-vc-agent-meeting-end"
+   ]
+  },
+  "vc.+meeting-events": {
+   "topics": [
+    "lark-vc-meeting-events"
+   ]
+  },
+  "vc.+meeting-invite": {
+   "topics": [
+    "lark-vc-agent-meeting-invite"
+   ]
+  },
+  "vc.+meeting-join": {
+   "topics": [
+    "lark-vc-agent-meeting-join"
+   ]
+  },
+  "vc.+meeting-leave": {
+   "topics": [
+    "lark-vc-agent-meeting-leave"
+   ]
+  },
+  "vc.+meeting-list-active": {
+   "topics": [
+    "lark-vc-meeting-list-active"
+   ]
+  },
+  "vc.+meeting-message-send": {
+   "topics": [
+    "lark-vc-meeting-message-send"
+   ]
+  },
+  "vc.+meeting-screenshot": {
+   "topics": [
+    "lark-vc-meeting-screenshot"
+   ]
+  },
+  "vc.+recording": {
+   "topics": [
+    "lark-vc-recording"
+   ]
+  },
+  "vc.+search": {
+   "topics": [
+    "lark-vc-search"
+   ]
+  },
+  "wiki.+delete-space": {
+   "tips": [
+    "Deletion is irreversible; double-check `space_id` before running.",
+    "This is a high-risk-write command; pass 管理员预授权（high_risk_operations） to confirm the deletion.",
+    "If the API returns a long-running task, this command polls for a bounded window and then returns a follow-up drive +task_result command."
+   ]
+  },
+  "wiki.+member-add": {
+   "tips": [
+    "Use `member_type=email` with the user's mailbox if you do not know their open_id.",
+    "`member_role=admin` grants full space administration; pick `member_role=member` for collaborator access."
+   ]
+  },
+  "wiki.+member-list": {
+   "tips": [
+    "Default fetches a single page; pass `page_all` to walk every page."
+   ]
+  },
+  "wiki.+member-remove": {
+   "tips": [
+    "`member_type` and `member_role` must match the original grant; revoking a non-existent (member_id, type, role) tuple is a no-op error from the API.",
+    "To switch a member from admin to member or vice versa, remove the old role first, then call `wiki.+member-add` with the new one."
+   ]
+  },
+  "wiki.+move": {
+   "tips": [
+    "Use `node_token` to move an existing wiki node inside or across wiki spaces.",
+    "Use `obj_type` and `obj_token` to move a Drive document into Wiki.",
+    "If docs-to-wiki returns a long-running task, this command polls for a bounded window and then returns a follow-up drive +task_result command."
+   ]
+  },
+  "wiki.+move-to-drive": {
+   "tips": [
+    "The source must be a wiki node_token, not the backing document's obj_token; use `wiki.+node-get` when unsure.",
+    "Omit `folder_token` to move the document to the calling identity's personal-space root.",
+    "Moving out of Wiki removes the node from the Wiki tree and replaces inherited Wiki permissions with the target Drive folder's permission model.",
+    "The move is asynchronous; if the bounded poll times out, continue with the next_command returned in the output."
+   ]
+  },
+  "wiki.+node-copy": {
+   "tips": [
+    "At least one of `target_space_id` or `target_parent_node_token` must be provided.",
+    "Omit `title` to keep the original node title in the copy.",
+    "This shortcut copies the current node only; descendant nodes are not copied."
+   ]
+  },
+  "wiki.+node-create": {
+   "tips": [
+    "Use `node_type` shortcut `origin_node_token` <token> to create a shortcut node.",
+    "Use `node_type` shortcut `obj_type` file `origin_node_token` <token> to create a shortcut to a file; origin nodes cannot use `obj_type` file."
+   ]
+  },
+  "wiki.+node-delete": {
+   "tips": [
+    "Deletion is irreversible; double-check `node_token` and `obj_type` before running.",
+    "This is a high-risk-write command; pass 管理员预授权（high_risk_operations） to confirm the deletion.",
+    "`node_token` accepts a raw token (wikcnXXX, docxXXX, ...) or a Lark URL like https://feishu.cn/wiki/<token> or https://feishu.cn/docx/<token>; URL paths also imply `obj_type`.",
+    "Run `wiki.+node-get` first to confirm space_id / obj_type when in doubt.",
+    "Resolving the node also calls node_by_token and requires Wiki node read permission, including when `space_id` is provided.",
+    "Async deletes return a task_id; this command polls for a bounded window and then returns a follow-up drive +task_result command."
+   ]
+  },
+  "wiki.+node-get": {
+   "tips": [
+    "`node_token` accepts a raw wiki node_token, obj_token, or a Lark URL like https://feishu.cn/wiki/<token> or https://feishu.cn/docx/<token>.",
+    "Token types are detected by the server; raw Wiki and document tokens can be used directly.",
+    "Pair with `wiki.+move` / `wiki.+node-copy` / `wiki.+delete-space` to confirm space_id, obj_type, and parent before mutating.",
+    "`token` is the deprecated original name and still works for backward compatibility; new scripts should use `node_token`."
+   ]
+  },
+  "wiki.+node-list": {
+   "tips": [
+    "Default fetches a single page; pass `page_all` to walk every page (large knowledge bases can be huge — keep an eye on `page_limit`).",
+    "Use `parent_node_token` to drill into a sub-directory.",
+    "Run `wiki.+space-list` first to discover your space IDs, including the personal document library."
+   ]
+  },
+  "wiki.+space-list": {
+   "tips": [
+    "Default fetches a single page (matches other list shortcuts in this CLI); pass `page_all` to pull every page.",
+    "The underlying API never returns the my_library personal library; resolve it via `wiki.spaces.get`（params={\"space_id\": \"my_library\"}）."
+   ]
+  }
+ },
+ "skills": {
+  "lark-base": {
+   "description": "飞书多维表格（Base）操作：建表、字段、记录、视图、统计、公式/lookup、表单、仪表盘、应用模式（BaseApp/AppMode 页面与组件）、Workspace 目录、workflow、角色权限、模板中心（多维表格模板分类/列表/搜索）；遇到 Base/多维表格/bitable、BaseApp/AppMode、/base/ 或 /app/ 链接时使用。BaseApp 不走 lark-apps；文件导入/导出转 `drive` 领域，认证/授权转 lark-shared。",
+   "domain": "base",
+   "topics": [
+    {
+     "id": "lark-base-advanced-permission-and-role",
+     "title": "Base Advanced Permission 与 Role"
+    },
+    {
+     "id": "lark-base-app",
+     "title": "BaseApp（应用模式）操作指引"
+    },
+    {
+     "id": "lark-base-app-block-data-config",
+     "title": "BaseApp Block `data_config`"
+    },
+    {
+     "id": "lark-base-dashboard",
+     "title": "Dashboard（仪表盘/数据看板）模块指引"
+    },
+    {
+     "id": "lark-base-dashboard-block-config",
+     "title": "Base Dashboard Block 配置"
+    },
+    {
+     "id": "lark-base-dashboard-block-get-data",
+     "title": "`base.+dashboard-block-get-data`"
+    },
+    {
+     "id": "lark-base-data-query",
+     "title": "Base data-query DSL reference"
+    },
+    {
+     "id": "lark-base-field-create",
+     "title": "`base.+field-create`"
+    },
+    {
+     "id": "lark-base-field-extension",
+     "title": "base field-extension"
+    },
+    {
+     "id": "lark-base-field-formula",
+     "title": "Base Formula Field"
+    },
+    {
+     "id": "lark-base-field-lookup",
+     "title": "Base Lookup Field"
+    },
+    {
+     "id": "lark-base-field-schema",
+     "title": "Base Field Schema"
+    },
+    {
+     "id": "lark-base-field-update",
+     "title": "`base.+field-update`"
+    },
+    {
+     "id": "lark-base-filter-condition",
+     "title": "Base Filter 条件结构（公共协议）"
+    },
+    {
+     "id": "lark-base-form-detail",
+     "title": "`base.+form-detail`"
+    },
+    {
+     "id": "lark-base-form-questions-create",
+     "title": "`base.+form-questions-create`"
+    },
+    {
+     "id": "lark-base-form-questions-update",
+     "title": "`base.+form-questions-update`"
+    },
+    {
+     "id": "lark-base-form-submit",
+     "title": "`base.+form-submit`"
+    },
+    {
+     "id": "lark-base-record-history-list",
+     "title": "`base.+record-history-list`"
+    },
+    {
+     "id": "lark-base-record-query-and-analysis-sop",
+     "title": "Base Record 数据语义与专业分析 SOP"
+    },
+    {
+     "id": "lark-base-role-config",
+     "title": "Base Role Permission Schema"
+    },
+    {
+     "id": "lark-base-template-center",
+     "title": "Base 模板中心"
+    },
+    {
+     "id": "lark-base-view",
+     "title": "View：类型选择与生命周期"
+    },
+    {
+     "id": "lark-base-view-set-filter",
+     "title": "`base.+view-set-filter`"
+    },
+    {
+     "id": "lark-base-workflow",
+     "title": "Base Workflow"
+    },
+    {
+     "id": "lark-base-workflow-schema",
+     "title": "Workflow steps JSON SSOT"
+    }
+   ]
+  },
+  "lark-calendar": {
+   "description": "飞书日历：管理日历日程和会议室。查看/搜索日程、创建/更新日程、管理参会人、查询忙闲和推荐时段、预定会议室。当用户需要查看日程安排、创建/修改会议、查询/预定会议室时使用。不负责：查询过去的视频会议记录（走 `vc` 领域）、待办任务（走 `task` 领域）。",
+   "domain": "calendar",
+   "topics": [
+    {
+     "id": "lark-calendar-create",
+     "title": "`calendar.+create`"
+    },
+    {
+     "id": "lark-calendar-join-event",
+     "title": "`calendar.+join-event`"
+    },
+    {
+     "id": "lark-calendar-list-attendees",
+     "title": "`calendar.+list-attendees`"
+    },
+    {
+     "id": "lark-calendar-meeting",
+     "title": "`calendar.+meeting`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-calendar-meeting-relation",
+     "title": "日程与视频会议的关系"
+    },
+    {
+     "id": "lark-calendar-recurring",
+     "title": "重复性日程操作规范"
+    },
+    {
+     "id": "lark-calendar-room-find",
+     "title": "`calendar.+room-find`"
+    },
+    {
+     "id": "lark-calendar-rsvp",
+     "title": "`calendar.+rsvp`"
+    },
+    {
+     "id": "lark-calendar-schedule-clear-time",
+     "title": "明确时间分支：room-find + freebusy + 冲突处理"
+    },
+    {
+     "id": "lark-calendar-schedule-fuzzy-time",
+     "title": "模糊时间 / 无时间信息分支：suggestion + 批量查询"
+    },
+    {
+     "id": "lark-calendar-schedule-meeting",
+     "title": "预约/改约日程或会议、查询/搜索可用会议室的工作流"
+    },
+    {
+     "id": "lark-calendar-suggestion",
+     "title": "`calendar.+suggestion`"
+    },
+    {
+     "id": "lark-calendar-transfer",
+     "title": "`calendar.+transfer`"
+    },
+    {
+     "id": "lark-calendar-update",
+     "title": "`calendar.+update`"
+    }
+   ]
+  },
+  "lark-contact": {
+   "description": "飞书 / Lark 通讯录:按姓名 / 邮箱解析成 open_id,或按 open_id 反查姓名 / 部门 / 邮箱 / 联系方式 / 个人状态 / 签名,以及按关键词搜索当前用户可见的机器人 / 智能体(agent)。当用户提到一个名字要下一步发消息 / 排日程,或拿到 open_id 想查具体信息时使用。不负责部门树遍历、按部门列员工、组织架构图,这类需求走原生 OpenAPI。",
+   "domain": "contact",
+   "topics": [
+    {
+     "id": "lark-contact-get-user",
+     "title": "`contact.+get-user`"
+    },
+    {
+     "id": "lark-contact-search-bot",
+     "title": "`contact.+search-bot`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-contact-search-user",
+     "title": "`contact.+search-user`（网关不提供：仅支持用户身份）"
+    }
+   ]
+  },
+  "lark-doc": {
+   "description": "飞书云文档（Docx / Wiki）内容操作：读取、创建、编辑文档，插入或下载图片附件，以及操作思维笔记。用户提供文档 URL/token（包括 doubao.com 的 /docx/、/wiki/）时使用；按 URL 路径/token 而非域名路由；`/page/<token>` 是妙搭应用，非飞书云文档。文档内嵌资源按读取参考中的统一规则分流。独立评论操作走 `drive` 领域；随正文读取评论使用 `docs.+fetch`。表格或 Base 内部数据操作不在本 skill。",
+   "domain": "docs",
+   "topics": [
+    {
+     "id": "business-analysis",
+     "title": "Genre Contract: Business Analysis / 商业分析 (`report.business_analysis`)"
+    },
+    {
+     "id": "data-report",
+     "title": "Genre Contract: Data Report / 数据报告 (`report.data_report`)"
+    },
+    {
+     "id": "email",
+     "title": "Genre Contract: Email / 邮件 (`platform.email`)"
+    },
+    {
+     "id": "execution-plan",
+     "title": "Genre Contract: Execution Plan / 执行计划 (`workplace.execution_plan`)"
+    },
+    {
+     "id": "formal-doc",
+     "title": "Genre Contract: Formal Document / 内部正式材料 (`workplace.formal_doc`)"
+    },
+    {
+     "id": "lark-doc-create",
+     "title": "`docs.+create`（创建飞书云文档）"
+    },
+    {
+     "id": "lark-doc-create-workflow",
+     "title": "Lark Doc Authoring"
+    },
+    {
+     "id": "lark-doc-fetch",
+     "title": "`docs.+fetch`（读取飞书云文档）"
+    },
+    {
+     "id": "lark-doc-history",
+     "title": "docs history（历史版本与回滚）"
+    },
+    {
+     "id": "lark-doc-md",
+     "title": "Markdown 格式参考"
+    },
+    {
+     "id": "lark-doc-media-download",
+     "title": "`docs.+media-download`（下载文档素材/画板缩略图）"
+    },
+    {
+     "id": "lark-doc-media-insert",
+     "title": "`docs.+media-insert`（文档末尾插入图片/文件）"
+    },
+    {
+     "id": "lark-doc-media-preview",
+     "title": "`docs.+media-preview`（预览文档素材）"
+    },
+    {
+     "id": "lark-doc-mindnote",
+     "title": "飞书思维笔记（Mindnote）"
+    },
+    {
+     "id": "lark-doc-resource-cover",
+     "title": "docs +resource-*（Docx 封面图资源）"
+    },
+    {
+     "id": "lark-doc-script",
+     "title": "`docs.+script`"
+    },
+    {
+     "id": "lark-doc-update",
+     "title": "`docs.+update`（更新飞书云文档）"
+    },
+    {
+     "id": "lark-doc-whiteboard",
+     "title": "`docs` 领域 画板处理指南"
+    },
+    {
+     "id": "lark-doc-xml",
+     "title": "飞书 XML 语法"
+    },
+    {
+     "id": "lark-doc-xml-extended-blocks",
+     "title": "XML 扩展块补充说明"
+    },
+    {
+     "id": "meeting-minutes",
+     "title": "Genre Contract: Meeting Minutes / 会议纪要 (`workplace.meeting_minutes`)"
+    },
+    {
+     "id": "memo-brief",
+     "title": "Genre Contract: Memo / Brief (`workplace.memo_brief`)"
+    },
+    {
+     "id": "official-redhead",
+     "title": "Genre Contract: Official Document / 公文内容稿 (`workplace.official_redhead`)"
+    },
+    {
+     "id": "prd",
+     "title": "Genre Contract: PRD / 产品需求 (`workplace.prd`)"
+    },
+    {
+     "id": "proposal",
+     "title": "Genre Contract: Proposal / 方案提案 (`workplace.proposal`)"
+    },
+    {
+     "id": "research-report",
+     "title": "Genre Contract: Research Report / 调研报告 (`report.research_report`)"
+    },
+    {
+     "id": "retrospective",
+     "title": "Genre Contract: Retrospective / 复盘 (`workplace.retrospective`)"
+    },
+    {
+     "id": "route-consumer",
+     "title": "Genre Contract: Consumer / 消费决策内容 (`router.consumer`)"
+    },
+    {
+     "id": "route-creative",
+     "title": "Genre Contract: Creative / 叙事创作 (`router.creative`)"
+    },
+    {
+     "id": "route-knowledge",
+     "title": "Genre Contract: Knowledge / 知识与教程 (`router.knowledge`)"
+    },
+    {
+     "id": "route-marketing",
+     "title": "Genre Contract: Marketing / 营销与公关 (`router.marketing`)"
+    },
+    {
+     "id": "route-media",
+     "title": "Genre Contract: Media / 资讯媒体 (`router.media`)"
+    },
+    {
+     "id": "route-opinion",
+     "title": "Genre Contract: Opinion / 观点评论 (`router.opinion`)"
+    },
+    {
+     "id": "route-personal-brand",
+     "title": "Genre Contract: Personal Brand / 个人品牌 (`router.personal_brand`)"
+    },
+    {
+     "id": "route-platform",
+     "title": "Genre Router: Platform / 平台发布稿 (`route_platform`)"
+    },
+    {
+     "id": "route-report",
+     "title": "Genre Router: Report (`router.report`)"
+    },
+    {
+     "id": "route-workplace",
+     "title": "Genre Router: Workplace (`router.workplace`)"
+    },
+    {
+     "id": "sop-tutorial",
+     "title": "Genre Contract: SOP / Runbook (`workplace.sop_tutorial`)"
+    },
+    {
+     "id": "technical-doc",
+     "title": "Genre Contract: Technical Document / 技术文档 (`workplace.technical_doc`)"
+    },
+    {
+     "id": "wechat",
+     "title": "Genre Contract: WeChat Official Account / 微信公众号文章 (`platform.wechat`)"
+    },
+    {
+     "id": "weekly-report",
+     "title": "Genre Contract: Weekly / Status Report (`workplace.weekly_report`)"
+    },
+    {
+     "id": "white-paper",
+     "title": "Genre Contract: White Paper / 白皮书 (`report.white_paper`)"
+    },
+    {
+     "id": "xiaohongshu",
+     "title": "Genre Contract: Xiaohongshu Note / 小红书笔记 (`platform.xiaohongshu`)"
+    }
+   ]
+  },
+  "lark-drive": {
+   "description": "飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退 WebFetch。不负责：文档内容编辑（走 `docs` 领域）、表格/Base 表内数据操作（走 lark-sheets/lark-base）、知识空间节点/成员管理（走 `wiki` 领域）、原生 Markdown 文件读写/patch/diff（走 `markdown` 领域）。",
+   "domain": "drive",
+   "topics": [
+    {
+     "id": "lark-drive-add-comment",
+     "title": "`drive.+add-comment`"
+    },
+    {
+     "id": "lark-drive-add-reply",
+     "title": "`drive.+add-reply`"
+    },
+    {
+     "id": "lark-drive-apply-permission",
+     "title": "`drive.+apply-permission`（网关不提供：仅支持用户身份）（申请文档权限）"
+    },
+    {
+     "id": "lark-drive-batch-query-comments",
+     "title": "`drive.+batch-query-comments`"
+    },
+    {
+     "id": "lark-drive-comment-content",
+     "title": "Drive 评论内容格式（`content`）"
+    },
+    {
+     "id": "lark-drive-comment-location",
+     "title": "文档评论定位字段"
+    },
+    {
+     "id": "lark-drive-copy",
+     "title": "`drive.+copy`"
+    },
+    {
+     "id": "lark-drive-cover",
+     "title": "列出内置封面规格"
+    },
+    {
+     "id": "lark-drive-create-folder",
+     "title": "`drive.+create-folder`（创建云空间/云盘/云存储文件夹）"
+    },
+    {
+     "id": "lark-drive-create-shortcut",
+     "title": "`drive.+create-shortcut`"
+    },
+    {
+     "id": "lark-drive-delete",
+     "title": "`drive.+delete`"
+    },
+    {
+     "id": "lark-drive-delete-reply",
+     "title": "`drive.+delete-reply`"
+    },
+    {
+     "id": "lark-drive-download",
+     "title": "`drive.+download`"
+    },
+    {
+     "id": "lark-drive-export",
+     "title": "`drive.+export`"
+    },
+    {
+     "id": "lark-drive-export-download",
+     "title": "`drive.+export-download`"
+    },
+    {
+     "id": "lark-drive-files-list",
+     "title": "drive files list（原生 API：读取 Drive 文件夹清单）"
+    },
+    {
+     "id": "lark-drive-import",
+     "title": "`drive.+import`"
+    },
+    {
+     "id": "lark-drive-inspect",
+     "title": "`drive.+inspect`（文档 URL 检视：类型、标题、Token 解析）"
+    },
+    {
+     "id": "lark-drive-list-comments",
+     "title": "`drive.+list-comments`"
+    },
+    {
+     "id": "lark-drive-list-replies",
+     "title": "`drive.+list-replies`"
+    },
+    {
+     "id": "lark-drive-member-add",
+     "title": "`drive.+member-add`（添加协作者/授权成员权限）"
+    },
+    {
+     "id": "lark-drive-member-list",
+     "title": "`drive.+member-list`（查询协作者/授权成员列表）"
+    },
+    {
+     "id": "lark-drive-member-remove",
+     "title": "`drive.+member-remove`（移除协作者权限）"
+    },
+    {
+     "id": "lark-drive-move",
+     "title": "`drive.+move`"
+    },
+    {
+     "id": "lark-drive-permission-get-setting",
+     "title": "`drive.+permission-get-setting`（查询权限设置）"
+    },
+    {
+     "id": "lark-drive-permission-guide",
+     "title": "Drive 权限与授权指南"
+    },
+    {
+     "id": "lark-drive-preview",
+     "title": "查看文件内容"
+    },
+    {
+     "id": "lark-drive-pull",
+     "title": "`drive.+pull`"
+    },
+    {
+     "id": "lark-drive-push",
+     "title": "`drive.+push`"
+    },
+    {
+     "id": "lark-drive-react-reply",
+     "title": "`drive.+react-reply`"
+    },
+    {
+     "id": "lark-drive-reactions",
+     "title": "drive reactions"
+    },
+    {
+     "id": "lark-drive-resolve-comment",
+     "title": "`drive.+resolve-comment`"
+    },
+    {
+     "id": "lark-drive-restore-comment",
+     "title": "`drive.+restore-comment`"
+    },
+    {
+     "id": "lark-drive-search",
+     "title": "`drive.+search`（云空间/云盘/云存储搜索：扁平 flag，面向自然语言场景）"
+    },
+    {
+     "id": "lark-drive-secure-label",
+     "title": "`drive.+secure-label-list`（网关不提供：仅支持用户身份） / `drive.+secure-label-update`（网关不提供：仅支持用户身份）（云文档密级标签）"
+    },
+    {
+     "id": "lark-drive-status",
+     "title": "`drive.+status`"
+    },
+    {
+     "id": "lark-drive-task-result",
+     "title": "drive +task_result"
+    },
+    {
+     "id": "lark-drive-update-reply",
+     "title": "`drive.+update-reply`"
+    },
+    {
+     "id": "lark-drive-update-title",
+     "title": "`drive.+update-title`"
+    },
+    {
+     "id": "lark-drive-upload",
+     "title": "`drive.+upload`"
+    },
+    {
+     "id": "lark-drive-version-delete",
+     "title": "`drive.+version-delete`"
+    },
+    {
+     "id": "lark-drive-version-get",
+     "title": "`drive.+version-get`"
+    },
+    {
+     "id": "lark-drive-version-history",
+     "title": "`drive.+version-history`"
+    },
+    {
+     "id": "lark-drive-version-revert",
+     "title": "`drive.+version-revert`"
+    },
+    {
+     "id": "lark-drive-workflow",
+     "title": "`drive` 领域 Workflow 总框架"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize",
+     "title": "知识整理工作流"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize-analysis",
+     "title": "知识整理工作流：Analysis"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize-discovery",
+     "title": "知识整理工作流：Discovery"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize-execution",
+     "title": "知识整理工作流：Execution"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize-planning",
+     "title": "知识整理工作流：Planning"
+    },
+    {
+     "id": "lark-drive-workflow-knowledge-organize-rollback",
+     "title": "知识整理工作流：Rollback"
+    },
+    {
+     "id": "lark-drive-workflow-permission-governance",
+     "title": "`drive` 领域 权限治理 Workflow"
+    },
+    {
+     "id": "lark-drive-workflow-permission-governance-commands",
+     "title": "权限治理 Command Patterns"
+    },
+    {
+     "id": "lark-drive-workflow-permission-governance-outputs",
+     "title": "权限治理输出模板"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector",
+     "title": "主题资料收集工作流"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector-execute",
+     "title": "主题资料收集工作流：执行"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector-recall",
+     "title": "主题资料收集工作流：召回"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector-resolve-verify",
+     "title": "主题资料收集工作流：资源解析与内容验证"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector-review-plan",
+     "title": "主题资料收集工作流：审核与计划"
+    },
+    {
+     "id": "lark-drive-workflow-topic-move-collector-setup",
+     "title": "主题资料收集工作流：输入与目标确认"
+    }
+   ]
+  },
+  "lark-im": {
+   "description": "飞书即时通讯：收发消息和管理群聊。发送和回复消息、搜索聊天记录、管理群聊成员、上传下载图片和文件、管理表情回复、发送应用内/短信/电话加急、发送和处理交互卡片（Interactive Card）、监听卡片按钮回调（card.action.trigger）。当用户需要发消息、查看或搜索聊天记录、下载聊天中的文件、查看群成员、搜索群、创建群聊或话题群、管理标记数据、管理 Feed 置顶（添加/移除/查询置顶会话）、管理标签数据、处理卡片回调时使用。",
+   "domain": "im",
+   "topics": [
+    {
+     "id": "button",
+     "title": "按钮 `button`"
+    },
+    {
+     "id": "card-2.0-schema",
+     "title": "卡片 2.0 组件大纲"
+    },
+    {
+     "id": "chart",
+     "title": "图表 `chart`"
+    },
+    {
+     "id": "checker",
+     "title": "勾选器 `checker`"
+    },
+    {
+     "id": "collapsible_panel",
+     "title": "折叠面板 `collapsible_panel`"
+    },
+    {
+     "id": "colors",
+     "title": "颜色枚举"
+    },
+    {
+     "id": "column_set",
+     "title": "分栏 `column_set` + `column`"
+    },
+    {
+     "id": "date_picker",
+     "title": "日期选择器 `date_picker`"
+    },
+    {
+     "id": "div",
+     "title": "普通文本 `div`"
+    },
+    {
+     "id": "form",
+     "title": "表单容器 `form`"
+    },
+    {
+     "id": "header",
+     "title": "标题 `header`"
+    },
+    {
+     "id": "hr",
+     "title": "分割线 `hr`"
+    },
+    {
+     "id": "icons",
+     "title": "图标枚举"
+    },
+    {
+     "id": "img",
+     "title": "图片 `img`"
+    },
+    {
+     "id": "img_combination",
+     "title": "多图混排 `img_combination`"
+    },
+    {
+     "id": "input",
+     "title": "输入框 `input`"
+    },
+    {
+     "id": "interactive_container",
+     "title": "交互容器 `interactive_container`"
+    },
+    {
+     "id": "lark-im-card-action-reply",
+     "title": "card.action.trigger"
+    },
+    {
+     "id": "lark-im-card-create",
+     "title": "发送 Interactive 卡片工作流"
+    },
+    {
+     "id": "lark-im-card-style",
+     "title": "Card Style Guide"
+    },
+    {
+     "id": "lark-im-chat-create",
+     "title": "`im.+chat-create`"
+    },
+    {
+     "id": "lark-im-chat-identity",
+     "title": "Group Chat Identity Rules"
+    },
+    {
+     "id": "lark-im-chat-list",
+     "title": "`im.+chat-list`"
+    },
+    {
+     "id": "lark-im-chat-members-list",
+     "title": "`im.+chat-members-list`"
+    },
+    {
+     "id": "lark-im-chat-messages-list",
+     "title": "`im.+chat-messages-list`"
+    },
+    {
+     "id": "lark-im-chat-search",
+     "title": "`im.+chat-search`"
+    },
+    {
+     "id": "lark-im-chat-update",
+     "title": "`im.+chat-update`"
+    },
+    {
+     "id": "lark-im-feed-group-list",
+     "title": "`im.+feed-group-list`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-feed-group-list-item",
+     "title": "`im.+feed-group-list-item`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-feed-group-query-item",
+     "title": "`im.+feed-group-query-item`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-feed-groups",
+     "title": "im feed.groups"
+    },
+    {
+     "id": "lark-im-feed-shortcut-create",
+     "title": "`im.+feed-shortcut-create`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-feed-shortcut-list",
+     "title": "`im.+feed-shortcut-list`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-feed-shortcut-remove",
+     "title": "`im.+feed-shortcut-remove`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-flag-cancel",
+     "title": "`im.+flag-cancel`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-flag-create",
+     "title": "`im.+flag-create`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-flag-list",
+     "title": "`im.+flag-list`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-im-message-enrichment",
+     "title": "im default message enrichment (reactions / update_time)"
+    },
+    {
+     "id": "lark-im-message-read-status",
+     "title": "IM message read status"
+    },
+    {
+     "id": "lark-im-messages-edit",
+     "title": "`im.+messages-edit`"
+    },
+    {
+     "id": "lark-im-messages-mget",
+     "title": "`im.+messages-mget`"
+    },
+    {
+     "id": "lark-im-messages-reply",
+     "title": "`im.+messages-reply`"
+    },
+    {
+     "id": "lark-im-messages-resources-download",
+     "title": "`im.+messages-resources-download`"
+    },
+    {
+     "id": "lark-im-messages-search",
+     "title": "`im.+messages-search`"
+    },
+    {
+     "id": "lark-im-messages-send",
+     "title": "`im.+messages-send`"
+    },
+    {
+     "id": "lark-im-reactions",
+     "title": "im reactions"
+    },
+    {
+     "id": "lark-im-threads-messages-list",
+     "title": "`im.+threads-messages-list`"
+    },
+    {
+     "id": "markdown",
+     "title": "富文本 `markdown`"
+    },
+    {
+     "id": "multi_select_person",
+     "title": "人员选择-多选 `multi_select_person`"
+    },
+    {
+     "id": "multi_select_static",
+     "title": "下拉多选 `multi_select_static`"
+    },
+    {
+     "id": "overflow",
+     "title": "折叠按钮组 `overflow`"
+    },
+    {
+     "id": "person",
+     "title": "人员 `person`"
+    },
+    {
+     "id": "person_list",
+     "title": "人员列表 `person_list`"
+    },
+    {
+     "id": "picker_datetime",
+     "title": "日期时间选择器 `picker_datetime`"
+    },
+    {
+     "id": "picker_time",
+     "title": "时间选择器 `picker_time`"
+    },
+    {
+     "id": "recycling_container",
+     "title": "循环容器（搭建工具专属，无 JSON tag）"
+    },
+    {
+     "id": "select_img",
+     "title": "多图选择 `select_img`"
+    },
+    {
+     "id": "select_person",
+     "title": "人员选择-单选 `select_person`"
+    },
+    {
+     "id": "select_static",
+     "title": "下拉单选 `select_static`"
+    },
+    {
+     "id": "table",
+     "title": "表格 `table`"
+    }
+   ]
+  },
+  "lark-mail": {
+   "description": "飞书邮箱：Use when user mentions 起草邮件、写邮件、草稿、发送/回复/转发邮件、查阅邮件、看邮件、搜索邮件、邮件文件夹、邮件标签、邮件联系人、监听新邮件、邮件收信规则等；use for mail/email intent only. Do not use for docs/sheets/calendar/auth setup/pure contact lookup/IM chat tasks.",
+   "domain": "mail",
+   "topics": [
+    {
+     "id": "lark-mail-calendar-invite",
+     "title": "发送日程邀请邮件"
+    },
+    {
+     "id": "lark-mail-decline-receipt",
+     "title": "`mail.+decline-receipt`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-draft-create",
+     "title": "`mail.+draft-create`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-draft-edit",
+     "title": "`mail.+draft-edit`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-forward",
+     "title": "`mail.+forward`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-html",
+     "title": "邮件 HTML 写法指南"
+    },
+    {
+     "id": "lark-mail-lint-html",
+     "title": "`mail.+lint-html`"
+    },
+    {
+     "id": "lark-mail-message",
+     "title": "`mail.+message`"
+    },
+    {
+     "id": "lark-mail-message-modify",
+     "title": "`mail.+message-modify`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-message-trash",
+     "title": "`mail.+message-trash`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-messages",
+     "title": "`mail.+messages`"
+    },
+    {
+     "id": "lark-mail-recall",
+     "title": "mail sent_messages recall"
+    },
+    {
+     "id": "lark-mail-recipient-search",
+     "title": "mail recipient search"
+    },
+    {
+     "id": "lark-mail-reply",
+     "title": "`mail.+reply`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-reply-all",
+     "title": "`mail.+reply-all`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-rules",
+     "title": "收信规则 Shortcut"
+    },
+    {
+     "id": "lark-mail-send",
+     "title": "`mail.+send`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-send-as",
+     "title": "mail send_as"
+    },
+    {
+     "id": "lark-mail-send-receipt",
+     "title": "`mail.+send-receipt`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-send-status",
+     "title": "发送投递状态"
+    },
+    {
+     "id": "lark-mail-share-to-chat",
+     "title": "`mail.+share-to-chat`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-signature",
+     "title": "`mail.+signature`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-mail-template",
+     "title": "mail templates"
+    },
+    {
+     "id": "lark-mail-template-create",
+     "title": "`mail.+template-create`"
+    },
+    {
+     "id": "lark-mail-template-update",
+     "title": "`mail.+template-update`"
+    },
+    {
+     "id": "lark-mail-thread",
+     "title": "`mail.+thread`"
+    },
+    {
+     "id": "lark-mail-thread-modify",
+     "title": "`mail.+thread-modify`"
+    },
+    {
+     "id": "lark-mail-thread-trash",
+     "title": "`mail.+thread-trash`"
+    },
+    {
+     "id": "lark-mail-triage",
+     "title": "`mail.+triage`"
+    },
+    {
+     "id": "lark-mail-watch",
+     "title": "`mail.+watch`（网关不提供：仅支持用户身份）"
+    }
+   ]
+  },
+  "lark-markdown": {
+   "description": "飞书 Markdown：查看、创建、上传、编辑和比较飞书中的原生 Markdown 文件。当用户要操作飞书 Markdown 文件，或比较其远端版本及本地草稿时使用。纯本地 Markdown 文件操作不触发本 skill。不负责将 Markdown 导入为飞书在线文档，也不负责文件搜索、权限、评论、移动、删除等云空间管理操作。",
+   "domain": "markdown",
+   "topics": [
+    {
+     "id": "lark-markdown-create",
+     "title": "`markdown.+create`"
+    },
+    {
+     "id": "lark-markdown-diff",
+     "title": "`markdown.+diff`"
+    },
+    {
+     "id": "lark-markdown-fetch",
+     "title": "`markdown.+fetch`"
+    },
+    {
+     "id": "lark-markdown-overwrite",
+     "title": "`markdown.+overwrite`"
+    },
+    {
+     "id": "lark-markdown-patch",
+     "title": "`markdown.+patch`"
+    }
+   ]
+  },
+  "lark-meeting": {
+   "description": "飞书视频会议：查询会议记录与会议产物(纪要/逐字稿/妙记)、妙记搜索/上传/下载/编辑、机器人参与会议；查询进行中的会议、实时会议内容(发言/聊天/共享文档)问答(会上/会里)、发送会中聊天/表情；基于 meeting_id、meeting_no、event_id、note_id、minute_token、vc-node-id 或妙记 URL 查询相关信息。预约会议、忙闲和会议室管理走 `calendar` 领域。",
+   "domain": "vc",
+   "topics": [
+    {
+     "id": "create-and-edit-minutes",
+     "title": "生成和修改妙记、管理妙记权限"
+    },
+    {
+     "id": "lark-minutes-apply-permission",
+     "title": "`minutes.+apply-permission`"
+    },
+    {
+     "id": "lark-minutes-detail",
+     "title": "`minutes.+detail`"
+    },
+    {
+     "id": "lark-minutes-download",
+     "title": "`minutes.+download`"
+    },
+    {
+     "id": "lark-minutes-search",
+     "title": "`minutes.+search`"
+    },
+    {
+     "id": "lark-minutes-speaker-replace",
+     "title": "`minutes.+speaker-replace`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-minutes-summary",
+     "title": "`minutes.+summary`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-minutes-todo",
+     "title": "`minutes.+todo`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-minutes-update",
+     "title": "`minutes.+update`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-minutes-upload",
+     "title": "`minutes.+upload`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-note-detail",
+     "title": "`note.+detail`"
+    },
+    {
+     "id": "lark-note-transcript",
+     "title": "`note.+transcript`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-vc-agent-meeting-end",
+     "title": "`vc.+meeting-end`"
+    },
+    {
+     "id": "lark-vc-agent-meeting-invite",
+     "title": "`vc.+meeting-invite`"
+    },
+    {
+     "id": "lark-vc-agent-meeting-join",
+     "title": "`vc.+meeting-join`"
+    },
+    {
+     "id": "lark-vc-agent-meeting-leave",
+     "title": "`vc.+meeting-leave`"
+    },
+    {
+     "id": "lark-vc-detail",
+     "title": "`vc.+detail`"
+    },
+    {
+     "id": "lark-vc-meeting-countdown",
+     "title": "`vc.+meeting-countdown`"
+    },
+    {
+     "id": "lark-vc-meeting-events",
+     "title": "`vc.+meeting-events`"
+    },
+    {
+     "id": "lark-vc-meeting-list-active",
+     "title": "`vc.+meeting-list-active`"
+    },
+    {
+     "id": "lark-vc-meeting-message-send",
+     "title": "`vc.+meeting-message-send`"
+    },
+    {
+     "id": "lark-vc-meeting-screenshot",
+     "title": "`vc.+meeting-screenshot`"
+    },
+    {
+     "id": "lark-vc-recording",
+     "title": "`vc.+recording`"
+    },
+    {
+     "id": "lark-vc-search",
+     "title": "`vc.+search`"
+    },
+    {
+     "id": "live-meeting-attend",
+     "title": "应用机器人参会与会中互动"
+    },
+    {
+     "id": "live-meeting-interact",
+     "title": "读取会中事件与会中互动"
+    },
+    {
+     "id": "query-meeting-and-artifacts",
+     "title": "查询会议及其产物"
+    },
+    {
+     "id": "query-minutes-and-artifacts",
+     "title": "查询妙记及其产物"
+    },
+    {
+     "id": "query-note-and-artifacts",
+     "title": "基于 note_id 查询智能纪要及关联产物"
+    }
+   ]
+  },
+  "lark-okr": {
+   "description": "飞书 OKR：管理目标与关键结果。查看和编辑 OKR 周期、目标、关键结果、对齐关系、量化指标和进展记录。当用户需要查看或创建 OKR、管理目标和关键结果、查看对齐关系时使用。不负责：待办任务管理（`task` 领域）、日程/会议安排（`calendar` 领域）、绩效评估",
+   "domain": "okr",
+   "topics": [
+    {
+     "id": "lark-okr-alignments",
+     "title": "OKR 对齐关系管理"
+    },
+    {
+     "id": "lark-okr-batch-create",
+     "title": "`okr.+batch-create`"
+    },
+    {
+     "id": "lark-okr-comment-create",
+     "title": "`okr.+comment-create`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-okr-comment-delete",
+     "title": "`okr.+comment-delete`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-okr-comment-detail",
+     "title": "`okr.+comment-detail`"
+    },
+    {
+     "id": "lark-okr-comment-get",
+     "title": "`okr.+comment-get`"
+    },
+    {
+     "id": "lark-okr-comment-list",
+     "title": "`okr.+comment-list`"
+    },
+    {
+     "id": "lark-okr-comment-patch",
+     "title": "`okr.+comment-patch`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-okr-comment-solve-reopen",
+     "title": "`okr.+comment-solve`（网关不提供：仅支持用户身份） / `okr.+comment-reopen`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-okr-contentblock",
+     "title": "OKR ContentBlock 富文本格式"
+    },
+    {
+     "id": "lark-okr-create",
+     "title": "`okr.+create`"
+    },
+    {
+     "id": "lark-okr-cycle-detail",
+     "title": "`okr.+cycle-detail`"
+    },
+    {
+     "id": "lark-okr-cycle-list",
+     "title": "`okr.+cycle-list`"
+    },
+    {
+     "id": "lark-okr-entities",
+     "title": "OKR 实体定义"
+    },
+    {
+     "id": "lark-okr-image-upload",
+     "title": "`okr.+upload-image`"
+    },
+    {
+     "id": "lark-okr-indicator-update",
+     "title": "`okr.+indicator-update`"
+    },
+    {
+     "id": "lark-okr-indicators",
+     "title": "OKR 量化指标管理"
+    },
+    {
+     "id": "lark-okr-patch",
+     "title": "`okr.+patch`"
+    },
+    {
+     "id": "lark-okr-progress-create",
+     "title": "`okr.+progress-create`"
+    },
+    {
+     "id": "lark-okr-progress-delete",
+     "title": "`okr.+progress-delete`"
+    },
+    {
+     "id": "lark-okr-progress-get",
+     "title": "`okr.+progress-get`"
+    },
+    {
+     "id": "lark-okr-progress-list",
+     "title": "`okr.+progress-list`"
+    },
+    {
+     "id": "lark-okr-progress-update",
+     "title": "`okr.+progress-update`"
+    },
+    {
+     "id": "lark-okr-reorder",
+     "title": "`okr.+reorder`"
+    },
+    {
+     "id": "lark-okr-weight",
+     "title": "`okr.+weight`"
+    }
+   ]
+  },
+  "lark-sheets": {
+   "description": "飞书电子表格：创建和操作电子表格。支持工作表与行列结构（增删/合并/尺寸/隐藏/冻结/分组）、单元格读写（值/公式/样式/批注/单元格图片）、区域复制移动排序填充、查找替换、批量更新，图表、透视表、条件格式、筛选器与筛选视图、下拉列表、迷你图、浮动图片等对象的创建与维护，以及公式校验、历史版本回滚、本地 Excel/CSV 与飞书表格的导入导出。当用户需要创建或编辑表格、统计汇总与可视化、表格美化、公式计算（含 Excel 公式迁移）、金融/财务建模（DCF、三张表、预算、Sensitivity 等）时使用。多维表格（Base/bitable）请改用 `base` 领域；若用户是想按名称或关键词搜索云空间（云盘/云存储）里的表格文件，请改用 `drive` 领域 的 `drive.+search` 先定位资源。当用户给出 doubao.com 的 /sheets/ URL/token 时，也应直接使用本 skill，不要因为域名不是飞书而回退到 WebFetch；路由依据是 URL 路径模式和 token，而不是域名。",
+   "domain": "sheets",
+   "topics": [
+    {
+     "id": "lark-sheets-batch-update",
+     "title": "Lark Sheet Batch Update"
+    },
+    {
+     "id": "lark-sheets-changeset",
+     "title": "Lark Sheet Changeset"
+    },
+    {
+     "id": "lark-sheets-chart",
+     "title": "Lark Sheet Chart"
+    },
+    {
+     "id": "lark-sheets-conditional-format",
+     "title": "Lark Sheet Conditional Format"
+    },
+    {
+     "id": "lark-sheets-filter",
+     "title": "Lark Sheet Filter"
+    },
+    {
+     "id": "lark-sheets-filter-view",
+     "title": "Lark Sheet Filter View"
+    },
+    {
+     "id": "lark-sheets-float-image",
+     "title": "Lark Sheet Float Image"
+    },
+    {
+     "id": "lark-sheets-formula-translation",
+     "title": "飞书表格公式生成规则"
+    },
+    {
+     "id": "lark-sheets-formula-verify",
+     "title": "Lark Sheet Formula Verify（`sheets.+formula-verify`）"
+    },
+    {
+     "id": "lark-sheets-history",
+     "title": "Lark Sheet History"
+    },
+    {
+     "id": "lark-sheets-pivot-table",
+     "title": "Lark Sheet Pivot Table"
+    },
+    {
+     "id": "lark-sheets-range-operations",
+     "title": "Lark Sheet Range Operations"
+    },
+    {
+     "id": "lark-sheets-read-data",
+     "title": "Lark Sheet Read Data"
+    },
+    {
+     "id": "lark-sheets-search-replace",
+     "title": "Lark Sheet Search & Replace"
+    },
+    {
+     "id": "lark-sheets-sheet-structure",
+     "title": "Lark Sheet Sheet Structure"
+    },
+    {
+     "id": "lark-sheets-sparkline",
+     "title": "Lark Sheet Sparkline"
+    },
+    {
+     "id": "lark-sheets-styles-put",
+     "title": "Lark Sheet Styles Put（`sheets.+styles-put`）"
+    },
+    {
+     "id": "lark-sheets-visual-standards",
+     "title": "飞书表格样式与配色规范"
+    },
+    {
+     "id": "lark-sheets-workbook",
+     "title": "Lark Sheet Workbook"
+    },
+    {
+     "id": "lark-sheets-write-cells",
+     "title": "Lark Sheet Write Cells"
+    }
+   ]
+  },
+  "lark-slides": {
+   "description": "飞书幻灯片：创建和编辑幻灯片。创建演示文稿、读取幻灯片内容、管理幻灯片页面（创建、删除、读取、局部替换）。当用户需要创建或编辑幻灯片、读取或修改单个页面时使用。当用户给出 doubao.com 的 /slides/ URL/token 时，也应直接使用本 skill，不要因为域名不是飞书而回退到 WebFetch；路由依据是 URL 路径模式和 token，而不是域名。不负责：云文档内容编辑（走 `docs` 领域）、云文档里的独立画板对象（走 `whiteboard` 领域）、上传或下载普通文件（走 `drive` 领域）。",
+   "domain": "slides",
+   "topics": [
+    {
+     "id": "asset-planning",
+     "title": "Asset Planning"
+    },
+    {
+     "id": "error-handling",
+     "title": "Troubleshooting"
+    },
+    {
+     "id": "iconpark",
+     "title": "IconPark 图标（兼容入口）"
+    },
+    {
+     "id": "lark-slides-add-slide",
+     "title": "`slides.+add-slide`（向已有演示文稿追加/插入单页）"
+    },
+    {
+     "id": "lark-slides-create",
+     "title": "`slides.+create`（创建飞书幻灯片）"
+    },
+    {
+     "id": "lark-slides-delete-slide",
+     "title": "`slides.+delete-slide`（按 slide_id 删除单页）"
+    },
+    {
+     "id": "lark-slides-edit-workflows",
+     "title": "编辑已有 PPT：读-改-写闭环（兼容入口）"
+    },
+    {
+     "id": "lark-slides-history",
+     "title": "slides history（历史版本与回滚）"
+    },
+    {
+     "id": "lark-slides-media-upload",
+     "title": "`slides.+media-upload`（上传本地图片到飞书幻灯片）"
+    },
+    {
+     "id": "lark-slides-pptx-template-workflows",
+     "title": "PPT Template Rewrite Principles（兼容入口）"
+    },
+    {
+     "id": "lark-slides-replace-slide",
+     "title": "`slides.+replace-slide`（块级替换 / 插入）"
+    },
+    {
+     "id": "lark-slides-screenshot",
+     "title": "`slides.+screenshot`"
+    },
+    {
+     "id": "lark-slides-update-slide",
+     "title": "`slides.+update-slide`（整页更新已有页面）"
+    },
+    {
+     "id": "lark-slides-xml-presentation-slide-get",
+     "title": "`slides.+xml-get`（单页读取兼容入口）"
+    },
+    {
+     "id": "lark-slides-xml-presentation-slide-replace",
+     "title": "`slides.+replace-slide`（块级替换 / 插入）"
+    },
+    {
+     "id": "lark-slides-xml-presentations-get",
+     "title": "`slides.+xml-get`（读取演示文稿 XML）"
+    },
+    {
+     "id": "planning-layer",
+     "title": "Planning Layer"
+    },
+    {
+     "id": "references-lark-slides-add-slide",
+     "title": "`slides.+add-slide`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-create",
+     "title": "`slides.+create`（创建飞书幻灯片）（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-delete-slide",
+     "title": "`slides.+delete-slide`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-history",
+     "title": "slides history（历史版本与回滚）（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-media-upload",
+     "title": "`slides.+media-upload`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-replace-slide",
+     "title": "`slides.+replace-slide`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-screenshot",
+     "title": "`slides.+screenshot`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-xml-presentation-slide-get",
+     "title": "`slides.+xml-get`（单页读取兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-xml-presentation-slide-replace",
+     "title": "`slides.+replace-slide`（兼容入口）"
+    },
+    {
+     "id": "references-lark-slides-xml-presentations-get",
+     "title": "`slides.+xml-get`（兼容入口）"
+    },
+    {
+     "id": "references-xml-iconpark",
+     "title": "IconPark 图标"
+    },
+    {
+     "id": "references-xml-xml-schema-quick-ref",
+     "title": "XML Schema 快速参考"
+    },
+    {
+     "id": "slides-editing",
+     "title": "编辑已有 PPT：读-改-写闭环"
+    },
+    {
+     "id": "template-editing",
+     "title": "PPT Template Rewrite Principles"
+    },
+    {
+     "id": "troubleshooting",
+     "title": "Troubleshooting（兼容入口）"
+    },
+    {
+     "id": "validation-checklist",
+     "title": "Validation Checklist（兼容入口）"
+    },
+    {
+     "id": "validation-xml",
+     "title": "Validation Checklist"
+    },
+    {
+     "id": "visual-planning",
+     "title": "Visual Planning"
+    },
+    {
+     "id": "xml-schema-quick-ref",
+     "title": "XML Schema 快速参考（兼容入口）"
+    }
+   ]
+  },
+  "lark-task": {
+   "description": "飞书任务：管理任务、清单和任务智能体。创建待办任务、查看和更新任务状态、拆分子任务、组织任务清单、分配协作成员、上传任务附件、注册或注销任务智能体、更新任务智能体的主页数据、写入智能体任务记录。当用户需要创建待办事项、查看任务列表、跟踪任务进度、管理项目清单或给他人分配任务、为任务上传附件文件、注册注销任务智能体、更新智能体主页数据、写入任务记录时使用。",
+   "domain": "task",
+   "topics": [
+    {
+     "id": "lark-task-assign",
+     "title": "`task.+assign`"
+    },
+    {
+     "id": "lark-task-comment",
+     "title": "`task.+comment`"
+    },
+    {
+     "id": "lark-task-complete",
+     "title": "`task.+complete`"
+    },
+    {
+     "id": "lark-task-create",
+     "title": "`task.+create`"
+    },
+    {
+     "id": "lark-task-followers",
+     "title": "`task.+followers`"
+    },
+    {
+     "id": "lark-task-get-my-tasks",
+     "title": "`task.+get-my-tasks`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-task-get-related-tasks",
+     "title": "`task.+get-related-tasks`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-task-reminder",
+     "title": "`task.+reminder`"
+    },
+    {
+     "id": "lark-task-reopen",
+     "title": "`task.+reopen`"
+    },
+    {
+     "id": "lark-task-search",
+     "title": "`task.+search`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-task-sections",
+     "title": "task sections"
+    },
+    {
+     "id": "lark-task-set-ancestor",
+     "title": "`task.+set-ancestor`"
+    },
+    {
+     "id": "lark-task-tasklist-create",
+     "title": "`task.+tasklist-create`"
+    },
+    {
+     "id": "lark-task-tasklist-members",
+     "title": "`task.+tasklist-members`"
+    },
+    {
+     "id": "lark-task-tasklist-search",
+     "title": "`task.+tasklist-search`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-task-tasklist-task-add",
+     "title": "`task.+tasklist-task-add`"
+    },
+    {
+     "id": "lark-task-update",
+     "title": "`task.+update`"
+    },
+    {
+     "id": "lark-task-upload-attachment",
+     "title": "`task.+upload-attachment`"
+    }
+   ]
+  },
+  "lark-whiteboard": {
+   "description": ">",
+   "domain": "whiteboard",
+   "topics": [
+    {
+     "id": "architecture",
+     "title": "系统架构图"
+    },
+    {
+     "id": "bar-chart",
+     "title": "柱状图"
+    },
+    {
+     "id": "comparison",
+     "title": "对比图 / 矩阵图"
+    },
+    {
+     "id": "connectors",
+     "title": "连线系统"
+    },
+    {
+     "id": "content",
+     "title": "内容规划"
+    },
+    {
+     "id": "dsl",
+     "title": "DSL 路径"
+    },
+    {
+     "id": "fishbone",
+     "title": "鱼骨图（因果图）"
+    },
+    {
+     "id": "flowchart",
+     "title": "流程图 (Flowchart)"
+    },
+    {
+     "id": "flywheel",
+     "title": "增长飞轮图 (Flywheel)"
+    },
+    {
+     "id": "funnel",
+     "title": "漏斗图 (Funnel)"
+    },
+    {
+     "id": "image",
+     "title": "图片准备 (Image Preparation)"
+    },
+    {
+     "id": "lark-whiteboard-export",
+     "title": "`whiteboard.+export`（导出画板）"
+    },
+    {
+     "id": "lark-whiteboard-update",
+     "title": "`whiteboard.+update`（更新画板）"
+    },
+    {
+     "id": "lark-whiteboard-workflow",
+     "title": "画板创作/编辑工作流"
+    },
+    {
+     "id": "layout",
+     "title": "布局系统"
+    },
+    {
+     "id": "line-chart",
+     "title": "折线图"
+    },
+    {
+     "id": "mention",
+     "title": "提及用户 (@用户 / mentionUser)"
+    },
+    {
+     "id": "mermaid",
+     "title": "Mermaid 路径"
+    },
+    {
+     "id": "milestone",
+     "title": "里程碑时间线 (Milestone)"
+    },
+    {
+     "id": "organization",
+     "title": "组织架构图"
+    },
+    {
+     "id": "photo-showcase",
+     "title": "图片展示 (Photo Showcase)"
+    },
+    {
+     "id": "pyramid",
+     "title": "金字塔图 (Pyramid)"
+    },
+    {
+     "id": "scenes-mermaid",
+     "title": "Mermaid 图表路径"
+    },
+    {
+     "id": "schema",
+     "title": "DSL Schema"
+    },
+    {
+     "id": "style",
+     "title": "配色系统"
+    },
+    {
+     "id": "svg",
+     "title": "SVG 路径"
+    },
+    {
+     "id": "svg-edit",
+     "title": "SVG 编辑路径"
+    },
+    {
+     "id": "swimlane",
+     "title": "泳道图（Swimlane）"
+    },
+    {
+     "id": "treemap",
+     "title": "矩形树图 (Treemap)"
+    },
+    {
+     "id": "typography",
+     "title": "排版规则"
+    }
+   ]
+  },
+  "lark-wiki": {
+   "description": "飞书知识库：管理知识空间、空间成员和文档节点。创建和查询知识空间、查看和管理空间成员、管理节点层级结构、在知识库中组织文档和快捷方式。当用户需要在知识库中查找或创建文档、浏览知识空间结构、查看或管理空间成员、移动或复制节点时使用。当用户给出 doubao.com 的 /wiki/ URL/token 时，也应直接使用本 skill，不要因为域名不是飞书而回退到 WebFetch；路由依据是 URL 路径模式和 token，而不是域名。不负责：上传文件到知识库节点下（走 `drive` 领域）、编辑文档/表格/Base 内容（走 `docs` 领域 / `sheets` 领域 / `base` 领域）。",
+   "domain": "wiki",
+   "topics": [
+    {
+     "id": "lark-wiki-delete-space",
+     "title": "`wiki.+delete-space`"
+    },
+    {
+     "id": "lark-wiki-member-add",
+     "title": "`wiki` 领域 `wiki.+member-add`"
+    },
+    {
+     "id": "lark-wiki-member-list",
+     "title": "`wiki` 领域 `wiki.+member-list`"
+    },
+    {
+     "id": "lark-wiki-member-remove",
+     "title": "`wiki` 领域 `wiki.+member-remove`"
+    },
+    {
+     "id": "lark-wiki-move",
+     "title": "`wiki.+move`"
+    },
+    {
+     "id": "lark-wiki-move-to-drive",
+     "title": "`wiki.+move-to-drive`"
+    },
+    {
+     "id": "lark-wiki-node-copy",
+     "title": "`wiki` 领域 `wiki.+node-copy`"
+    },
+    {
+     "id": "lark-wiki-node-create",
+     "title": "`wiki.+node-create`"
+    },
+    {
+     "id": "lark-wiki-node-delete",
+     "title": "`wiki` 领域 `wiki.+node-delete`"
+    },
+    {
+     "id": "lark-wiki-node-get",
+     "title": "`wiki` 领域 `wiki.+node-get`"
+    },
+    {
+     "id": "lark-wiki-node-list",
+     "title": "`wiki` 领域 `wiki.+node-list`"
+    },
+    {
+     "id": "lark-wiki-space-create",
+     "title": "`wiki` 领域 `wiki.+space-create`（网关不提供：仅支持用户身份）"
+    },
+    {
+     "id": "lark-wiki-space-list",
+     "title": "`wiki` 领域 `wiki.+space-list`"
+    }
+   ]
+  }
+ },
+ "source_commit": "7f70de0666a21ff77ab882c62b61aff44ae3734d"
+}
