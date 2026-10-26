@@ -52,7 +52,7 @@ func (s *Service) addGuide(server *mcp.Server) {
 				}
 			}
 			if !allowed {
-				return failed(fault("domain_unavailable", "该主题所属领域未向当前接入开放"))
+				return failed(fault("domain_unavailable", "该主题不属于指定领域，或所属领域未向当前接入开放"))
 			}
 			data := pageText(content, args)
 			data["topic"], data["title"] = topic, title
