@@ -344,12 +344,10 @@ func (x *searchIndex) search(query string, filter func(Operation) bool) (hits []
 			full = append(full, h)
 		}
 	}
-	if len(full) > 0 || len(concepts) == 0 {
-		if len(concepts) > 0 {
-			hits = full
-		}
-	} else {
-		partial = true
+	if len(full) > 0 && len(concepts) > 0 {
+		hits = full
+	} else if len(concepts) > 0 {
+		partial = len(hits) > 0
 	}
 	order := map[string]int{}
 	for i, d := range domains {

@@ -711,6 +711,8 @@ def build(source, commit, operations, coverage, rows, output):
             owner[topic] = skill
             topic_files[f[len('skills/'):]] = topic
         skills[skill] = topics
+    if output.exists() and any(output.iterdir()) and not (output / 'operations.json').exists():
+        raise SystemExit('指南输出目录不是之前生成的指南目录，拒绝清空: ' + str(output))
     if output.exists():
         for f in sorted(output.rglob('*'), reverse=True):
             if f.is_dir():
