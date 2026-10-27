@@ -1,17 +1,20 @@
 # PR 与 main 的检查：linux/amd64 上构建固定版本的受控后端，运行四项验证、后端核对和进程级 smoke，并扫描提交历史中的密钥与本机路径。
-# 不使用密钥，不访问飞书。
+# Release 工作流在发布前调用同一组检查。不使用密钥，不访问飞书。
 name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
 
+# 被调用时 github.workflow 是调用方名称，Release 调用的检查与 CI 自身的运行因此分属不同组、互不取消。
+# 保留 ci- 前缀：组名不区分大小写，不能与调用方自己的组 release-… 重名，否则会死锁。
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
