@@ -1,5 +1,5 @@
-# 手动发布：验证后构建发布包，用源码包离线重建核对，生成构建证明并创建草稿版本。
-# 草稿由维护者核对后手动发布。修改发布脚本的 PR 只运行密钥扫描、构建与核对，不创建版本。
+# 手动发布：调用 ci.yml 运行与 PR 相同的检查，同时构建发布包并用源码包离线重建核对；都通过后创建草稿版本并生成构建证明。
+# 草稿由维护者核对后手动发布。修改发布脚本、本工作流或 ci.yml 的 PR 运行检查、构建与核对，不创建版本。
 name: Release
 
 on:
@@ -11,6 +11,7 @@ on:
         type: string
   pull_request:
     paths:
+      - .github/workflows/ci.yml
       - .github/workflows/release.yml
       - scripts/build_release.py
       - scripts/package_skill.py
@@ -24,6 +25,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # 直接调用 ci.yml，发布前的检查与 PR 检查一致；修改发布流程的 PR 也运行，用来验证这次调用。
+  checks:
+    name: CI checks
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build:
     name: Build and verify archives
     runs-on: ubuntu-latest
@@ -33,7 +41,6 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -41,12 +48,6 @@ jobs:
           go-version: stable
           check-latest: true
           cache: false
-
-      # 与 CI 相同的历史扫描，PR 上也运行。
-      - name: Secret scan
-        run: |
-          go install github.com/zricethezav/gitleaks/v8@v8.30.1
-          "$(go env GOPATH)/bin/gitleaks" git --no-banner --redact --config .gitleaks.toml --log-opts=--all .
 
       - name: Resolve version
         id: tag
@@ -69,17 +70,6 @@ jobs:
           git -C "$RUNNER_TEMP/lark-cli" checkout -q FETCH_HEAD
           echo "LARK_CLI=$RUNNER_TEMP/lark-cli" >> "$GITHUB_ENV"
 
-      - name: Verify before release
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          python3 scripts/build_backend.py "$LARK_CLI" --test
-          go vet ./...
-          go test -count=1 ./...
-          go test -race -count=1 ./...
-          go build -trimpath -buildvcs=false -o bin/feishu-mcp-gateway ./cmd/gateway
-          python3 scripts/verify_backend.py bin/lark-cli-gateway --output "$RUNNER_TEMP/backend-validation.json"
-          python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway --output "$RUNNER_TEMP/process-smoke.json"
-
       - name: Build release archives
         run: python3 scripts/build_release.py "$LARK_CLI" --tag "$TAG" --output "$RUNNER_TEMP/release"
 
@@ -101,7 +91,7 @@ jobs:
 
   publish:
     name: Create draft release
-    needs: build
+    needs: [checks, build]
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -115,12 +105,7 @@ jobs:
           name: release-${{ needs.build.outputs.tag }}
           path: assets
 
-      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: |
-            assets/*.tar.gz
-            assets/PROVENANCE.json
-
+      # 先建草稿再生成构建证明：草稿私有、可删除，构建证明写入公开透明日志后不能撤回。
       - name: Create draft release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -134,3 +119,9 @@ jobs:
             echo "附件由 GitHub Actions 构建，附 GitHub 构建证明；RELEASE-VERIFY.json 记录校验和与源码包离线重建的核对结果。"
           } > notes.md
           gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft $prerelease --title "Feishu-MCP-Gateway $TAG" --notes-file notes.md
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            assets/*.tar.gz
+            assets/PROVENANCE.json
