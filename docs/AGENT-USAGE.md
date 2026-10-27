@@ -91,17 +91,19 @@ go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
 
 转换规则：
 
-- `lark-cli docs +fetch --detail with-ids`、`docs +fetch`、`+fetch`、`[[+fetch]]` 等写法改为 operation_id，参数改为 JSON 参数名，例如 `docs.+fetch`（detail="with-ids"）；代码块中的命令改为 `operation_id {参数}` 行。
+- `lark-cli docs +fetch --detail with-ids`、`docs +fetch`、`+fetch`、`[[+fetch]]` 等写法改为 operation_id，参数改为 JSON 参数名，例如 `docs.+fetch`（detail="with-ids"）。
+- 代码块中的命令按 shell 规则拆词（单双引号、`$'...'` 转义、续行与跨行引号），每个参数都能等价映射时才改为 `operation_id {参数}` 行，否则保留原文。`$VAR` 写成 `<VAR>` 占位值；静态 API 的单项参数放进 `params`，`--file` 放进 `files`；参数别名换成正式参数名。`@path` 与文件参数（`--image`、`--file` 等）的本地路径改为 `{"file_id": …}`，其他文本即使含 `/` 也保持原样。
 - 网关目录中没有的操作标注“网关不提供”及原因（例如仅支持用户身份）。
-- `--print-schema`、`--help` 和 `lark-cli schema` 改为 `feishu_tools_describe`；`--yes` 改为管理员预授权；`--dry-run`、jq 标注网关不提供。说明 CLI 语法的模板（如 `lark-cli im +<verb> [flags]`）改为 operation_id 写法。
+- `--print-schema`、`--help` 和 `lark-cli schema` 改为 `feishu_tools_describe`；`--yes` 改为管理员预授权；jq 标注网关不提供。代码块中的 dry-run 示例改为一行“网关不提供 dry-run 预览”的注释，正文中的写法同样标注。说明 CLI 语法的模板（如 `lark-cli im +<verb> [flags]`）改为 operation_id 写法。
 - 网关固定以应用身份执行：只提到 `--as bot` 的内容保留，改写为“应用身份”，命令中的该参数去掉；涉及用户身份的内容删除。
 - 只适用于 CLI 登录授权、本机路径或 CLI 自身管理的行和条目会被删除；描述 CLI 全局参数的表格行、按 shell 区分写法的表格整行或整表删除。删除部分约占上游 Markdown 行数的 2%。表格续行的空首格写“同上”。
+- 只讲 shell 传参的说明改写为 JSON 参数写法：lark-doc 的“Shell 传参”一节整节替换，IM 指南中 `$'...'` 的建议改为在 JSON 字符串里写 `\n`。
 - affordance 与 Go Tips 是英文，插入其中的网关说明也用英文。
-- Skill 内的相对链接改为“主题 `x`”或领域指南引用。
+- Skill 内的相对链接改为“主题 `x`”或领域指南引用；代码片段里的 `[文本](url)`、`![alt](img_key)` 等语法示例保持原样。引用块中的代码块按代码块转换。
 
-同一次导入还会清理目录中的操作与参数描述：删除用户身份说明，把 CLI flag 写法改为本操作的参数名。目录的参数、风险和执行映射不变。
+同一次导入还会清理目录中的操作与参数描述：删除用户身份说明，把 CLI flag 写法改为本操作的参数名。参数 schema 按 lark-cli 的实际解析方式生成：枚举值按参数类型转换，数组参数的枚举约束元素；sheets 的 `properties` 参数只校验用户传入的部分（`rule_type`、`range` 等字段来自平铺参数，由 CLI 合并后校验），`sheets`、`styles` 接受 `{"sheets": [...]}` 外层对象或数组本身。风险、执行映射和资源绑定不变。
 
-已知限制：32 行无法安全转换的 `lark-cli` 写法保持原文，多为带管道、heredoc 或变量替换的 shell 片段和 CLI 输出示例；每篇指南开头说明这些 CLI 专用能力在网关中不可用，以及结果中的 `next_command` 怎样换成 operation_id。`go test` 检查残留不超过这个数，并检查指南中没有身份切换参数和残缺的表格行。指南内容来自上游文档，没有逐项做真实飞书验证。
+已知限制：48 行无法等价转换的 `lark-cli` 命令保持原文，包括管道或 heredoc 输入、stdin（`-`）、命令替换、无法映射的参数、命令模板与 CLI 输出示例；每篇指南开头说明这些命令只作参考，以及结果中的 `next_command` 怎样换成 operation_id。`go test` 把全部代码块调用示例按对应操作的 schema 校验（`<…>` 占位值只放宽类型、枚举与格式），并检查参数中没有 `$'...'`、`$VAR` 残留、预览注释后不跟写入调用、原文残留不超过上述行数、没有身份切换参数和残缺的表格行。指南内容来自上游文档，没有逐项做真实飞书验证。
 
 ## 升级 lark-cli
 
