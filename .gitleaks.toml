@@ -1,0 +1,18 @@
+# CI 与 Release 工作流扫描全部提交历史时使用的 gitleaks 规则：默认规则加本机路径。
+# 本地运行：gitleaks git --config .gitleaks.toml --redact
+[extend]
+useDefault = true
+
+# 本机路径会暴露用户名和目录结构；文档、示例与测试使用占位路径或临时目录。
+[[rules]]
+id = "local-macos-path"
+description = "macOS 用户目录或外接卷中的本机路径"
+regex = '''/(?:Users|Volumes)/[A-Za-z0-9][A-Za-z0-9._ -]{0,63}/'''
+keywords = ["/users/", "/volumes/"]
+
+# internal/gateway/guidance/ 由 scripts/refresh_catalog.py 从固定 lark-cli 的公开文档生成，CI 核对其与生成结果一致。
+# 其中 base_token、page_token 等示例值会触发熵规则 generic-api-key；其他规则在该目录照常生效。
+[[allowlists]]
+description = "上游文档中的示例资源 ID 与分页游标"
+targetRules = ["generic-api-key"]
+paths = ['''^internal/gateway/guidance/''']

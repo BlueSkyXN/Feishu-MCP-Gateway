@@ -1,4 +1,4 @@
-# PR 与 main 的检查：linux/amd64 上构建固定版本的受控后端，运行四项验证、后端核对和进程级 smoke。
+# PR 与 main 的检查：linux/amd64 上构建固定版本的受控后端，运行四项验证、后端核对和进程级 smoke，并扫描提交历史中的密钥与本机路径。
 # 不使用密钥，不访问飞书。
 name: CI
 
@@ -97,3 +97,24 @@ jobs:
           go version
           go vet ./...
           go test -count=1 ./...
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # 扫描所有分支的完整历史：公开仓库的提交推送后即可见，只改最新文件不能撤回泄露。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Scan history with gitleaks
+        run: |
+          go install github.com/zricethezav/gitleaks/v8@v8.30.1
+          "$(go env GOPATH)/bin/gitleaks" git --no-banner --redact --config .gitleaks.toml --log-opts=--all .
