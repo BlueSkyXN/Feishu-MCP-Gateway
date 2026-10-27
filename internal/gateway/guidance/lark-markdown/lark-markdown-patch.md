@@ -23,10 +23,14 @@ markdown.+patch {"file_token": "boxcnxxxx", "pattern": " debug", "content": ""}
 markdown.+patch {"file_token": "boxcnxxxx", "pattern": {"file_id": "<file_id>"}, "content": {"file_id": "<file_id>"}}
 
 # 从 stdin 读取 replacement
-printf 'hi patched\n' |    lark-cli markdown +patch      --file-token boxcnxxxx      --pattern 'hello markdown'      --content -
+printf 'hi patched\n' | \
+  lark-cli markdown +patch \
+    --file-token boxcnxxxx \
+    --pattern 'hello markdown' \
+    --content -
 
 # 预览底层编排
-markdown.+patch {"file_token": "boxcnxxxx", "pattern": "hello markdown", "content": "hello patched"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

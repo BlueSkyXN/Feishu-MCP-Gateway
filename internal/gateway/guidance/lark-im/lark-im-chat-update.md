@@ -17,7 +17,7 @@ im.+chat-update {"chat_id": "oc_xxx", "description": "Updated group description"
 im.+chat-update {"chat_id": "oc_xxx", "name": "Q2 Project Team", "description": "Owns Q2 goal tracking"}
 
 # Preview the request without executing it
-im.+chat-update {"chat_id": "oc_xxx", "name": "Test"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters

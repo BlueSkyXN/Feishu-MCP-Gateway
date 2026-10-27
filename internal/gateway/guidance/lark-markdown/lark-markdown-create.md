@@ -17,7 +17,10 @@ markdown.+create {"file": {"file_id": "<file_id>"}}
 markdown.+create {"name": "README.md", "content": {"file_id": "<file_id>"}}
 
 # 从 stdin 读取内容
-printf '# Hello\n\nfrom stdin\n' |    lark-cli markdown +create      --name README.md      --content -
+printf '# Hello\n\nfrom stdin\n' | \
+  lark-cli markdown +create \
+    --name README.md \
+    --content -
 
 # 创建到指定文件夹
 markdown.+create {"folder_token": "fldcn_xxx", "file": {"file_id": "<file_id>"}}
@@ -32,7 +35,7 @@ markdown.+create {"wiki_token": "wikcn_xxx", "file": {"file_id": "<file_id>"}}
 markdown.+create {"wiki_token": "https://feishu.cn/wiki/wikcn_xxx", "file": {"file_id": "<file_id>"}}
 
 # 预览底层请求
-markdown.+create {"name": "README.md", "content": "# Hello"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

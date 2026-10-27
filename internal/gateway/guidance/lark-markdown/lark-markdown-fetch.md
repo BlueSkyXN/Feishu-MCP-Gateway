@@ -20,7 +20,7 @@ markdown.+fetch {"file_token": "boxcnxxxx", "output": "./downloads/"}
 markdown.+fetch {"file_token": "boxcnxxxx", "output": "./README.md", "overwrite": true}
 
 # 预览底层请求
-markdown.+fetch {"file_token": "boxcnxxxx", "output": "./README.md"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

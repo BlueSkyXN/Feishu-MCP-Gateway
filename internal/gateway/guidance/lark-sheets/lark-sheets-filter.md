@@ -91,7 +91,7 @@ _创建/更新的筛选器属性_
 
 ```text
 # 查看当前 sheet 的筛选器配置（filter_id 等于 sheet_id）
-sheets.+filter-list {"url": "...", "sheet_id": "$SID"}
+sheets.+filter-list {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### `sheets.+filter-create`
@@ -99,7 +99,7 @@ sheets.+filter-list {"url": "...", "sheet_id": "$SID"}
 `range` 是独立 flag（含表头行）；`rules` 走 `properties`：
 
 ```text
-sheets.+filter-create {"url": "...", "sheet_id": "$SID", "range": "A1:F1000", "properties": {"rules": [{"column_index": "B", "conditions": [{"type": "multiValue", "compare_type": "equal", "values": ["北京", "上海"]}]}]}}
+sheets.+filter-create {"url": "...", "sheet_id": "<SID>", "range": "A1:F1000", "properties": {"rules": [{"column_index": "B", "conditions": [{"type": "multiValue", "compare_type": "equal", "values": ["北京", "上海"]}]}]}}
 ```
 
 **`conditions[].type` × `compare_type` 取值**（`type` 决定可用的 `compare_type`；两者均必填）：
@@ -120,7 +120,7 @@ sheets.+filter-create {"url": "...", "sheet_id": "$SID", "range": "A1:F1000", "p
 ### `sheets.+filter-delete`
 
 ```text
-sheets.+filter-delete {"url": "...", "sheet_id": "$SID"}
+sheets.+filter-delete {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### Validate / DryRun / Execute 约束

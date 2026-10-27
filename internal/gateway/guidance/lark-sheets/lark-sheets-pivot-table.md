@@ -39,7 +39,7 @@
 - **`properties` 还原生支持**：计算字段 `calculated_fields[].summarize_by ∈ {sum, custom}`、重复行标签 `repeat_row_labels: true`——别因速查表没列就判"不支持"绕路
 - **参数长度限制**：如果透视表配置 JSON 过长（数据源范围跨越大量行列），可能导致工具调用失败。此时应先确认数据范围的精确边界，避免传入过大的 range
 - **落点不能覆盖任何已有数据（不只是 `source` 范围）**：透视表创建后会向右下**展开**，展开区域哪怕只盖到一个已有单元格（即便已避开源数据），也会报「目标位置不能与数据源重叠」并产生 `#REF!`。创建前无法精确预知展开尺寸，故**强烈优先默认策略**（不传 `target_sheet_id/-name` 与 `target_position`/`range`，后端自动新建空白子表），零覆盖风险；非要落到已有子表，必须挑一片足够大的纯空白区
-- **创建后轮询并校验**：调用 `sheets.+pivot-list`（sheet_id/__sheet_name="<落点表>"，pivot_table_id="<id>"）。`Loading` / `ServiceCalcLoading` 是瞬态，继续轮询到 `info.loaded=true` 且 `error_state=None`；`Cover` / `Shrink` 等终态错误再删除重建。随后用 `info.content_range/page_range` 回读展开区，确认非空、尺寸、总计位置和用户点名的指标。
+- **创建后轮询并校验**：调用 `sheets.+pivot-list`（pivot_table_id="<id>"）。`Loading` / `ServiceCalcLoading` 是瞬态，继续轮询到 `info.loaded=true` 且 `error_state=None`；`Cover` / `Shrink` 等终态错误再删除重建。随后用 `info.content_range/page_range` 回读展开区，确认非空、尺寸、总计位置和用户点名的指标。
 
 ## Shortcuts
 
@@ -122,7 +122,7 @@ _创建/更新的透视表属性_
 ### `sheets.+pivot-list`
 
 ```text
-sheets.+pivot-list {"url": "...", "sheet_id": "$SID"}
+sheets.+pivot-list {"url": "...", "sheet_id": "<SID>"}
 ```
 
 > **返回值含 `info`（展开后的占用区域与状态）**：每个透视表对象除 `position` / `snapshot` 外，还返回 `info`，标明它在 sheet 上的平铺区域与状态——`info.page_range`（筛选/分页区 A1）、`info.content_range`（主体数据区 A1）、`info.span_range`（空表合并区 A1）、`info.error_state`（错误状态，如 `None`/`Cover`/`Shrink`/`Loading`）、`info.is_empty` / `info.is_hidden`、`info.row`/`info.col`（锚点）等。
@@ -150,17 +150,17 @@ sheets.+pivot-list {"url": "...", "sheet_id": "$SID"}
 sheets.+pivot-create {"url": "...", "source": "'Sheet1'!A1:D100", "properties": {"file_id": "<file_id>"}}
 
 # 策略 2：落进指定的已有目标子表（注意目标 sheet ≠ 源 sheet，否则要配 --target-position 避开源数据）
-sheets.+pivot-create {"url": "...", "source": "'Sheet1'!A1:D100", "target_sheet_id": "$DEST_SID", "target_position": "A1", "properties": {"file_id": "<file_id>"}}
+sheets.+pivot-create {"url": "...", "source": "'Sheet1'!A1:D100", "target_sheet_id": "<DEST_SID>", "target_position": "A1", "properties": {"file_id": "<file_id>"}}
 ```
 
 ### `sheets.+pivot-update`
 
-> 不允许改落点 range；更新配置前先 `sheets.+pivot-list`（sheet_id/__sheet_name="<落点表>"，pivot_table_id="<id>"） 回读完整 snapshot，再 patch rows / columns / values / filters。需要切换数据源时，可在 `properties` 中提供新的 `source`。
+> 不允许改落点 range；更新配置前先 `sheets.+pivot-list`（pivot_table_id="<id>"） 回读完整 snapshot，再 patch rows / columns / values / filters。需要切换数据源时，可在 `properties` 中提供新的 `source`。
 
 ### `sheets.+pivot-delete`
 
 ```text
-sheets.+pivot-delete {"url": "...", "sheet_id": "$SHEET_ID", "pivot_table_id": "$PIVOT_TABLE_ID"}
+sheets.+pivot-delete {"url": "...", "sheet_id": "<SHEET_ID>", "pivot_table_id": "<PIVOT_TABLE_ID>"}
 ```
 
 ### Validate / DryRun / Execute 约束

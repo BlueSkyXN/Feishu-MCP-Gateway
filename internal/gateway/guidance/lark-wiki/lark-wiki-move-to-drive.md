@@ -18,9 +18,12 @@
 ## 命令
 
 ```text
+# 移到指定 Drive 文件夹
+
+# 移到当前调用身份的“我的空间”根目录
 
 # 预览提交任务和轮询任务两步请求
-wiki.+move-to-drive {"node_token": "<WIKI_NODE_TOKEN>", "folder_token": "<TARGET_FOLDER_TOKEN>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

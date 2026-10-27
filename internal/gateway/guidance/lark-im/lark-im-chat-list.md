@@ -30,7 +30,7 @@ im.+chat-list {"exclude_muted": true}
 im.+chat-list
 
 # Preview the request without executing it
-im.+chat-list
+# 网关不提供 dry-run 预览，此示例省略
 
 # Same, using repeat flag instead of CSV
 

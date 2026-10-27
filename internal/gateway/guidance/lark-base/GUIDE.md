@@ -1,6 +1,6 @@
 > 由 Feishu-MCP-Gateway 从 lark-cli `7f70de0666a2` 的 `lark-base` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -164,6 +164,7 @@ PY
 附件使用专用 shortcut 上传、下载或移除。created_at, updated_at, created_by, updated_by, auto_number, formula, lookup 类型字段只读，若误写入单元格会返回 `ignored_fields` 表示这些字段被静默过滤，其余字段正常写入。
 
 ```bash
+# 新增：成功时返回 record_id_list
 
 # 更新：每条记录只提交要改变的字段
 ```

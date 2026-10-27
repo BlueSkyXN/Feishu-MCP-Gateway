@@ -18,6 +18,7 @@ Because chat-name resolution always runs, this shortcut needs **two** user scope
 ## Usage
 
 ```bash
+# First page, enriched with chat names
 
 # Auto-paginate through everything within a time window
 ```

@@ -6,7 +6,7 @@
 
 ```text
 vc.+meeting-end {"meeting_id": "7628568141510692381"}
-vc.+meeting-end {"meeting_id": "7628568141510692381"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 正常执行必须显式传入 管理员预授权（high_risk_operations）；dry-run（网关不提供，改为先读取核对） 不会结束会议。

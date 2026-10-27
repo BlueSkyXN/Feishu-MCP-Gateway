@@ -13,6 +13,17 @@ The API returns data sorted by `update_time` in **ascending order**, meaning **o
 ## Commands
 
 ```bash
+# Fetch first page (default page-size=50)
+
+# Manual pagination with custom page size
+
+# Auto-paginate, capped at the default 20 pages
+
+# Auto-paginate + get the latest flag
+
+# Auto-paginate + get only item_id list
+
+# Disable auto-enrichment of message content (enabled by default)
 
 # Use the largest supported page limit for a broader scan
 ```

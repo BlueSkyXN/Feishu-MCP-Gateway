@@ -24,7 +24,7 @@ im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx
 im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image"}
 
 # Preview the request without executing it
-im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters
@@ -49,7 +49,7 @@ Different resource markers in message content correspond to different `file_key`
 
 Stickers cannot be downloaded with this command.
 
-A folder itself cannot be downloaded: expand it with `im.files.folder` first (see `im` domain指南), then download the files it contains.
+A folder itself cannot be downloaded: expand it with `im.files.folder` (params={"recursive": true}) first (see `im` domain指南), then download the files it contains.
 
 ## Output
 
@@ -67,6 +67,7 @@ On success, read:
 ```text
 # Step 1: Fetch messages and find one containing an image
 im.+chat-messages-list {"chat_id": "oc_xxx"}
+# In the response you see: { "msg_type": "image", "content": "{\"image_key\":\"img_v3_xxx\"}" }
 
 # Step 2: Download the image
 im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image"}

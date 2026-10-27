@@ -20,7 +20,7 @@ task.+create {"summary": "Buy milk"}
 task.+create {"summary": "Release v2.0", "due": "2026-08-15", "data": "{\"is_milestone\":true}"}
 
 # Preview the API call without executing
-task.+create {"summary": "Test Task"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters

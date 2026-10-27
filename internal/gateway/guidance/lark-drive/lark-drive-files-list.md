@@ -169,7 +169,7 @@ while queue not empty:
 
 | 错误用法 | 问题 | 正确做法 |
 |----------|------|----------|
-| `drive.files.list`（folder_token="<token>"） | `files.list` 不提供 `folder_token` flag | 使用 `params={"folder_token":"<token>"}` |
+| `drive.files.list`（params={"folder_token": "<token>"}） | `files.list` 不提供 `folder_token` flag | 使用 `params={"folder_token":"<token>"}` |
 | 根目录返回 N 项就认为云空间只有 N 项 | 根目录只返回直接子项，不是递归结果 | 对返回的子文件夹继续递归 |
 | `--page-all \| python json.loads(...)` | 自动翻页输出不适合作为单个 JSON 对象解析 | 手动使用 `page_token` 翻页并逐页解析 |
 | `cmd 2>&1` 后解析 JSON | stderr 提示污染 JSON 输入 | 只解析 stdout，stderr 作为日志处理 |

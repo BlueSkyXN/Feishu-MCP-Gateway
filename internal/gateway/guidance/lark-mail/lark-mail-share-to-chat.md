@@ -51,6 +51,7 @@ mail.+share-to-chat  # 网关不提供：仅支持用户身份
 ```text
 # Step 1: 搜索群聊获取 chat_id
 im.+chat-search {"query": "项目群"}
+# → 获取 chat_id: oc_xxx
 
 # Step 2: 分享邮件
 mail.+share-to-chat  # 网关不提供：仅支持用户身份

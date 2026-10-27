@@ -61,7 +61,7 @@ _公共：URL/token（无 sheet 定位） · 系统：dry-run（网关不提供�
 表头美化 + 按组合并 + 列宽 + 冻结首行，一次交付：
 
 ```bash
-sheets.+styles-put {"url": "https://example.feishu.cn/sheets/shtXXX", "styles": "<内容>"}
+lark-cli sheets +styles-put --url "https://example.feishu.cn/sheets/shtXXX" --styles - <<'JSON'
 {"styles":[{
   "name": "Sheet1",
   "cell_merges": [{"range":"A5:A8"},{"range":"A9:A12"}],
@@ -79,7 +79,7 @@ JSON
 多子表同一批交付（每个子表一个 styles 项）：
 
 ```bash
-sheets.+styles-put {"url": "...", "styles": "<内容>"}
+lark-cli sheets +styles-put --url "..." --styles - <<'JSON'
 {"styles":[
   {"name":"明细","cell_styles":[{"range":"A1:H1","font_weight":"bold","background_color":"#F0F0F0"}],"freeze":{"rows":1}},
   {"name":"汇总","cell_styles":[{"range":"A1:D1","font_weight":"bold"}],"col_sizes":[{"range":"A:D","type":"pixel","size":140}]}

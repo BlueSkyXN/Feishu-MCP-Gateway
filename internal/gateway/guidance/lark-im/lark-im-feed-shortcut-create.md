@@ -15,6 +15,11 @@ Adds one or more chats to the **current user's** feed shortcuts — equivalent t
 ## Commands
 
 ```bash
+# Add a single chat as a feed shortcut (defaults to head/top insertion)
+
+# Add multiple chats; comma-separated or repeated flag both work
+
+# Append at the bottom of the shortcut list instead of the top
 
 # Preview the request without sending
 ```

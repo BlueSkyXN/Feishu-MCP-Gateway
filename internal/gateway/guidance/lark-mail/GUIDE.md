@@ -1,6 +1,6 @@
 > 由 Feishu-MCP-Gateway 从 lark-cli `7f70de0666a2` 的 `lark-mail` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -76,7 +76,7 @@
 
 用户："把发件人是 spam@x.com 的邮件都删了"
 
-1. `mail.+triage`（from="spam@x.com"） → 列出 N 条结果
+1. `mail.+triage` → 列出 N 条结果
 2. 展示："将删除 N 封邮件（发件人 spam@x.com，主题：…），确认？"
 3. 用户确认后 → `mail.+message-trash`（网关不提供：仅支持用户身份）
 
@@ -129,7 +129,11 @@
 已有明确示例或已确认 flag 时可直接执行；参数、资源名或 raw API 结构不确定时，先运行 `-h` 查看可用参数，不要猜测参数名称：
 
 ```text
+# Shortcut
+# feishu_tools_describe（operation_id="mail.+triage"）
+# mail.+send（网关不提供：仅支持用户身份）
 
+# 原生 API（逐级查看）
 # feishu_tools_describe
 ```
 
@@ -192,7 +196,10 @@ mail.+messages {"message_ids": "<id1>,<id2>,<id3>", "html": false}
 先通过 `-h` 逐级查看可用命令，确定正确的 `<resource>` 和 `<method>`：
 
 ```text
+# 第一级：查看 mail 下所有资源
+# feishu_tools_search（domain="mail"）
 
+# 第二级：查看某个资源下所有方法
 # feishu_tools_describe
 ```
 
@@ -231,6 +238,7 @@ mail.<resource>.<method> {"params": {…}, "data": {…}}
 **GET — 只有 `params`**（`parameters` 中有 path + query，无 `requestBody`）：
 
 ```text
+# schema 中：user_mailbox_id (path, required), page_size (query, required)
 # user_mailbox.threads.list 要求 folder_id / label_id 必须且只能提供一个
 mail.user_mailbox.threads.list {"params": {"user_mailbox_id": "me", "page_size": 20, "folder_id": "INBOX"}}
 
@@ -240,6 +248,7 @@ mail.user_mailbox.threads.list {"params": {"user_mailbox_id": "me", "page_size":
 **POST — `params` + `data`**（`parameters` 中有 path，`requestBody` 有 body 字段）：
 
 ```text
+# schema 中：parameters → user_mailbox_id (path, required)
 #            requestBody → name (required), parent_folder_id (required)
 mail.user_mailbox.folders.create {"params": {"user_mailbox_id": "me"}, "data": {"name": "newsletter", "parent_folder_id": "0"}}
 ```

@@ -20,7 +20,7 @@ calendar.+transfer {"calendar_id": "<calendar_id>", "event_id": "<event_id>", "t
 calendar.+transfer {"event_id": "<event_id>", "to_user_id": "ou_xxx", "transfer_series": true}
 
 # 预览请求，不实际执行
-calendar.+transfer {"event_id": "<event_id>", "to_user_id": "ou_xxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数
@@ -47,6 +47,7 @@ calendar.+transfer {"event_id": "<event_id>", "to_user_id": "ou_xxx"}
 **取接收人 open_id**：
 
 ```text
+# 用户
 # 机器人：从它所在群的成员列表里取 bots[] 中的 open_id
 im.+chat-members-list {"chat_id": "<chat_id>", "member_types": ["bot"]}
 ```

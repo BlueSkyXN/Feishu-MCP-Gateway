@@ -15,6 +15,9 @@ Removes one or more chats from the **current user's** feed shortcuts.
 ## Commands
 
 ```bash
+# Remove a single feed shortcut
+
+# Remove multiple feed shortcuts in one call
 
 # Preview the request
 ```

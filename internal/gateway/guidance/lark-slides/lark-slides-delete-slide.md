@@ -11,9 +11,12 @@
 ## 命令
 
 ```text
+# 直接传 xml_presentation_id
+
+# slides URL / wiki URL 都可以（wiki 会自动解析并校验 obj_type=slides）
 
 # 删之前先确认打到哪份 PPT、哪一页
-slides.+delete-slide {"presentation": "$PRES_ID", "slide_id": "$SID"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数
@@ -40,7 +43,7 @@ slides.+delete-slide {"presentation": "$PRES_ID", "slide_id": "$SID"}
 `slide_id` 是服务端短 ID，**不能从 XML 里推导**。两个来源：
 
 1. `slides.+create` / `slides.+add-slide` 的返回值里存下来；
-2. 事后回读：`slides.+xml-get`（presentation="$PRES_ID"，output=".lark-slides/plan/<deck>/readback.xml"）。
+2. 事后回读：`slides.+xml-get`（presentation="<PRES_ID>"，output=".lark-slides/plan/<deck>/readback.xml"）。
 
 删错页的代价高于多跑一次回读 —— 不确定就先回读 + `slides.+screenshot` 看一眼再删。
 

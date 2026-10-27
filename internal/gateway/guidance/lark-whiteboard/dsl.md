@@ -32,6 +32,8 @@ Step 3: 渲染 & 审查 → 交付
   - 有问题 → 按症状表修复 → 重新渲染（最多 2 轮）
   - 2 轮后仍有严重问题 → 考虑走 Mermaid 路径兜底
   - 写入画板：用 whiteboard-cli 将 diagram.json 转换为 OpenAPI 格式并 pipe 给 +update：
+      npx -y @larksuite/whiteboard-cli@^0.2.13 -i diagram.json --to openapi --format json \
+        | lark-cli whiteboard +update --whiteboard-token <board_token> \
       → 完整 dry-run / 确认流程见 [§ 写入画板](../references/lark-whiteboard-workflow.md#写入画板)
   - 交付：向用户报告 board_token 写入成功
 ```

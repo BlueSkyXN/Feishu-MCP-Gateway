@@ -17,7 +17,7 @@ drive.+create-shortcut {"folder_token": "<TARGET_FOLDER_TOKEN>", "file_token": "
 drive.+create-shortcut {"folder_token": "<TARGET_FOLDER_TOKEN>", "file_token": "<SHEET_TOKEN>", "type": "sheet"}
 
 # 仅预览即将发起的请求，不真正执行
-drive.+create-shortcut {"folder_token": "<TARGET_FOLDER_TOKEN>", "file_token": "<DOCX_TOKEN>", "type": "docx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

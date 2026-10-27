@@ -16,6 +16,7 @@ drive.+add-comment {"doc": "https://example.larksuite.com/doc/<DOC_ID>", "full_c
 # wiki 链接也可以，shortcut 会先解析到真实 doc/docx token
 drive.+add-comment {"doc": "https://example.larksuite.com/wiki/<WIKI_TOKEN>", "content": "[{\"type\":\"text\",\"text\":\"这里需要一段全文评论\"}]"}
 
+# 给受支持的 Drive 普通文件添加全文评论
 # 注意：CLI 会先查询 drive metas，只有白名单扩展名才允许评论
 drive.+add-comment {"doc": "https://example.larksuite.com/file/<FILE_TOKEN>", "content": "[{\"type\":\"text\",\"text\":\"请补充文件说明\"}]"}
 
@@ -29,7 +30,7 @@ drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "block
 drive.+add-comment {"doc": "https://example.larksuite.com/wiki/<WIKI_TOKEN>", "block_id": "<BLOCK_ID>", "content": "[{\"type\":\"text\",\"text\":\"请补充更细的开发步骤\"}]"}
 
 # 组合文本、@用户、链接元素
-drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "block_id": "<BLOCK_ID>", "content": {"file_id": "<file_id>"}}
+drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "block_id": "<BLOCK_ID>", "content": "[{\"type\":\"text\",\"text\":\"请 \"},{\"type\":\"mention_user\",\"text\":\"ou_xxx\"},{\"type\":\"text\",\"text\":\" 处理，参考 \"},{\"type\":\"link\",\"text\":\"https://example.com\"}]"}
 
 # 给电子表格单元格添加评论（--block-id 格式为 <sheetId>!<cell>）
 drive.+add-comment {"doc": "https://example.larksuite.com/sheets/<SHEET_TOKEN>", "block_id": "<SHEET_ID>!D6", "content": "[{\"type\":\"text\",\"text\":\"请检查此单元格数据\"}]"}
@@ -40,12 +41,15 @@ drive.+add-comment {"doc": "https://example.larksuite.com/wiki/<WIKI_TOKEN>", "b
 # 给幻灯片元素添加评论（--block-id 格式为 <slide-block-type>!<xml-id>）
 drive.+add-comment {"doc": "https://example.larksuite.com/slides/<PRESENTATION_ID>", "block_id": "<SLIDE_BLOCK_TYPE>!<XML_ELEMENT_ID>", "content": "[{\"type\":\"text\",\"text\":\"请调整这个元素的位置\"}]"}
 
+# 例如：给整页 slide 添加评论
 # <slide id="pkk"> ... </slide>  =>  --block-id slide!pkk
 drive.+add-comment {"doc": "https://example.larksuite.com/slides/<PRESENTATION_ID>", "block_id": "slide!pkk", "content": "[{\"type\":\"text\",\"text\":\"这一页需要补充过渡说明\"}]"}
 
+# 例如：给图片元素添加评论
 # <img id="bPk" ... />  =>  --block-id img!bPk
 drive.+add-comment {"doc": "https://example.larksuite.com/slides/<PRESENTATION_ID>", "block_id": "img!bPk", "content": "[{\"type\":\"text\",\"text\":\"这张图片建议换成更清晰的版本\"}]"}
 
+# 例如：给文本 shape 添加评论
 # <shape type="text" id="bPq"> ... </shape>  =>  --block-id shape!bPq
 drive.+add-comment {"doc": "https://example.larksuite.com/slides/<PRESENTATION_ID>", "block_id": "shape!bPq", "content": "[{\"type\":\"text\",\"text\":\"这段文案可以再精简\"}]"}
 
@@ -61,7 +65,7 @@ drive.+add-comment {"doc": "<DOCX_TOKEN>", "type": "docx", "content": "[{\"type\
 drive.+add-comment {"doc": "<PRESENTATION_ID>", "type": "slides", "block_id": "<SLIDE_BLOCK_TYPE>!<XML_ELEMENT_ID>", "content": "[{\"type\":\"text\",\"text\":\"slide block comment\"}]"}
 
 # 裸 token + 已知 block_id 的局部评论
-drive.+add-comment {"doc": "<DOCX_TOKEN>", "type": "docx", "block_id": "<BLOCK_ID>", "content": {"file_id": "<file_id>"}}
+drive.+add-comment {"doc": "<DOCX_TOKEN>", "type": "docx", "block_id": "<BLOCK_ID>", "content": "[{\"type\":\"text\",\"text\":\"请 \"},{\"type\":\"mention_user\",\"text\":\"ou_xxx\"},{\"type\":\"text\",\"text\":\" 处理，参考 \"},{\"type\":\"link\",\"text\":\"https://example.com\"}]"}
 
 # 如果需要更底层的原生 API，也可以直接调用 V2 协议
 feishu_tools_describe（operation_id="drive.file.comments.create_v"）（网关目录中没有此操作）2
@@ -75,7 +79,7 @@ drive.+add-comment {"doc": "<BASE_TOKEN>", "type": "bitable", "block_id": "<TABL
 drive.+add-comment {"doc": "<BASE_TOKEN>", "type": "base", "block_id": "<TABLE_ID>!<RECORD_ID>!<VIEW_ID>", "content": "[{\"type\":\"text\",\"text\":\"Base alias comment\"}]"}
 
 # 预览底层调用链
-drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "block_id": "<BLOCK_ID>", "content": "[{\"type\":\"text\",\"text\":\"请补充流程说明\"}]"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

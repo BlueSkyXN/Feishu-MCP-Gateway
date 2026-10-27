@@ -16,7 +16,7 @@
 wiki.+delete-space {"space_id": "<SPACE_ID>"}
 
 # 预览底层调用链（不会真的删除）
-wiki.+delete-space {"space_id": "<SPACE_ID>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

@@ -26,7 +26,7 @@ drive.+secure-label-list  # 网关不提供：仅支持用户身份
 ## 修改文档密级
 
 ```text
-drive.+secure-label-update  # 网关不提供：仅支持用户身份
+drive.+secure-label-update  # 网关不提供：仅支持用户身份  # replace $LABEL_ID before running
 ```
 
 参数：

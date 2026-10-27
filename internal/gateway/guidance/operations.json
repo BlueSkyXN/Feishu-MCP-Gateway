@@ -1494,6 +1494,22 @@
    "avoid_when": [
     "Sending an image once → use `im.+messages-send` `image` to upload and send in one step."
    ],
+   "examples": [
+    {
+     "arguments": {
+      "data": {
+       "image_type": "message"
+      },
+      "files": {
+       "image": {
+        "file_id": "<file_id>"
+       }
+      }
+     },
+     "description": "Upload a local message image",
+     "operation_id": "im.images.create"
+    }
+   ],
    "related": [
     "im.+messages-send"
    ],

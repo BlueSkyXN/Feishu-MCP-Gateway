@@ -20,7 +20,7 @@ okr.+cycle-list {"user_id": "xxx", "user_id_type": "user_id"}
 okr.+cycle-list {"user_id": "ou_xxx", "time_range": "2025-01--2025-06"}
 
 # 预览 API 调用而不实际执行
-okr.+cycle-list {"user_id": "ou_xxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

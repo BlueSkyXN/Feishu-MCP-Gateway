@@ -14,6 +14,11 @@ This skill maps to shortcut: `im.+flag-create` (not available in the gateway: us
 ## Commands
 
 ```bash
+# Flag a message (default: message-layer)
+
+# Create feed-layer flag (auto-detects chat type)
+
+# Explicit item-type override (rarely needed)
 
 # Preview request (dry-run, doesn't send)
 ```

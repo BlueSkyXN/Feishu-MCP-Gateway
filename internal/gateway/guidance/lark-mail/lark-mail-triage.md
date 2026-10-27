@@ -43,7 +43,7 @@ mail.+triage {"max": 10}
 mail.+triage {"page_token": "list:FfccvoqPd...", "max": 10}
 
 # --page-size 是 --max 的别名
-mail.+triage {"page_size": "10"}
+mail.+triage {"max": 10}
 ```
 
 ## 参数

@@ -109,7 +109,7 @@ sheets.+range-copy {"url": "<表格URL>", "sheet_name": "<真实表名>", "sourc
 💡 **多个不连续区域写入（批量修公式的正解）**：散布多处（可跨 sheet）的值 / 公式写入，用 `writes` 一次批量交付（fail-fast，失败后先回读再补发）——每项 `{sheet_name, range, cells}`（跨 sheet 的项把 sheet 定位写在项里，项内没写则取顶层 `sheet_name` / `sheet_id`），不要为此拼 `sheets.+batch-update` 的 `operations`，也不要逐区域多次调用（多次往返、中途失败难恢复）：
 
 ```bash
-sheets.+cells-set {"url": "...", "writes": "<内容>"}
+lark-cli sheets +cells-set --url "..." --writes - <<'JSON'
 [
   {"sheet_name":"明细","range":"D5","cells":[[{"formula":"=IFERROR(C5/B5,0)"}]]},
   {"sheet_name":"汇总","range":"B3","cells":[[{"formula":"=SUM(明细!C:C)"}]]}
@@ -207,10 +207,10 @@ JSON
 
 ```text
 # 先创建允许多选的下拉规则
-sheets.+dropdown-set {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "range": "E2:E15", "options": ["A", "B", "C", "D"], "multiple": true}
+sheets.+dropdown-set {"spreadsheet_token": "shtXXX", "sheet_id": "<SID>", "range": "E2:E15", "options": ["A", "B", "C", "D"], "multiple": true}
 
 # 再向 E6 写入 3 个选中值
-sheets.+cells-set {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "range": "E6", "cells": [[{"multiple_values": [{"value": "A"}, {"value": "B"}, {"value": "C"}]}]]}
+sheets.+cells-set {"spreadsheet_token": "shtXXX", "sheet_id": "<SID>", "range": "E6", "cells": [[{"multiple_values": [{"value": "A"}, {"value": "B"}, {"value": "C"}]}]]}
 ```
 
 ### 配色：新建默认用内置色板，更新保留已有配色
@@ -448,7 +448,7 @@ _一个或多个子表的 typed 数据，每个数组元素写入一张子表；
 sheets.+cells-set {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "range": "A1:B2", "cells": [[{"value": "name"}, {"value": "score"}], [{"value": "alice"}, {"value": 95}]]}
 
 # 富 cell（公式 + 样式，cells 是二维矩阵每元素一个 cell schema）
-sheets.+cells-set {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "range": "C2:C10", "cells": {"file_id": "<file_id>"}}
+sheets.+cells-set {"spreadsheet_token": "shtXXX", "sheet_id": "<SID>", "range": "C2:C10", "cells": {"file_id": "<file_id>"}}
 ```
 
 `cells` 富格式见 `## Schemas` 段（cells 元素含 value / formula / cell_styles / border_styles / data_validation / multiple_values / note / rich_text）；值 / 公式 / 样式 / 批注 / 嵌入图片可同一次写入混合提交。
@@ -466,7 +466,7 @@ sheets.+cells-set {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "range": "
 sheets.+cells-set-style {"url": "...", "sheet_name": "Sheet1", "range": "A1:B2", "font_weight": "bold", "background_color": "#FFFF00"}
 
 # 配套边框
-sheets.+cells-set-style {"url": "...", "sheet_id": "$SID", "range": "A1:D10", "font_size": 12.0, "horizontal_alignment": "center", "border_styles": {"top": {"style": "solid", "color": "#000", "weight": "thin"}, "bottom": {"style": "solid", "color": "#000", "weight": "thin"}}}
+sheets.+cells-set-style {"url": "...", "sheet_id": "<SID>", "range": "A1:D10", "font_size": 12.0, "horizontal_alignment": "center", "border_styles": {"top": {"style": "solid", "color": "#000", "weight": "thin"}, "bottom": {"style": "solid", "color": "#000", "weight": "thin"}}}
 ```
 
 ### `sheets.+cells-set-image`
@@ -483,41 +483,36 @@ sheets.+cells-set-image {"url": "...", "sheet_name": "Sheet1", "range": "A1", "i
 
 ```text
 # 内联 CSV
-sheets.+csv-put {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "start_cell": "A1", "csv": "$name,score\\nalice,95\\nbob,87"}
+sheets.+csv-put {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "start_cell": "A1", "csv": "name,score\nalice,95\nbob,87"}
 
 # 从文件
-sheets.+csv-put {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "start_cell": "A1", "csv": {"file_id": "<file_id>"}}
+sheets.+csv-put {"spreadsheet_token": "shtXXX", "sheet_id": "<SID>", "start_cell": "A1", "csv": {"file_id": "<file_id>"}}
 ```
 
 > `sheets.+csv-put` 比 `sheets.+cells-set` 短得多——批量灌值或公式时优先用它。需要样式/批注/图片才换 `sheets.+cells-set`。
 >
 > ✅ `=` 开头的单元格会被当作公式计算（不是字面量文本）：
 >
-> ```bash
-> `sheets.+csv-put` (url="...", sheet_name="Sheet1") \
->   `start_cell` "A1" \
->   `csv` $'name,score\nalice,=SUM(B2:B10)'
+> ```text
+> sheets.+csv-put {"url": "...", "sheet_name": "Sheet1", "start_cell": "A1", "csv": "name,score\nalice,=SUM(B2:B10)"}
 > # ↑ B2 写入公式 =SUM(B2:B10)，读回 formula 保留、value 为计算结果。
-> # 反过来：无法用 `sheets.+csv-put` 写「= 开头的字面量文本」（会被当公式）；样式/批注/图片仍用 `sheets.+cells-set`。
+> # 反过来：无法用 +csv-put 写「= 开头的字面量文本」（会被当公式）；样式/批注/图片仍用 +cells-set。
 > ```
 >
 > ⚠️ **公式内部含逗号 / 引号建议 RFC 4180 转义**：CSV 用逗号分隔字段，公式里的逗号（如 `COUNTIF(D5:D22,"及格")` 的参数分隔逗号）会被解析器当成字段分隔符，把一格拆成多格、整块二维结构压扁错位。规则：**含逗号的字段整格用双引号包裹，字段内部的引号再翻倍**：
 >
-> ```bash
+> ```text
 > # 从 G4 写一个 2 列 3 行的统计块；=COUNTIF 含逗号 + 内部引号，建议转义
-> `sheets.+csv-put` (url="...", sheet_name="Sheet1") \
->   `start_cell` "G4" \
->   `csv` $'统计项,结果\n成绩总和,=SUM(C5:C22)\n及格人数,"=COUNTIF(D5:D22,""及格"")"'
+> sheets.+csv-put {"url": "...", "sheet_name": "Sheet1", "start_cell": "G4", "csv": "统计项,结果\n成绩总和,=SUM(C5:C22)\n及格人数,\"=COUNTIF(D5:D22,\"\"及格\"\")\""}
 > # ↑ "=COUNTIF(D5:D22,""及格"")"：外层双引号包裹整格，内部 "及格" 的引号翻倍成 ""及格""。
 > # 裸写 =COUNTIF(D5:D22,"及格") 会被 CSV 按逗号拆成两格、写入区域从 G4:H6 错位成 G4:K4。
 > ```
 >
 > 💡 **含逗号 / 引号 / 换行的公式优先用 `sheets.+cells-set`（JSON 二维数组）写入**——`cells[r][c].formula` 直接放公式串，没有 CSV 转义负担。`sheets.+table-put` 的 typed payload 可带 `name/start_cell/mode/header/allow_overwrite/columns/data/dtypes/formats`，但没有公式字段；公式写入用 `sheets.+cells-set` 或转义后的 `sheets.+csv-put`：
 >
-> ```bash
+> ```text
 > # 同样的统计块，结构化写入无需任何转义
-> `sheets.+cells-set` (url="...", sheet_name="Sheet1", range="G4:H6") \
->   `cells` '`{"value":"统计项"},{"value":"结果"}],[{"value":"成绩总和"},{"formula":"=SUM(C5:C22)"}],[{"value":"及格人数"},{"formula":"=COUNTIF(D5:D22,\"及格\")"}`'
+> sheets.+cells-set {"url": "...", "sheet_name": "Sheet1", "range": "G4:H6", "cells": [[{"value": "统计项"}, {"value": "结果"}], [{"value": "成绩总和"}, {"formula": "=SUM(C5:C22)"}], [{"value": "及格人数"}, {"formula": "=COUNTIF(D5:D22,\"及格\")"}]]}
 > ```
 
 > **定位 + 写入边界（关键，避免误覆盖）**：
@@ -586,11 +581,8 @@ payload = {"sheets": [{
 
 `styles` 在 typed 写入后顺带应用视觉处理，省掉一次 `sheets.+cells-set-style` 往返。协议与 `sheets.+workbook-create` **完全同构**（详见 workbook reference）：顶层 `{styles:[...]}`，数组每项对应一个被写入的子表、含 `name`，并按能力拆成四类可选数组——`cell_styles`（A1 单元格 range + 扁平样式字段，含 `number_format` / 颜色 / 对齐 / `border_styles`，随内容在同一次写入里一并应用）、`cell_merges`、`row_sizes`、`col_sizes`。styles 数组的长度 / 顺序 / name 必须与被写入的子表对应（与 `sheets.sheets` 一一对应）。
 
-```bash
-sheets.+table-put {"url": "\"<表URL>\"", "sheets": "'{\"sheets\":[{\"name\":\"明细\",\"columns\":[\"日期\",\"金额\"],\"dtypes\":{\"日期\":\"datetime64[ns]\",\"金额\":\"float64\"},\"formats\":{\"金额\":\"#,##0.00\"},\"data\":[[\"2024-01-15\",1234.5]]}]}'", "styles": "'{\"styles\":[{\"name\":\"明细\","}
-    "cell_styles":[{"range":"A1:B1","font_weight":"bold","background_color":"#f5f5f5","horizontal_alignment":"center"}],
-    "cell_merges":[{"range":"A1:B1"}],
-    "col_sizes":[{"range":"A:B","type":"pixel","size":120}]}]}'
+```text
+sheets.+table-put {"url": "<表URL>", "sheets": {"sheets": [{"name": "明细", "columns": ["日期", "金额"], "dtypes": {"日期": "datetime64[ns]", "金额": "float64"}, "formats": {"金额": "#,##0.00"}, "data": [["2024-01-15", 1234.5]]}]}, "styles": {"styles": [{"name": "明细", "cell_styles": [{"range": "A1:B1", "font_weight": "bold", "background_color": "#f5f5f5", "horizontal_alignment": "center"}], "cell_merges": [{"range": "A1:B1"}], "col_sizes": [{"range": "A:B", "type": "pixel", "size": 120}]}]}}
 ```
 
 完整字段跑 `feishu_tools_describe`（operation_id="sheets.+table-put"，parameter="styles"）。

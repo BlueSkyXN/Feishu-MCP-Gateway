@@ -10,8 +10,10 @@ Remove a member from a wiki space. OpenAPI: `DELETE /open-apis/wiki/v2/spaces/:s
 
 ```text
 
+# Personal library (resolves my_library first)
+
 # Preview the call chain without deleting
-wiki.+member-remove {"space_id": "<id>", "member_id": "<id>", "member_type": "openid", "member_role": "admin"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Flags

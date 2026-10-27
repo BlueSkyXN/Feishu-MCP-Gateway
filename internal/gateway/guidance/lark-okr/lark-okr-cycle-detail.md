@@ -14,7 +14,7 @@ okr.+cycle-detail {"cycle_id": "1234567890123456789"}
 okr.+cycle-detail {"cycle_id": "1234567890123456789", "style": "richtext"}
 
 # 预览 API 调用而不实际执行
-okr.+cycle-detail {"cycle_id": "1234567890123456789"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

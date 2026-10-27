@@ -159,7 +159,7 @@ _创建/更新的条件格式属性_
 
 ```text
 # 列出当前 sheet 全部条件格式规则（拿 rule_id 供 update/delete）
-sheets.+cond-format-list {"url": "...", "sheet_id": "$SID"}
+sheets.+cond-format-list {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### `sheets.+cond-format-create`
@@ -168,16 +168,16 @@ sheets.+cond-format-list {"url": "...", "sheet_id": "$SID"}
 
 ```text
 # 重复值高亮
-sheets.+cond-format-create {"url": "...", "sheet_id": "$SID", "rule_type": "duplicateValues", "ranges": "[\"A1:A100\"]", "properties": {"style": {"back_color": "#FFD7D7"}}}
+sheets.+cond-format-create {"url": "...", "sheet_id": "<SID>", "rule_type": "duplicateValues", "ranges": "[\"A1:A100\"]", "properties": {"style": {"back_color": "#FFD7D7"}}}
 
 # 数据条
-sheets.+cond-format-create {"url": "...", "sheet_id": "$SID", "rule_type": "dataBar", "ranges": "[\"B2:B100\"]", "properties": {"file_id": "<file_id>"}}
+sheets.+cond-format-create {"url": "...", "sheet_id": "<SID>", "rule_type": "dataBar", "ranges": "[\"B2:B100\"]", "properties": {"file_id": "<file_id>"}}
 
 # 创建后先确认规则对象存在
-sheets.+cond-format-list {"url": "...", "sheet_id": "$SID"}
+sheets.+cond-format-list {"url": "...", "sheet_id": "<SID>"}
 
 # 再抽查条件格式计算结果：读取哨兵单元格的命中样式
-sheets.+cond-format-result-get {"url": "...", "sheet_id": "$SID", "range": "B2:B10"}
+sheets.+cond-format-result-get {"url": "...", "sheet_id": "<SID>", "range": "B2:B10"}
 ```
 
 ### `sheets.+cond-format-result-get`
@@ -188,10 +188,10 @@ CLI 会对白名单字段做输出裁剪：顶层只保留警告、分页和返�
 
 ```text
 # 读取 B2:B10 的条件格式命中样式，返回 cell_styles.background_color / font_color 等
-sheets.+cond-format-result-get {"url": "...", "sheet_id": "$SID", "range": "B2:B10"}
+sheets.+cond-format-result-get {"url": "...", "sheet_id": "<SID>", "range": "B2:B10"}
 
 # 如果只想在普通读取里临时合并条件格式，也可用 +cells-get --include conditional_format
-sheets.+cells-get {"url": "...", "sheet_id": "$SID", "range": "B2:B10", "include": ["conditional_format"]}
+sheets.+cells-get {"url": "...", "sheet_id": "<SID>", "range": "B2:B10", "include": ["conditional_format"]}
 ```
 
 ### `sheets.+cond-format-update`
@@ -201,7 +201,7 @@ sheets.+cells-get {"url": "...", "sheet_id": "$SID", "range": "B2:B10", "include
 ### `sheets.+cond-format-delete`
 
 ```text
-sheets.+cond-format-delete {"url": "...", "sheet_id": "$SID", "rule_id": "$RULE_ID"}
+sheets.+cond-format-delete {"url": "...", "sheet_id": "<SID>", "rule_id": "<RULE_ID>"}
 ```
 
 > 一次只删一个 `rule_id`。要删**多个**条件格式时，先 `sheets.+cond-format-list` 拿到各 `rule-id`，再用 `sheets.+batch-update` 把多个 `sheets.+cond-format-delete` 合并为单次批量提交（fail-fast，失败处置见 主题 `lark-sheets-batch-update`），不要逐个调用。
@@ -210,4 +210,4 @@ sheets.+cond-format-delete {"url": "...", "sheet_id": "$SID", "rule_id": "$RULE_
 
 - `Validate`：XOR 公共四件套；`rule_type` / `ranges` 必填；`properties` 必须能解析为合法 JSON；按 `rule_type` 检查必填子字段（`cellIs` 需 `attrs.operator` + `attrs.value`、`expression` 需 `attrs.formula`、`colorScale` 需 `min/mid/max` 配色等）；`sheets.+cond-format-delete` 强制 管理员预授权（high_risk_operations） 或 dry-run（网关不提供，改为先读取核对）。
 - `DryRun`：写操作输出"将要 POST/PATCH/DELETE 的 conditional_format 请求模板"。
-- `Execute`：写后不自动回读；create/update 后必须调用 `sheets.+cond-format-list`（rule_id="<id>"） 比对规则 / 范围 / 样式，并用 `sheets.+cond-format-result-get`（range="<2–3"） 核对实际生效的单元格样式；delete 后 list 确认目标 id 不存在。
+- `Execute`：写后不自动回读；create/update 后必须调用 `sheets.+cond-format-list`（rule_id="<id>"） 比对规则 / 范围 / 样式，并用 `+cond-format-result-get range <2–3 个哨兵格>` 核对实际生效的单元格样式；delete 后 list 确认目标 id 不存在。

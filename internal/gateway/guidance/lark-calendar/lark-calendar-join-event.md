@@ -7,6 +7,7 @@
 ## 命令
 
 ```text
+# 用户以自身身份加入（默认场景）
 
 # 以应用身份加入
 calendar.+join-event {"token": "<token>"}

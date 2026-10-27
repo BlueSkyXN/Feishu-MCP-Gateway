@@ -26,7 +26,7 @@ wiki.+node-create {"parent_node_token": "<PARENT_NODE_TOKEN>", "node_type": "sho
 wiki.+node-create {"space_id": "<SPACE_ID>", "obj_type": "sheet", "title": "周报数据"}
 
 # 预览底层调用链
-wiki.+node-create {"title": "Roadmap"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 返回值

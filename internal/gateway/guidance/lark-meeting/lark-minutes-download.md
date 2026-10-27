@@ -26,7 +26,7 @@ minutes.+download {"minute_tokens": "obcnxxxxxxxxxxxxxxxxxxxx,obcnyyyyyyyyyyyyyy
 minutes.+download {"minute_tokens": "obcnxxxxxxxxxxxxxxxxxxxx,obcnyyyyyyyyyyyyyyyyyyyy", "output_dir": "./downloads"}
 
 # 预览 API 调用
-minutes.+download {"minute_tokens": "obcnxxxxxxxxxxxxxxxxxxxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

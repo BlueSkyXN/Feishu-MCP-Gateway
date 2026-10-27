@@ -9,6 +9,7 @@
 ## 命令
 
 ```text
+# 查询当前登录用户正在参加的会议
 
 # 查询指定用户当前参加、且应用机器人也在会中的会议
 vc.+meeting-list-active {"user_id": "ou_xxx"}

@@ -26,15 +26,18 @@ drive.+inspect {"url": "<mindnote_or_wiki_url>"}
 ## 命令
 
 ```text
+# 先看命令帮助
+# feishu_tools_describe（operation_id="mindnotes.nodes.list"）
+# feishu_tools_describe（operation_id="mindnotes.nodes.create"）
 
 # 读取节点列表
-mindnotes.nodes.list {"mindnote_id": "<mindnote_token>"}
+mindnotes.nodes.list {"params": {"mindnote_id": "<mindnote_token>"}}
 
 # 创建子节点
-mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_token": "<client_token>", "nodes": [{"parent_id": "node_parent123", "texts": [{"element_type": "text", "text": {"content": "子节点内容"}}], "highlight": "yellow", "finish": false}]}}
+mindnotes.nodes.create {"params": {"mindnote_id": "<mindnote_token>"}, "data": {"client_token": "<client_token>", "nodes": [{"parent_id": "node_parent123", "texts": [{"element_type": "text", "text": {"content": "子节点内容"}}], "highlight": "yellow", "finish": false}]}}
 
 # 更新已有节点
-mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_token": "<client_token>", "nodes": [{"node_id": "node_existing123", "texts": [{"element_type": "text", "text": {"content": "更新后的节点内容"}}], "highlight": "blue", "finish": true}]}}
+mindnotes.nodes.create {"params": {"mindnote_id": "<mindnote_token>"}, "data": {"client_token": "<client_token>", "nodes": [{"node_id": "node_existing123", "texts": [{"element_type": "text", "text": {"content": "更新后的节点内容"}}], "highlight": "blue", "finish": true}]}}
 ```
 
 ## 参数
@@ -85,7 +88,7 @@ mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_toke
 docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "mindnote_image", "parent_node": "<mindnote_token>"}
 
 # 再把 token 写进节点
-mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_token": "<client_token>", "nodes": [{"node_id": "node_existing123", "images": [{"token": "canonical_token"}]}]}}
+mindnotes.nodes.create {"params": {"mindnote_id": "<mindnote_token>"}, "data": {"client_token": "<client_token>", "nodes": [{"node_id": "node_existing123", "images": [{"token": "canonical_token"}]}]}}
 ```
 
 参数说明：

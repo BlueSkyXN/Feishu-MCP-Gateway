@@ -12,51 +12,18 @@
 
 ## 推荐命令
 
-```bash
+```text
 # 按字段分组计数
-base.+data-query {"base_token": "MAGObxxxxx", "dsl": "'{"}
-    "datasource": {"type": "table", "table": {"tableId": "tblxxxxxxxx"}},
-    "dimensions": [{"field_name": "城市", "alias": "dim_city"}],
-    "measures": [{"field_name": "城市", "aggregation": "count", "alias": "count"}],
-    "shaper": {"format": "flat"}
-  }'
+base.+data-query {"base_token": "MAGObxxxxx", "dsl": "{\n    \"datasource\": {\"type\": \"table\", \"table\": {\"tableId\": \"tblxxxxxxxx\"}},\n    \"dimensions\": [{\"field_name\": \"城市\", \"alias\": \"dim_city\"}],\n    \"measures\": [{\"field_name\": \"城市\", \"aggregation\": \"count\", \"alias\": \"count\"}],\n    \"shaper\": {\"format\": \"flat\"}\n  }"}
 
 # 带过滤条件 + 排序 + 限制条数
-base.+data-query {"base_token": "MAGObxxxxx", "dsl": "'{"}
-    "datasource": {"type": "table", "table": {"tableId": "tblxxxxxxxx"}},
-    "dimensions": [{"field_name": "城市", "alias": "dim_city"}],
-    "measures": [{"field_name": "金额", "aggregation": "sum", "alias": "total_amount"}],
-    "filters": {
-      "type": 1,
-      "conjunction": "and",
-      "conditions": [{"field_name": "城市", "operator": "isNot", "value": [""]}]
-    },
-    "sort": [{"field_name": "total_amount", "order": "desc"}],
-    "pagination": {"limit": 100},
-    "shaper": {"format": "flat"}
-  }'
+base.+data-query {"base_token": "MAGObxxxxx", "dsl": "{\n    \"datasource\": {\"type\": \"table\", \"table\": {\"tableId\": \"tblxxxxxxxx\"}},\n    \"dimensions\": [{\"field_name\": \"城市\", \"alias\": \"dim_city\"}],\n    \"measures\": [{\"field_name\": \"金额\", \"aggregation\": \"sum\", \"alias\": \"total_amount\"}],\n    \"filters\": {\n      \"type\": 1,\n      \"conjunction\": \"and\",\n      \"conditions\": [{\"field_name\": \"城市\", \"operator\": \"isNot\", \"value\": [\"\"]}]\n    },\n    \"sort\": [{\"field_name\": \"total_amount\", \"order\": \"desc\"}],\n    \"pagination\": {\"limit\": 100},\n    \"shaper\": {\"format\": \"flat\"}\n  }"}
 
 # 使用 tableName（表名）代替 tableId
-base.+data-query {"base_token": "MAGObxxxxx", "dsl": "'{"}
-    "datasource": {"type": "table", "table": {"tableName": "销售数据"}},
-    "measures": [{"field_name": "金额", "aggregation": "sum", "alias": "total"}],
-    "shaper": {"format": "flat"}
-  }'
+base.+data-query {"base_token": "MAGObxxxxx", "dsl": "{\n    \"datasource\": {\"type\": \"table\", \"table\": {\"tableName\": \"销售数据\"}},\n    \"measures\": [{\"field_name\": \"金额\", \"aggregation\": \"sum\", \"alias\": \"total\"}],\n    \"shaper\": {\"format\": \"flat\"}\n  }"}
 
 # 聚合或维度查询后如需读取逐条记录，先让 data-query 返回可回查的业务 key
-base.+data-query {"base_token": "MAGObxxxxx", "dsl": "'{"}
-    "datasource": {"type": "table", "table": {"tableId": "tblxxxxxxxx"}},
-    "dimensions": [{"field_name": "业务编号", "alias": "biz_key"}],
-    "measures": [{"field_name": "指标值", "aggregation": "max", "alias": "max_value"}],
-    "filters": {
-      "type": 1,
-      "conjunction": "and",
-      "conditions": [{"field_name": "状态", "operator": "is", "value": ["有效"]}]
-    },
-    "sort": [{"field_name": "max_value", "order": "desc"}],
-    "pagination": {"limit": 10},
-    "shaper": {"format": "flat"}
-  }'
+base.+data-query {"base_token": "MAGObxxxxx", "dsl": "{\n    \"datasource\": {\"type\": \"table\", \"table\": {\"tableId\": \"tblxxxxxxxx\"}},\n    \"dimensions\": [{\"field_name\": \"业务编号\", \"alias\": \"biz_key\"}],\n    \"measures\": [{\"field_name\": \"指标值\", \"aggregation\": \"max\", \"alias\": \"max_value\"}],\n    \"filters\": {\n      \"type\": 1,\n      \"conjunction\": \"and\",\n      \"conditions\": [{\"field_name\": \"状态\", \"operator\": \"is\", \"value\": [\"有效\"]}]\n    },\n    \"sort\": [{\"field_name\": \"max_value\", \"order\": \"desc\"}],\n    \"pagination\": {\"limit\": 10},\n    \"shaper\": {\"format\": \"flat\"}\n  }"}
 ```
 
 ## 参数

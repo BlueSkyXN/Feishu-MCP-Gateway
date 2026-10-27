@@ -21,6 +21,8 @@
 # 1️⃣ 先获取表单详情，了解所有题目
 base.+form-detail {"share_token": "<share_token>"}
 
+# 2️⃣ 根据返回的 questions 列表，按 type 格式化值、检查 required、判断 filter 条件
+
 # 3️⃣ 再提交（高风险写操作，必须带 --yes）
 base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
 ```
@@ -29,24 +31,18 @@ base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
 
 ## 命令
 
-```bash
+```text
 # 基本提交（填写普通字段）
 base.+form-submit {"share_token": "<share_token>", "json": {"fields": {"服务评分": 5, "评价内容": "服务态度好"}}}
 
 # 带附件提交（需要额外提供 --base-token）
-base.+form-submit {"share_token": "<share_token>", "base_token": "<base_token>", "json": "'{"}
-    "fields": {"服务评分": 5, "评价内容": "好"},
-    "attachments": {
-      "附件字段名": ["./report.pdf", "./photo.png"],
-      "另一个附件字段": ["./doc.docx"]
-    }
-  }'    --yes
+base.+form-submit {"share_token": "<share_token>", "base_token": "<base_token>", "json": {"fields": {"服务评分": 5, "评价内容": "好"}, "attachments": {"附件字段名": ["./report.pdf", "./photo.png"], "另一个附件字段": ["./doc.docx"]}}}
 
 # 使用应用身份（bot）
 base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
 
 # 预览 API 调用（不实际执行，dry-run 无需 --yes）
-base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

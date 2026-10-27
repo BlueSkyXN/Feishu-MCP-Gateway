@@ -16,6 +16,14 @@
 ## 命令
 
 ```bash
+# block_insert：在页末追加一个新元素
+
+# block_replace：已知某块 id，整块替换（replacement 根 id 自动注入为 bUn）
+
+# 大 --parts 走文件或 stdin（auto-gen 命令不支持 @file，但 shortcut 支持）
+  --presentation $PRES_ID --slide-id $SID --parts -
+
+# wiki URL 直接传（CLI 自动通过 node_by_token 拿真实 xml_presentation_id）
 
 # 预览（不实际调用）
 ```
@@ -161,12 +169,16 @@
 PRES_ID=xxx
 SID=yyy
 
+# 1) 上传图片
+  --file ./pic.png --presentation "$PRES_ID" --jq '.data.file_token')
+
 # 2) block_insert 到页末
 ```
 
 ### 改标题（block_replace）
 
 ```bash
+# 先拿原页 XML，从里面找到标题块的 3 位 short id（如 bUn）
 
 # block_replace 换掉整个标题块（id 自动注入）
 ```
@@ -175,15 +187,12 @@ SID=yyy
 
 `block_replace` 和 `block_insert` 可以在同一个 `parts` 里混用，整批原子执行。
 
-```bash
-    {"action":"block_replace","block_id":"bab","replacement":"<shape type=\"text\" topLeftX=\"80\" topLeftY=\"80\" width=\"800\" height=\"120\"><content textType=\"title\"><p>新标题</p></content></shape>"},
-    {"action":"block_insert","insertion":"<img src=\"<file_token>\" topLeftX=\"700\" topLeftY=\"400\" width=\"180\" height=\"100\"/>"}
-  ]'
-```
-
 ### 乐观锁
 
 ```bash
+# 读时记录 revision_id
+  --presentation "$PRES_ID" --slide-id "$SID" \
+  --jq '.data.revision_id')
 
 # 写时传 --revision-id；传不存在的版本号（超过当前 revision）返回 3350002
 ```

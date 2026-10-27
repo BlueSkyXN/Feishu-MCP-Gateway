@@ -19,7 +19,7 @@ mail.+thread-trash {"mailbox": "shared@example.com", "thread_ids": ["<thread_id>
 mail.+thread-trash {"mailbox": "user@example.com", "thread_ids": ["<thread_id>"]}
 
 # Dry Run：只预览请求，不执行
-mail.+thread-trash {"thread_ids": ["<thread_id1>", "<thread_id2>"]}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

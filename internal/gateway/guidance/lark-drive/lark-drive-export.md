@@ -27,6 +27,7 @@ drive.+export {"token": "<DOCX_TOKEN>", "doc_type": "docx", "file_extension": "p
 # 导出旧版文档为 docx
 drive.+export {"token": "<DOC_TOKEN>", "doc_type": "doc", "file_extension": "docx"}
 
+# 导出 docx 为 markdown（Lark-flavored Markdown）
 # 注意：markdown 只支持 docx
 drive.+export {"token": "<DOCX_TOKEN>", "doc_type": "docx", "file_extension": "markdown"}
 

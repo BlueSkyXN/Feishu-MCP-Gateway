@@ -7,6 +7,12 @@
 ## 命令
 
 ```bash
+# 标准用法：整页 XML 从文件读（推荐：避免 shell 转义和长参数截断）
+
+# XML 从 stdin 读
+  --presentation "$PRES" --slide-id "$SLIDE" --content -
+
+# wiki 链接直接传（CLI 自动解析并校验 obj_type=slides）
 
 # 预览请求，不实际写入
 ```
@@ -51,6 +57,9 @@
 ## 标准读-改-写流程
 
 ```bash
+# 1. 读回当前页（拿到带 id 的完整 XML）
+
+# 2. 编辑 page.xml —— 保留想留下的元素的 id，删掉不要的整段，新元素不写 id
 
 # 3. 整页写回
 ```

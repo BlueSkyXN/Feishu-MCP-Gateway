@@ -174,15 +174,8 @@ The response shape is similar to `create`, and usually echoes:
 
 Query reactions for multiple messages in one request.
 
-```bash
-im.reactions.batch_query {"params": "'{\"user_id_type\":\"open_id\"}'", "data": "'{"}
-    "queries":[
-      {"message_id":"om_xxx"},
-      {"message_id":"om_yyy","page_token":"<PAGE_TOKEN>"}
-    ],
-    "page_size_per_message":10,
-    "reaction_type":"LAUGH"
-  }'
+```text
+im.reactions.batch_query {"params": {"user_id_type": "open_id"}, "data": {"queries": [{"message_id": "om_xxx"}, {"message_id": "om_yyy", "page_token": "<PAGE_TOKEN>"}], "page_size_per_message": 10, "reaction_type": "LAUGH"}}
 ```
 
 ### Request

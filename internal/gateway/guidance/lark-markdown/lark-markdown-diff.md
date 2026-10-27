@@ -20,7 +20,7 @@ markdown.+diff {"file_token": "boxcnxxxx", "file": {"file_id": "<file_id>"}}
 markdown.+diff {"file_token": "boxcnxxxx", "from_version": "7633658129540910621", "file": {"file_id": "<file_id>"}}
 
 # 预览底层请求
-markdown.+diff {"file_token": "boxcnxxxx", "from_version": "7633658129540910621", "to_version": "7633658129540910628"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

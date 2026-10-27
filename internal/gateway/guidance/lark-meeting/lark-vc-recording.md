@@ -22,7 +22,7 @@ vc.+recording {"calendar_event_ids": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_0"}
 vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28"}
 
 # 预览 API 调用
-vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

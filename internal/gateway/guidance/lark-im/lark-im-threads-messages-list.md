@@ -38,7 +38,7 @@ im.+threads-messages-list {"thread": "omt_xxx", "concise": true}
 im.+threads-messages-list {"thread": "omt_xxx"}
 
 # Preview the request without executing it
-im.+threads-messages-list {"thread": "omt_xxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters
@@ -101,7 +101,7 @@ im.+threads-messages-list {"thread": "omt_xxx", "page_token": "<PAGE_TOKEN>"}
 
 ## Resource Rendering
 
-Thread replies are rendered into human-readable text. Image messages appear as placeholders such as `!Image`; `folder` replies are expanded one level (children rendered inside a `<folder ...>` tag); by default resource binaries are **not** downloaded.
+Thread replies are rendered into human-readable text. Image messages appear as placeholders such as `![Image](img_xxx)`; `folder` replies are expanded one level (children rendered inside a `<folder ...>` tag); by default resource binaries are **not** downloaded.
 
 Pass `download_resources` to download every eligible resource (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` in one pass and attach a `resources` block to each reply (see message enrichment (topic `lark-im-message-enrichment`)). Otherwise download individual resources manually through `im.+messages-resources-download` (see topic `lark-im-messages-resources-download`).
 

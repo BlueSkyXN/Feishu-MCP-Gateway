@@ -5,11 +5,11 @@
 
 来源包括 affordance/*.md、shortcut 的 Tips 和 skills/*。只读取来源快照，不执行 CLI，不请求飞书。
 转换规则是确定性的：命令写法改为 operation_id，CLI flag 改为 JSON 参数名，用户身份与登录说明删除，
-网关未提供的操作显式标注。由 import_catalog.py 调用。
+网关未提供的操作显式标注。代码块中的命令只有能完整、等价映射时才改写为调用行，否则保留原文。
+由 import_catalog.py 调用。
 """
 import json
 import re
-import shlex
 import subprocess
 from pathlib import PurePosixPath
 
@@ -29,7 +29,7 @@ REASONS = {'user_only': '仅支持用户身份'}
 # 只适用于用户身份、CLI 登录、本机路径或本机 CLI 管理的内容，整行或整条删除。
 DROP = re.compile(r'--as[ =]user\b|--as\b(?![ =]bot\b)|\bauth\s+(?:login|logout|status|scopes|check)\b|lark-cli\s+(?:auth|skills|update|config|profile|doctor)\b'
                   r'|lark-shared|\bUAT\b|user_access_token|user identity|用户身份|个人身份|登录态|\bCWD\b'
-                  r'|\buser or bot\b|\bbot or user\b|both are supported|history expansion|set \+H|bool flag 语法', re.I)
+                  r'|\buser or bot\b|\bbot or user\b|both are supported|history expansion|set \+H|bool flag 语法|relying on the shell', re.I)
 # 网关固定以应用身份执行：只提到 `--as bot` 的内容保留，命令中的 --as bot 去掉，说明文字改为“应用身份”。
 AS_BOT = re.compile(r'--as[ =]bot\b')
 AS_IN_COMMAND = re.compile(r'(?:^|\s+)--as[ =](?:bot|user)\b')
@@ -42,6 +42,7 @@ HAN = re.compile(r'[\u4e00-\u9fff]')
 ENGLISH_NOTES = [
     ('（网关不提供：仅支持用户身份）', ' (not available in the gateway: user identity only)'),
     ('（网关不提供：已由网关原生能力替代）', ' (replaced by a gateway tool)'),
+    ('（网关不提供 dry-run 预览）', ' (dry-run preview is not available in the gateway)'),
     ('管理员预授权（high_risk_operations）', 'administrator pre-authorization (high_risk_operations)'),
     ('dry-run（网关不提供，改为先读取核对）', 'dry-run (not available in the gateway; read and verify first)'),
     ('jq（网关不提供）', 'jq (not available in the gateway)'),
@@ -62,7 +63,15 @@ SPACED = re.compile(r'(?<![\w.`/+-])([a-z][a-z_]*)\s+\+([a-z][a-z0-9-]*)')
 CLI_CALL = re.compile(r'lark-cli((?:\s+(?:"[^"\n]*"|\'[^\'\n]*\'|[A-Za-z0-9_.+:/@<>=,*{}-]+))+)')
 SKILL_NAME = re.compile(r'(?<![\w/.-])(lark-[a-z]+(?:-[a-z]+)*)(?![\w/.-])')
 TOPIC_PATH = re.compile(r'^(?:\.\./)*(?:[\w-]+/)*[\w-]+\.md$')
-SHELL_OPS = {'|', '>', '>>', '<', '&&', '||', ';', '2>&1'}
+SHELL_LANGS = ('', 'bash', 'sh', 'shell', 'console', 'zsh')
+# 文档中的 shell 变量表示前一步取得的值，改写为同名的 <NAME> 占位值。
+SHELL_VAR = re.compile(r'\$(?:\{([A-Za-z_]\w*)\}|([A-Za-z_]\w*))')
+# 占位值：<doc_id>、<目标ID>、<sheet|bitable>；带引号、等号或斜杠的是 XML 等字面内容。
+PLACEHOLDER = re.compile(r'<[^<>"\'=/\s]+>')
+SHELL_OP = re.compile(r'[|&;<>()]+\d*')
+ANSI_C = {'a': '\a', 'b': '\b', 'e': '\x1b', 'E': '\x1b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t', 'v': '\v',
+          '\\': '\\', "'": "'", '"': '"', '?': '?'}
+DRY_RUN_NOTE = '# 网关不提供 dry-run 预览，此示例省略'
 # CLI 本地输入写法改成网关的文件引用说法。
 REPHRASE = [
     (re.compile(r'prefer `@file` or `-` \(stdin\)'), 'pass a JSON string or `{"file_id": …}`'),
@@ -71,7 +80,17 @@ REPHRASE = [
     (re.compile(r'（exit 10 强确认门禁）'), '（需管理员预授权）'),
     (re.compile(r'pass --yes to confirm \(exit 10 without it\), or preview with --dry-run first'),
      'needs administrator pre-authorization (high_risk_operations); read the target range first'),
+    # 网关参数是 JSON：换行写成 JSON 字符串里的 \n，不需要 shell 的 $'...' 引号。
+    (re.compile(r"prefer (?:shell ANSI-C quoting with )?`\$'\.\.\.'` for either"), lambda m: 'write line breaks as `\\n` inside the JSON string for either'),
+    (re.compile(r" plus `\$'\.\.\.'`|, usually with `\$'\.\.\.'`"), ''),
 ]
+# 只讲 shell 传参的小节整节换成网关写法：标题 → (新标题, 正文行)。
+SECTION_REPLACEMENTS = {
+    'Shell 传参': ('参数传递', [
+        '- 网关参数是 JSON，不经过 shell：多行内容在 JSON 字符串里用 `\\n` 换行，`$`、反引号和引号按字面传递。',
+        '- 长文本或以 `@` 开头的内容，先用 `feishu_file_create` 保存，再把 `{"file_id": …}` 传给 `content`；`pattern` 只接受文本。',
+    ]),
+}
 # 说明 CLI 语法的模板（占位符无法逐项解析）改为 operation_id 写法。
 CLI_TEMPLATES = [
     (re.compile(r'lark-cli ([a-z]+) \+<verb> \[flags\]'), r'\1.+<verb> {参数}'),
@@ -93,10 +112,11 @@ def schema_text(index, op_id):
 
 
 class Index:
-    """目录、排除台账和参数名的查询表。"""
+    """目录、排除台账、参数名和 flag 别名的查询表。"""
 
-    def __init__(self, operations, coverage):
+    def __init__(self, operations, coverage, rows=()):
         self.ops = {op['id']: op for op in operations}
+        self.aliases = {(r['service'] + '.' + r['command'], a): f['Name'] for r in rows for f in r['flags'] or [] for a in f.get('Aliases') or []}
         self.excluded = {c['id']: c['reason'] for c in coverage if c['status'] != 'adapter_ready'}
         self.services = {i.split('.')[0] for i in self.ops} | {i.split('.')[0] for i in self.excluded}
         self.domain_params = {}
@@ -148,11 +168,182 @@ class Ctx:
         self.index, self.op_id, self.domain, self.topics = index, op_id, domain, topics or {}
 
 
+class Op(str):
+    """shell 的控制与重定向符号；与引号内同样写法的字面量区分。"""
+
+
+class ShellSyntax(ValueError):
+    """网关参数无法等价表达的 shell 写法：命令替换、特殊变量、未闭合的引号等。"""
+
+
+def ansi_c(body):
+    """按 bash 规则解码 $'...' 的内容；未知转义保留反斜杠。"""
+    out, i = [], 0
+    while i < len(body):
+        c, n = body[i], body[i + 1:i + 2]
+        if c != '\\' or not n:
+            out.append(c)
+            i += 1
+        elif n in ANSI_C:
+            out.append(ANSI_C[n])
+            i += 2
+        elif n in '01234567':
+            digits = re.match(r'[0-7]{1,3}', body[i + 1:]).group(0)
+            out.append(chr(int(digits, 8) & 0xff))
+            i += 1 + len(digits)
+        elif n in 'xuU' and re.match(r'[0-9A-Fa-f]', body[i + 2:i + 3]):
+            digits = re.match(r'[0-9A-Fa-f]{1,%d}' % {'x': 2, 'u': 4, 'U': 8}[n], body[i + 2:]).group(0)
+            if int(digits, 16) > 0x10ffff:
+                raise ShellSyntax('无效的 Unicode 转义')
+            out.append(chr(int(digits, 16)))
+            i += 2 + len(digits)
+        elif n == 'c' and body[i + 2:i + 3]:
+            out.append(chr(ord(body[i + 2]) & 0x1f))
+            i += 3
+        else:
+            out.append(c + n)
+            i += 2
+    return ''.join(out)
+
+
+def shell_words(text):
+    """按 POSIX shell 规则拆词，返回 (词列表, 行尾注释)。
+
+    支持单引号、双引号、$'...'（按 bash 解码转义）、反斜杠转义与续行；$VAR、${VAR} 改写为 <VAR> 占位值，
+    未加引号的 <占位值> 保持原样。控制与重定向符号作为 Op 返回。命令替换、特殊变量和未闭合的引号抛出 ShellSyntax。"""
+    words, word, started, comment, i, n = [], [], False, None, 0, len(text)
+
+    def variable(j, quoted):
+        m = SHELL_VAR.match(text, j)
+        if m:
+            return '<' + (m.group(1) or m.group(2)) + '>', m.end()
+        follow = text[j + 1:j + 2]
+        if not follow or follow.isspace() or (quoted and follow == '"'):
+            return '$', j + 1
+        raise ShellSyntax('shell 展开 $' + follow)
+
+    while i < n:
+        c = text[i]
+        if c in ' \t\n':
+            if started:
+                words.append(''.join(word))
+            word, started = [], False
+            if c == '\n':
+                words.append(Op('\n'))
+            i += 1
+        elif c == '#' and not started:
+            end = text.find('\n', i)
+            comment = text[i + 1:end if end >= 0 else n].strip()
+            i = end if end >= 0 else n
+        elif c == '\\':
+            if text[i + 1:i + 2] in ('\n', ''):
+                i += 2  # 续行；命令末尾的反斜杠同样视为续行
+                continue
+            word.append(text[i + 1])
+            started, i = True, i + 2
+        elif c == "'":
+            end = text.find("'", i + 1)
+            if end < 0:
+                raise ShellSyntax('未闭合的单引号')
+            word.append(text[i + 1:end])
+            started, i = True, end + 1
+        elif text.startswith("$'", i):
+            j = i + 2
+            while j < n and text[j] != "'":
+                j += 2 if text[j] == '\\' else 1
+            if j >= n:
+                raise ShellSyntax('未闭合的 $\'')
+            word.append(ansi_c(text[i + 2:j]))
+            started, i = True, j + 1
+        elif c == '"' or text.startswith('$"', i):
+            j = i + (2 if c == '$' else 1)
+            while True:
+                if j >= n:
+                    raise ShellSyntax('未闭合的双引号')
+                d = text[j]
+                if d == '"':
+                    break
+                if d == '\\' and text[j + 1:j + 2] in ('$', '`', '"', '\\', '\n'):
+                    word.append(text[j + 1] if text[j + 1] != '\n' else '')
+                    j += 2
+                elif d == '$':
+                    value, j = variable(j, True)
+                    word.append(value)
+                elif d == '`':
+                    raise ShellSyntax('命令替换')
+                else:
+                    word.append(d)
+                    j += 1
+            started, i = True, j + 1
+        elif c == '$':
+            value, i = variable(i, False)
+            word.append(value)
+            started = True
+        elif c == '`':
+            raise ShellSyntax('命令替换')
+        elif c in '|&;<>()':
+            m = PLACEHOLDER.match(text, i) if c == '<' else None
+            if m:
+                word.append(m.group(0))
+                started, i = True, m.end()
+                continue
+            # 2>&1 这类重定向的文件描述符并入符号
+            prefix = ''.join(word) if started and ''.join(word).isdigit() and c in '<>' else ''
+            if started and not prefix:
+                words.append(''.join(word))
+            word, started = [], False
+            m = SHELL_OP.match(text, i)
+            words.append(Op(prefix + m.group(0)))
+            i = m.end()
+        else:
+            word.append(c)
+            started, i = True, i + 1
+    if started:
+        words.append(''.join(word))
+    return words, comment
+
+
+def shell_open(text):
+    """命令文本末尾仍在引号内或以续行反斜杠结尾时返回 True。"""
+    quote, i, n = None, 0, len(text)
+    while i < n:
+        c = text[i]
+        if quote:
+            if c == '\\' and quote != "'":
+                i += 1
+            elif c == quote[-1]:
+                quote = None
+        elif c == '\\':
+            if i + 1 >= n:
+                return True
+            i += 1
+        elif c == '#' and (i == 0 or text[i - 1] in ' \t\n'):
+            end = text.find('\n', i)
+            if end < 0:
+                break
+            i = end
+        elif text.startswith("$'", i):
+            quote, i = "$'", i + 1
+        elif c in '\'"':
+            quote = c
+        i += 1
+    return quote is not None
+
+
+def command_end(lines, i):
+    """从第 i 行开始的命令结束于哪一行之前：续行与跨行引号属于同一条命令。"""
+    j = i + 1
+    while j < len(lines) and shell_open('\n'.join(x.rstrip() for x in lines[i:j])):
+        j += 1
+    return j
+
+
 def split_words(text):
+    """宽松拆词，用于正文中的命令引用；无法解析时返回 None。"""
     try:
-        return shlex.split(text)
-    except ValueError:
-        return text.split()
+        return shell_words(text)[0]
+    except ShellSyntax:
+        return None
 
 
 def command_words(words):
@@ -170,14 +361,23 @@ def command_words(words):
     return out
 
 
+def local_path(value):
+    return '://' not in value and not PLACEHOLDER.fullmatch(value) and ('/' in value or re.search(r'\.\w{1,5}$', value) is not None)
+
+
 def convert_value(binding, value, strict):
-    """按 flag 声明转换取值；返回 (值, 是否可用)。"""
+    """按 flag 声明转换取值；返回 (值, 是否可用)。
+
+    @path 是 CLI 读取本地文件的写法，改为 file_id；文件参数（--image、--file 等）的本地路径同样改为 file_id，
+    URL 和已有的 key 保留文本。其他取值都是字面量，含 / 也不当作路径。"""
     kind = binding['type']
-    is_file = binding.get('file') or 'file' in (binding.get('input') or [])
-    if value == '-' or (value.startswith('@') and not is_file):
+    reads_file = binding.get('file') or 'file' in (binding.get('input') or [])
+    if value == '-' or value.startswith('@@') or (value.startswith('@') and not reads_file):
         return '<内容>', not strict
-    if is_file and (value.startswith('@') or '/' in value or re.search(r'\.\w{1,5}$', value)):
+    if value.startswith('@') or (binding.get('file') and local_path(value)):
         return {'file_id': '<file_id>'}, True
+    if PLACEHOLDER.fullmatch(value):
+        return value, True
     if kind in ('int', 'float64', 'int_array'):
         try:
             return (float(value) if kind == 'float64' else int(value)), True
@@ -192,16 +392,23 @@ def convert_value(binding, value, strict):
 
 
 def parse_call(index, words, domain, strict):
-    """解析去掉 lark-cli 前缀的命令；strict 模式下任何无法映射的部分都使整条命令失效。"""
+    """解析去掉 lark-cli 前缀的命令，返回 (operation_id, 参数, 省略的 CLI 专用 flag)；网关未提供的操作参数为 None。
+
+    静态 API 的单项参数 flag 放入 params，--file 放入 files。strict 模式下任何无法等价映射的部分都使整条命令失效；
+    否则跳过无法映射的部分。"""
     words = command_words(words)
     op_id, used = index.resolve(words, domain)
     if not op_id:
         return None
+    rest = words[used:]
+    dropped = {w[2:].partition('=')[0] for w in rest if w.startswith('--') and w[2:].partition('=')[0] in CLI_ONLY}
     op = index.ops.get(op_id)
     if op is None:
-        return None if strict else (op_id, {})
+        return op_id, None, dropped
     bindings = {b['name']: (key, b) for key, b in (op.get('flag_bindings') or {}).items()}
-    args, rest, i = {}, words[used:], 0
+    params = op['input_schema'].get('properties', {}).get('params', {}).get('properties', {})
+    file_fields = op.get('file_fields') or []
+    args, i = {}, 0
     while i < len(rest):
         token = rest[i]
         i += 1
@@ -210,21 +417,33 @@ def parse_call(index, words, domain, strict):
                 return None
             continue
         name, eq, value = token[2:].partition('=')
+        name = index.aliases.get((op_id, name), name)
         if name in CLI_ONLY:
-            if strict and name in ('dry-run', 'print-schema', 'jq', 'help'):
-                return None
             if name in VALUE_FLAGS and not eq and i < len(rest) and not rest[i].startswith('--'):
                 i += 1
             continue
+        if name == 'json' and name not in bindings and not eq and (i >= len(rest) or rest[i].startswith('--')):
+            continue  # CLI 的 JSON 输出开关；网关始终返回 JSON
         key, binding = bindings.get(name, (None, None))
-        if op['kind'] == 'api' and name in ('params', 'data'):
-            key, binding = name, {'type': 'string', 'json': True}
+        target = args
+        if op['kind'] == 'api':
+            if name in ('params', 'data', 'file'):
+                key, binding = name, {'type': 'string'}
+            elif name.replace('-', '_') in params:
+                key = name.replace('-', '_')
+                kind = params[key].get('type')
+                binding = {'type': {'integer': 'int', 'number': 'float64', 'boolean': 'bool'}.get(kind, 'string')}
+                target = args.setdefault('params', {})
+                if not isinstance(target, dict):
+                    return None
         if key is None:
             if strict:
                 return None
-            key, binding = name.replace('-', '_'), {'type': 'string'}
+            if not eq and i < len(rest) and not rest[i].startswith('--'):
+                i += 1
+            continue
         if binding['type'] == 'bool':
-            args[key] = value.lower() not in ('false', '0') if eq else True
+            target[key] = value.lower() not in ('false', '0') if eq else True
             continue
         if not eq:
             if i >= len(rest) or rest[i].startswith('--'):
@@ -233,15 +452,40 @@ def parse_call(index, words, domain, strict):
                 continue
             value = rest[i]
             i += 1
+        if op['kind'] == 'api' and key in ('params', 'data'):
+            # 可以与单项参数 flag 合并；占位值保留原文。
+            placeholder = PLACEHOLDER.fullmatch(value) is not None
+            try:
+                converted = value if placeholder else json.loads(value)
+            except ValueError:
+                converted = None
+            if isinstance(converted, dict) and isinstance(args.get(key), dict):
+                args[key].update(converted)
+            elif (placeholder or isinstance(converted, dict)) and key not in args:
+                args[key] = converted
+            elif strict:
+                return None
+            continue
+        if op['kind'] == 'api' and key == 'file':
+            # --file 取值为 字段=路径，单个文件字段时可省略字段名。
+            field, sep, path = value.partition('=')
+            if not (sep and field in file_fields):
+                field, path = (file_fields[0] if len(file_fields) == 1 else None), value
+            if field is None or not (path.startswith('@') or local_path(path)):
+                if strict:
+                    return None
+                continue
+            args.setdefault('files', {})[field] = {'file_id': '<file_id>'}
+            continue
         converted, ok = convert_value(binding, value, strict)
         if not ok:
             return None
         if binding['type'] in ('string_array', 'string_slice', 'int_array'):
             items = converted.split(',') if binding['type'] == 'string_slice' and isinstance(converted, str) else [converted]
-            args.setdefault(key, []).extend(items)
+            target.setdefault(key, []).extend(items)
         else:
-            args[key] = converted
-    return op_id, args
+            target[key] = converted
+    return op_id, args, dropped
 
 
 def describe_hint(index, words, domain):
@@ -298,11 +542,15 @@ def special_call(index, words, domain):
 
 
 def call_text(index, words, domain):
+    """正文中的命令引用改写为 operation_id 与参数；原命令带 --dry-run 时注明网关不提供预览。"""
     special = special_call(index, words, domain)
     if special:
         return special
     parsed = parse_call(index, words, domain, False)
-    return render_inline(index, *parsed) if parsed else None
+    if not parsed:
+        return None
+    op_id, args, dropped = parsed
+    return render_inline(index, op_id, args) + ('（网关不提供 dry-run 预览）' if 'dry-run' in dropped and args is not None else '')
 
 
 def flag_text(ctx, name, value):
@@ -336,7 +584,7 @@ def translate_span(ctx, content):
     if SKILL_NAME.fullmatch(content) and skill_text(content):
         return skill_text(content)
     words = split_words(content)
-    if words and not any(w in SHELL_OPS for w in words):
+    if words and not any(isinstance(w, Op) for w in words):
         head = words[1:] if words[0] == 'lark-cli' else words
         if words[0] == 'lark-cli' or words[0].startswith('+') or (words[0] in index.services and len(words) > 1):
             result = call_text(index, head, ctx.domain)
@@ -363,11 +611,15 @@ def translate_plain(ctx, text):
     index = ctx.index
 
     def wiki(m):
-        target, _ = index.resolve(split_words(m.group(1)), ctx.domain)
+        target, _ = index.resolve(split_words(m.group(1)) or m.group(1).split(), ctx.domain)
         return index.ref(target) if target else '`' + m.group(1) + '`'
 
     def cli(m):
-        return call_text(index, split_words(m.group(1)), ctx.domain) or m.group(0)
+        words = split_words(m.group(1))
+        if words is None:
+            return m.group(0)
+        cut = next((i for i, w in enumerate(words) if isinstance(w, Op)), len(words))
+        return call_text(index, words[:cut], ctx.domain) or m.group(0)
 
     def spaced(m):
         candidate = m.group(1) + '.+' + m.group(2)
@@ -526,34 +778,22 @@ def parse_affordance(md):
     return out
 
 
-def logical_lines(lines):
-    """合并以反斜杠续行的 shell 命令。"""
-    out, buf = [], ''
-    for line in lines:
-        if line.rstrip().endswith('\\'):
-            buf += line.rstrip()[:-1] + ' '
-            continue
-        out.append(buf + line)
-        buf = ''
-    if buf:
-        out.append(buf)
-    return out
-
-
 def translate_example(index, command, domain):
     """严格翻译 affordance 示例；只接受单条、完全可映射的命令。"""
-    calls = []
-    for line in logical_lines(command.split('\n')):
-        t = line.strip()
+    calls, lines, i = [], command.split('\n'), 0
+    while i < len(lines):
+        j = command_end(lines, i)
+        t = '\n'.join(x.rstrip() for x in lines[i:j]).strip()
+        i = j
         if not t or t.startswith('#'):
             continue
         words = split_words(t)
-        if not words or words[0] != 'lark-cli' or any(w in SHELL_OPS for w in words):
+        if not words or words[0] != 'lark-cli' or any(isinstance(w, Op) for w in words):
             return None
         parsed = parse_call(index, words[1:], domain, True)
-        if not parsed:
+        if not parsed or parsed[1] is None or parsed[2] & {'dry-run', 'print-schema', 'jq', 'help'}:
             return None
-        calls.append(parsed)
+        calls.append(parsed[:2])
     return calls[0] if len(calls) == 1 else None
 
 
@@ -588,7 +828,7 @@ def operation_guidance(index, rows, source, topic_files):
                 g[{'Avoid when': 'avoid_when', 'Prerequisites': 'prerequisites', 'Tips': 'tips'}[label]] = items(sec['items'])
                 for item in sec['items']:
                     for target in WIKI_LINK.findall(item):
-                        resolved, _ = index.resolve(split_words(target), domain)
+                        resolved, _ = index.resolve(split_words(target) or target.split(), domain)
                         if resolved in index.ops and resolved != op_id and resolved not in related:
                             related.append(resolved)
             elif label == 'Examples':
@@ -639,10 +879,12 @@ def local_topics(file_path, topic_files):
 
 
 def rewrite_links(line, file_path, topic_files):
-    """把 Skill 内的相对链接改写为指南主题或领域引用。"""
+    """把 Skill 内的相对链接改写为指南主题或领域引用；代码片段里的链接是语法示例，保持原样。"""
+    spans = [m.span() for m in CODE_SPAN.finditer(line)]
+
     def repl(m):
         text, target = m.group(1), m.group(2)
-        if re.match(r'^[a-z]+:', target) or target.startswith('#'):
+        if re.match(r'^[a-z]+:', target) or target.startswith('#') or any(a <= m.start() and m.end() <= b for a, b in spans):
             return m.group(0)
         path = _normalize(PurePosixPath(file_path).parent / target.split('#')[0])
         if path in topic_files:
@@ -661,35 +903,56 @@ def rewrite_links(line, file_path, topic_files):
     return MD_LINK.sub(repl, line)
 
 
+def convert_command(index, text, domain):
+    """把一条完整的 lark-cli 命令改写为网关调用行；无法完整、等价映射时返回 None，由调用方保留原文。"""
+    try:
+        words, comment = shell_words(text)
+    except ShellSyntax:
+        return None
+    cut = next((i for i, w in enumerate(words) if isinstance(w, Op)), len(words))
+    if not words or words[0] != 'lark-cli' or (cut < len(words) and words[cut] != '|'):
+        return None
+    special = special_call(index, words[1:cut], domain)
+    if special:
+        return '# ' + special.replace('`', '')
+    parsed = parse_call(index, words[1:cut], domain, True)
+    if not parsed:
+        return None
+    op_id, args, dropped = parsed
+    if args is not None and 'dry-run' in dropped:
+        return DRY_RUN_NOTE
+    line = render_line(index, op_id, args)
+    if args is not None and cut < len(words):
+        line += '  # 原命令后接管道处理；网关直接返回 JSON'
+    elif args is not None and 'jq' in dropped:
+        line += '  # 原命令用 jq 筛选输出；网关直接返回 JSON'
+    return line + ('  # ' + comment if comment else '')
+
+
 def translate_block(index, lines, lang, domain):
-    shell = lang in ('', 'bash', 'sh', 'shell', 'console', 'zsh')
-    out, converted, other = [], 0, 0
-    for line in (logical_lines(lines) if shell else lines):
-        if shell and DROP.search(line):
+    """翻译代码块。shell 代码块中的 lark-cli 命令（含续行和跨行引号）整条转换，无法转换时保留原文各行。"""
+    shell = lang in SHELL_LANGS
+    out, converted, other, i = [], 0, 0, 0
+    while i < len(lines):
+        j = command_end(lines, i) if shell and lines[i].strip().startswith('lark-cli ') else i + 1
+        group, i = lines[i:j], j
+        if shell and DROP.search('\n'.join(group)):
             continue
-        line = AS_IN_COMMAND.sub('', line)
-        for pattern, repl in CLI_TEMPLATES:
-            line = pattern.sub(repl, line)
-        line = SCHEMA_CALL.sub(lambda m: schema_text(index, m.group(1)), line)
-        t = line.strip()
-        indent = line[:len(line) - len(line.lstrip())]
+        rewritten = []
+        for line in group:
+            line = AS_IN_COMMAND.sub('', line)
+            for pattern, repl in CLI_TEMPLATES:
+                line = pattern.sub(repl, line)
+            rewritten.append(SCHEMA_CALL.sub(lambda m: schema_text(index, m.group(1)), line))
+        t = '\n'.join(x.rstrip() for x in rewritten).strip()
         if shell and t.startswith('lark-cli '):
-            words = split_words(t)
-            piped = next((i for i, w in enumerate(words) if w in SHELL_OPS), len(words))
-            if piped == len(words) or words[piped] == '|':
-                special = special_call(index, words[1:piped], domain)
-                parsed = None if special else parse_call(index, words[1:piped], domain, False)
-                suffix = '  # 原命令后接管道处理；网关直接返回 JSON' if piped < len(words) else ''
-                if special:
-                    out.append(indent + '# ' + special.replace('`', ''))
-                elif parsed:
-                    out.append(indent + render_line(index, *parsed) + suffix)
-                if special or parsed:
-                    converted += 1
-                    continue
-        out.append(line)
-        if t and not t.startswith('#'):
-            other += 1
+            result = convert_command(index, t, domain)
+            if result is not None:
+                out.append(rewritten[0][:len(rewritten[0]) - len(rewritten[0].lstrip())] + result)
+                converted += 1
+                continue
+        out.extend(rewritten)
+        other += sum(1 for x in rewritten if x.strip() and not x.strip().startswith('#'))
     if not any(x.strip() for x in out):
         return []
     return ['```' + ('text' if shell and converted and not other else lang), *out, '```']
@@ -724,20 +987,34 @@ def tidy_tables(lines):
     return out
 
 
+def heading_level(line):
+    level = len(line) - len(line.lstrip('#'))
+    return level if 0 < level <= 6 and line[level:level + 1] == ' ' else 0
+
+
 def drop_empty_sections(lines):
-    """删除正文被过滤后只剩标题的小节。"""
-    out = []
+    """删除正文被过滤后只剩标题的小节。代码块里以 # 开头的注释不是标题。"""
+    out, fence, fenced = [], False, []
+    for line in lines:
+        if line.lstrip().lstrip('>').lstrip().startswith('```'):
+            fence = not fence
+            fenced.append(True)
+        else:
+            fenced.append(fence)
     for i, line in enumerate(lines):
-        level = len(line) - len(line.lstrip('#'))
-        if 0 < level <= 6 and line[level:level + 1] == ' ':
-            following = next((x for x in lines[i + 1:] if x.strip()), None)
+        level = 0 if fenced[i] else heading_level(line)
+        if level:
+            following = next((n for n in range(i + 1, len(lines)) if lines[n].strip()), None)
             if following is None:
                 continue
-            next_level = len(following) - len(following.lstrip('#'))
-            if 0 < next_level <= level and following[next_level:next_level + 1] == ' ':
+            next_level = 0 if fenced[following] else heading_level(lines[following])
+            if 0 < next_level <= level:
                 continue
         out.append(line)
     return out
+
+
+QUOTE_PREFIX = re.compile(r'^\s*>\s?')
 
 
 def translate_document(index, md, domain, file_path, topic_files):
@@ -746,24 +1023,42 @@ def translate_document(index, md, domain, file_path, topic_files):
         if end > 0:
             md = md[end + 4:].lstrip('\n')
     ctx = Ctx(index, None, domain, local_topics(file_path, topic_files))
-    out, fence, lang, in_fence = [], [], '', False
+    out, fence, lang, in_fence, quote, skip = [], [], '', False, '', 0
+
+    def emit_block():
+        if not skip:
+            out.extend(quote + x if x else quote.rstrip() for x in translate_block(index, fence, lang, domain))
+
     for line in md.split('\n'):
-        t = line.strip()
+        # 引用块中的代码块（> ```）去掉引用前缀后按代码块翻译，再加回前缀。
+        m = QUOTE_PREFIX.match(line)
+        body = line[m.end():] if m and (not in_fence or quote) else line
+        t = body.strip()
         if t.startswith('```'):
             if not in_fence:
-                in_fence, lang, fence = True, t[3:].strip(), []
+                in_fence, lang, fence, quote = True, t[3:].strip(), [], m.group(0) if m else ''
             else:
                 in_fence = False
-                out.extend(translate_block(index, fence, lang, domain))
+                emit_block()
             continue
         if in_fence:
-            fence.append(line)
+            fence.append(body)
+            continue
+        level = heading_level(line)
+        if skip:
+            if not level or level > skip:
+                continue
+            skip = 0
+        if level and line[level + 1:].strip() in SECTION_REPLACEMENTS:
+            title, body_lines = SECTION_REPLACEMENTS[line[level + 1:].strip()]
+            out.extend(['#' * level + ' ' + title, *body_lines, ''])
+            skip = level
             continue
         if DROP.search(line) or CLI_ONLY_ROW.match(line):
             continue
         out.append(translate_text(ctx, rewrite_links(line, file_path, topic_files), layout=True, english=not HAN.search(line)).rstrip())
     if in_fence:
-        out.extend(translate_block(index, fence, lang, domain))
+        emit_block()
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(drop_empty_sections(tidy_tables(out)))).strip() + '\n'
 
 
@@ -776,7 +1071,7 @@ def topic_title(md, fallback):
 
 GUIDE_PREFACE = '''> 由 Feishu-MCP-Gateway 从 lark-cli `{commit}` 的 `{skill}` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {{…}}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {{…}}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{{"file_id": "…"}}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -789,7 +1084,7 @@ TOPIC_PREFACE = '> 由 lark-cli `{commit}` 的 `{skill}` 参考文档转换；�
 
 def build(source, commit, operations, coverage, rows, output):
     """生成 output 目录：operations.json，以及 <skill>/GUIDE.md、<skill>/<topic>.md。"""
-    index = Index(operations, coverage)
+    index = Index(operations, coverage, rows)
     files = subprocess.check_output(['git', '-C', str(source), 'ls-files', 'skills'], text=True).split('\n')
     topic_files, skills, owner = {}, {}, {}
     for skill in SKILLS:

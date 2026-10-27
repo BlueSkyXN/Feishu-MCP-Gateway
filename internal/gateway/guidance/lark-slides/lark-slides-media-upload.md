@@ -7,9 +7,14 @@
 ## 命令
 
 ```text
+# 直接传 xml_presentation_id
+
+# 传 slides URL 也行
+
+# 传 wiki URL（CLI 自动通过 node_by_token 接口解析真实 token，校验 obj_type=slides）
 
 # 预览（不实际上传）
-slides.+media-upload {"file": {"file_id": "<file_id>"}, "presentation": "$PRES_ID"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 返回值
@@ -47,6 +52,9 @@ slides.+media-upload {"file": {"file_id": "<file_id>"}, "presentation": "$PRES_I
 ```bash
 PRES_ID=xxx
 SID=yyy       # 要加图的那一页
+
+# 1) 上传图片拿 file_token
+  --file ./pic.png --presentation $PRES_ID --jq '.data.file_token')
 
 # 2) block_insert 到页末（或用 insert_before_block_id 指定插入位置）
 ```

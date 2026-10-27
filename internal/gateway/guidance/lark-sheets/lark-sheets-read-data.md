@@ -222,6 +222,7 @@ sheets.+csv-get {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name":
 # 用 sheet-name 模糊定位（运行时框架会先解析到 sheet-id）
 sheets.+csv-get {"spreadsheet_token": "shtXXX", "sheet_name": "销售明细", "range": "A1:F30"}
 
+# 全量读：省略 --range 即读整个子表（按实际边界裁剪，返回 actual_range 标注实读范围），
 # 无需先 +workbook-info 探行列再拼 range；大表配合 --max-chars / --output-path
 sheets.+csv-get {"spreadsheet_token": "shtXXX", "sheet_name": "销售明细"}
 ```

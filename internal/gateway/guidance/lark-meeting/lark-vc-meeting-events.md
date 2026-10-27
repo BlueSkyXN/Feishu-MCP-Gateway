@@ -12,6 +12,9 @@
 ## 命令
 
 ```bash
+# 默认用法：全量拉取当前身份可见事件；输出易读时间线
+
+# 指定时间范围，并拉全该时间窗内当前可见事件
 
 # 基于上一次保存的 page_token 继续查新增事件
 ```
@@ -137,6 +140,7 @@
 先读取当前 item 的 `share_id` 和 `comment_focus.comment_id`，再按“共享会话关联”取得 `share_doc.url`。优先把完整 URL 传给现有 shortcut，由它解析实际 `file_token/file_type`（含 Wiki 解包）；如果上游只留下裸 token，则必须同时提供已解析且受支持的 `file_type`。
 
 ```bash
+# 推荐：share_doc.url 完整可用
 
 # 只有已经可靠解析出裸 token/type 时使用
 ```
@@ -252,7 +256,7 @@
 | 错误现象 | 根本原因 | 解决方案 |
 |---------|---------|---------|
 | `meeting_id is required` | 未传入 `meeting_id` | 传入长数字 `meeting.id` |
-| `20001 meeting_status_MEETING_END` | 会议已经结束 | 本接口不再适合继续拉取事件。先用 `vc.+detail`（meeting_ids="<meeting.id>"） 获取会议产物信息，再根据 `note_display_type` / `note_id` / `minute_token` 和用户意图选择纪要正文、逐字稿或妙记；参会人请用 `vc.meeting.get`（params={"meeting_id": "<meeting.id>"}） |
+| `20001 meeting_status_MEETING_END` | 会议已经结束 | 本接口不再适合继续拉取事件。先用 `vc.+detail`（meeting_ids="<meeting.id>"） 获取会议产物信息，再根据 `note_display_type` / `note_id` / `minute_token` 和用户意图选择纪要正文、逐字稿或妙记；参会人请用 `vc.meeting.get`（params={"meeting_id": "<meeting.id>", "with_participants": true}） |
 | `20002 meeting not exist` | `meeting_id` 错误，或会议实例当前已不可获取（常见于把 9 位会议号当 meeting_id 传） | 确认传入的是长数字 `meeting_id`，不是 9 位会议号 |
 | `HTTP 404` / `HTTP 500` | 服务端当前无法找到或处理该会议实例 | 换一个正在进行且 bot 可见的 meeting_id，或排查后端问题 |
 

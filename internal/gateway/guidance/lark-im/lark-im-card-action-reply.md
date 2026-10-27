@@ -142,7 +142,22 @@ When a `card.action.trigger` event arrives (**each stdout JSON line is one event
 ## Examples
 
 ```text
+# Stream all card interactions
+# events.read（网关用有界读取替代 CLI 事件订阅）
 
+# Grab one callback to inspect shape (debugging only — do not use in production workflows)
+# events.read（网关用有界读取替代 CLI 事件订阅）
+
+# Button clicks only (not form submit), with action value
+# events.read（网关用有界读取替代 CLI 事件订阅）
+
+# Form submits (button with form_value present)
+# events.read（网关用有界读取替代 CLI 事件订阅）
+
+# Date picker interactions
+# events.read（网关用有界读取替代 CLI 事件订阅）
+
+# Filter to one chat
 # events.read（网关用有界读取替代 CLI 事件订阅）
 ```
 

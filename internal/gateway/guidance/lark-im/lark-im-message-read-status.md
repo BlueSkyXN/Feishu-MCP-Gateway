@@ -21,6 +21,7 @@ The user scopes in the table are alternatives; the CLI preflight uses `im:messag
 ## Batch query the current user's read status
 
 ```bash
+# Preview one request
 
 # Execute with a user access token
 ```
@@ -33,6 +34,7 @@ The command accepts 1–50 comma-separated `om_` message IDs. The three scopes a
 ## List users who read one message
 
 ```text
+# Fetch one page as the current user
 
 # Fetch every page as a bot, bounded to ten pages by default
 im.+message-read-users {"message_id": "om_xxx", "user_id_type": "open_id", "page_all": true}

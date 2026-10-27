@@ -105,7 +105,7 @@ _公共四件套 · 系统：管理员预授权（high_risk_operations）、dry-
 ### `sheets.+float-image-list`
 
 ```text
-sheets.+float-image-list {"url": "...", "sheet_id": "$SID"}
+sheets.+float-image-list {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### `sheets.+float-image-create`
@@ -113,14 +113,15 @@ sheets.+float-image-list {"url": "...", "sheet_id": "$SID"}
 所有字段拍平为独立 flag：图片来源 `image` / `image_token` / `image_uri`（三选一 XOR）/ `image_name` / `--position-{row,col}` / `--size-{width,height}` / `--offset-{row,col}` / `z_index`。
 
 ```text
+# 首选：直接给本地图片路径，CLI 自动上传（无需手动拿 token）
 # 注意：--image-name 是 required（即使路径 basename 已经是 logo.png 也要显式传）
-sheets.+float-image-create {"url": "...", "sheet_id": "$SID", "image": {"file_id": "<file_id>"}, "image_name": "logo.png", "position_row": 2, "position_col": "B", "size_width": 300, "size_height": 200, "z_index": 1}
+sheets.+float-image-create {"url": "...", "sheet_id": "<SID>", "image": {"file_id": "<file_id>"}, "image_name": "logo.png", "position_row": 2, "position_col": "B", "size_width": 300, "size_height": 200, "z_index": 1}
 
 # 用已有 file_token（从 +float-image-list 的 image_token 或 +cells-set-image 返回的 file_token）
-sheets.+float-image-create {"url": "...", "sheet_id": "$SID", "image_name": "logo.png", "image_token": "$TOKEN", "position_row": 0, "position_col": "A", "size_width": 200, "size_height": 150}
+sheets.+float-image-create {"url": "...", "sheet_id": "<SID>", "image_name": "logo.png", "image_token": "<TOKEN>", "position_row": 0, "position_col": "A", "size_width": 200, "size_height": 150}
 
 # 用 image URI（上传链路返回的句柄，非表内对象 reference_id；与 --image-token 二选一）
-sheets.+float-image-create {"url": "...", "sheet_id": "$SID", "image_name": "logo.png", "image_uri": "$IMAGE_URI", "position_row": 2, "position_col": "B", "size_width": 300, "size_height": 200, "z_index": 1}
+sheets.+float-image-create {"url": "...", "sheet_id": "<SID>", "image_name": "logo.png", "image_uri": "<IMAGE_URI>", "position_row": 2, "position_col": "B", "size_width": 300, "size_height": 200, "z_index": 1}
 ```
 
 ### `sheets.+float-image-update`
@@ -131,16 +132,16 @@ sheets.+float-image-create {"url": "...", "sheet_id": "$SID", "image_name": "log
 
 ```text
 # 调整位置 + 尺寸，保留原图（不传图片源）
-sheets.+float-image-update {"url": "...", "sheet_id": "$SID", "float_image_id": "$IMG_ID", "image_name": "logo.png", "position_row": 5, "position_col": "C", "size_width": 300, "size_height": 200}
+sheets.+float-image-update {"url": "...", "sheet_id": "<SID>", "float_image_id": "<IMG_ID>", "image_name": "logo.png", "position_row": 5, "position_col": "C", "size_width": 300, "size_height": 200}
 
 # 换图：额外带 --image-token，核心字段同样要给全
-sheets.+float-image-update {"url": "...", "sheet_id": "$SID", "float_image_id": "$IMG_ID", "image_name": "new-logo.png", "image_token": "$NEW_TOKEN", "position_row": 5, "position_col": "C", "size_width": 300, "size_height": 200}
+sheets.+float-image-update {"url": "...", "sheet_id": "<SID>", "float_image_id": "<IMG_ID>", "image_name": "new-logo.png", "image_token": "<NEW_TOKEN>", "position_row": 5, "position_col": "C", "size_width": 300, "size_height": 200}
 ```
 
 ### `sheets.+float-image-delete`
 
 ```text
-sheets.+float-image-delete {"url": "...", "sheet_id": "$SID", "float_image_id": "$IMG_ID"}
+sheets.+float-image-delete {"url": "...", "sheet_id": "<SID>", "float_image_id": "<IMG_ID>"}
 ```
 
 ### Validate / DryRun / Execute 约束

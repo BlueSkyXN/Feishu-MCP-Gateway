@@ -19,6 +19,8 @@ wiki.+member-list {"space_id": "<space_id>", "page_all": true, "page_limit": 0}
 # Resume from a specific cursor (single-page fetch regardless of --page-all)
 wiki.+member-list {"space_id": "<space_id>", "page_token": "<TOKEN>"}
 
+# Personal library
+
 # Pretty / table / csv / ndjson output
 wiki.+member-list {"space_id": "<space_id>"}
 wiki.+member-list {"space_id": "<space_id>"}

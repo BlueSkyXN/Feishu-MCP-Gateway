@@ -17,6 +17,7 @@ calendar.+suggestion
 # 获取指定时间区间内的推荐方案（支持日期简写或完整 ISO 8601）
 calendar.+suggestion {"start": "2026-03-19", "end": "2026-03-20"}
 
+# 结合参与人及会议时长获取推荐方案（时长单位：分钟）
 # --attendee-ids 支持传入用户（ou_ 前缀）和群组（oc_ 前缀）混合列表
 calendar.+suggestion {"start": "2026-03-19T14:00:00+08:00", "end": "2026-03-19T18:00:00+08:00", "attendee_ids": "ou_xxx,oc_yyy", "duration_minutes": 60}
 
