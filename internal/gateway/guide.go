@@ -11,7 +11,10 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-const guidePageRunes = 20000
+const (
+	guidePageRunes    = 20000
+	guidePageMaxRunes = 65536
+)
 
 // addGuide 注册 feishu_guide：领域总览、领域指南与主题。具名与紧凑视图都提供。
 func (s *Service) addGuide(server *mcp.Server) {
@@ -19,7 +22,7 @@ func (s *Service) addGuide(server *mcp.Server) {
 		"domain": map[string]any{"type": "string", "maxLength": 64, "description": "领域 ID，例如 docs、sheets、base、im。"},
 		"topic":  map[string]any{"type": "string", "maxLength": 128, "description": "指南中引用的主题 ID。"},
 		"offset": map[string]any{"type": "integer", "minimum": 0},
-		"limit":  map[string]any{"type": "integer", "minimum": 1, "maximum": 65536},
+		"limit":  map[string]any{"type": "integer", "minimum": 1, "maximum": guidePageMaxRunes},
 	}, nil), true, func(ctx context.Context, p Principal, args map[string]any) Result {
 		c, _, err := s.currentConfig().checkPrincipal(p, false)
 		if err != nil {
@@ -100,11 +103,12 @@ func (s *Service) operationList(c Client, p Principal, meta Domain) string {
 func pageText(content string, args map[string]any) map[string]any {
 	runes := []rune(content)
 	offset, limit := 0, guidePageRunes
+	// 在浮点范围内先截断：超出 int 范围的值转换结果随平台不同，amd64 上会变成负数。
 	if n, ok := args["offset"].(float64); ok {
-		offset = int(n)
+		offset = int(min(max(n, 0), float64(len(runes))))
 	}
 	if n, ok := args["limit"].(float64); ok {
-		limit = int(n)
+		limit = int(min(max(n, 1), guidePageMaxRunes))
 	}
 	start := min(offset, len(runes))
 	end := min(start+limit, len(runes))
