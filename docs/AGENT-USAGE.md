@@ -115,6 +115,6 @@ go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
    ```
 
 3. 核对 `git diff`：`docs/coverage.json` 中新增或排除的操作、能力包变化、指南的新增与删除。
-4. 运行 `go test ./...`。领域入口操作失效或指南引用了不存在的操作时，测试会指出具体项；需要时更新 `domains.go`。
-5. 重新渲染 Skill，完成四项验证、`scripts/verify_backend.py` 与 `scripts/smoke_gateway.py`。
+4. 运行 `go test ./...`。领域入口操作失效、指南引用了不存在的操作、代码块示例不符合 schema 或原文残留超过上限时，测试会指出具体项；需要时更新 `domains.go` 或 `scripts/lark_guidance.py` 的转换规则。
+5. 重新渲染 Skill，完成四项验证、`scripts/verify_backend.py` 与 `scripts/smoke_gateway.py`。推送后，CI 按新的 lark-cli 提交在 linux/amd64 上重新生成并核对一致。
 6. 部署新版本时，用 `--catalog-revision` 取得新摘要并更新配置中的 `catalog_revision`。

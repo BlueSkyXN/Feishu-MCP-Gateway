@@ -19,7 +19,7 @@
 
 598 项来源适配加上原生 `events.read`，共 **599 个 Operation**。文件、上下文、Job、指南和紧凑发现入口另外提供固定工具。目录逐项记录见 [coverage.json](docs/coverage.json)；`adapter_ready` 表示有 schema 和执行映射，真实飞书验收范围见 [VALIDATION.md](docs/VALIDATION.md)。
 
-同一固定版本的用法知识也随目录导入：228 个操作级指南来自 affordance 与 shortcut Tips，15 个领域指南与 412 个主题来自官方 Skill 文档，均已改写为网关的调用方式。说明见 [Agent 使用层](docs/AGENT-USAGE.md)。
+同一固定版本的用法知识也随目录导入：228 个操作级指南来自 affordance 与 shortcut Tips，15 个领域指南与 412 个主题来自官方 Skill 文档，改写为网关的调用方式；无法等价转换的少量 CLI 命令保留原文。说明见 [Agent 使用层](docs/AGENT-USAGE.md)。
 
 主要能力：
 
@@ -35,7 +35,7 @@
 
 源码：[BlueSkyXN/Feishu-MCP-Gateway](https://github.com/BlueSkyXN/Feishu-MCP-Gateway)。
 
-[GitHub Releases](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 提供 macOS arm64、Linux amd64 的 Gateway 与配套后端、校验和、对应源码包。下载后核对 SHA256SUMS，并按示例配置应用凭据和接入权限。
+[GitHub Releases](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 提供 macOS arm64、Linux amd64 的 Gateway 与配套后端、对应源码包、`PROVENANCE.json` 和 `SHA256SUMS`；由 Release 工作流生成的版本另附 `RELEASE-VERIFY.json` 与 GitHub 构建证明，见 [检查与发布](docs/RELEASE.md)。下载后核对 SHA256SUMS，并按示例配置应用凭据和接入权限。
 
 ## 构建
 
