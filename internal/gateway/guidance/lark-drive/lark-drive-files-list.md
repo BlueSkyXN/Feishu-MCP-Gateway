@@ -63,7 +63,7 @@ drive.files.list {"params": {"folder_token": "<folder_token>", "order_by": "Edit
 4. 排序参数映射：创建时间 -> `order_by:"CreatedTime"`；编辑时间 / 修改时间 -> `order_by:"EditedTime"`；升序 -> `direction:"ASC"`；降序 -> `direction:"DESC"`。不要省略排序参数后再用 Python / shell 客户端排序替代。
 5. 排序查询建议带 `page_size:200` 减少翻页；只有用户要求完整分页、递归盘点、大目录全量导出，或当前页返回 `has_more=true` 后继续翻页时，才加入 `page_token`。
 6. `page_size` 在分页、递归盘点或全量导出时建议显式设置为 `200`。如果服务端或环境返回参数错误，再降级到服务端允许的值，并记录降级原因。
-7. 调用前如果不确定字段结构，先运行 `feishu_tools_describe`（operation_id="drive.files.list"） 查看 `params` 结构。
+7. 调用前如果不确定字段结构，先运行 `feishu_tools_describe（operation_id="drive.files.list"）` 查看 `params` 结构。
 
 ## 返回结构与解析
 

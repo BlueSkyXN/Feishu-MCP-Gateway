@@ -196,7 +196,7 @@ sheets.+batch-update {"url": "https://example.feishu.cn/sheets/shtXXX", "operati
 > ```
 >
 > ```bash
-> `sheets.+batch-chart-create`（url="..."，operations={"file_id": "<file_id>"}）
+> `sheets.+batch-chart-create` (url="...", operations={"file_id": "<file_id>"})
 > ```
 
 ### `sheets.+cells-batch-clear`

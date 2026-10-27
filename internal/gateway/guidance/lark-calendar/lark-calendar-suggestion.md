@@ -38,8 +38,6 @@ calendar.+suggestion {"start": "2026-03-19T08:00:00+08:00", "end": "2026-03-19T1
 | `duration_minutes=<min>`      | 否     | 会议时长（分钟）。优先使用用户显式指定的值，若未指定则尝试根据上下文推断，推断失败则不传                                        |
 | `timezone=<tz>`               | 否     | 对话中明确提及的预约日程所使用的时区（默认取用户设备时区，例如 `Asia/Shanghai`）                                |
 | `exclude=<times>`             | 否     | 排除的时间块，支持 `start~end` 格式（如 `2026-03-19T12:00:00+08:00~2026-03-19T13:00:00+08:00`），多个用逗号分隔 |
-|                | 否     | 输出格式（固定为 `json`） |
-| dry-run（网关不提供，改为先读取核对）                     | 否     | 预览 API 调用，不执行                                                       |
 
 ## 时间格式
 
@@ -98,5 +96,5 @@ calendar.+suggestion {"start": "2026-03-19T08:00:00+08:00", "end": "2026-03-19T1
 
 ## 参考
 
-- lark-calendar-create（主题 `lark-calendar-create`） — 创建日程
+- 主题 `lark-calendar-create` — 创建日程
 - `calendar` 领域指南 — skill 入口与路由

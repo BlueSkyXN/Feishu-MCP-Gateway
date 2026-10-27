@@ -2,7 +2,7 @@
 
 # 权限治理 Command Patterns
 
-本文只提供 `permission_governance` workflow 的具体 `lark-cli` 命令样例。只有进入对应 state 且需要拼装命令时才读取本文；命令可用范围仍以 主题 `lark-drive-workflow-permission-governance`（主题 `lark-drive-workflow-permission-governance`） 的 `Command Map` 为准。
+本文只提供 `permission_governance` workflow 的具体 `lark-cli` 命令样例。只有进入对应 state 且需要拼装命令时才读取本文；命令可用范围仍以 主题 `lark-drive-workflow-permission-governance` 的 `Command Map` 为准。
 
 ## 目录
 
@@ -49,8 +49,8 @@ patch 前检查 manage-public permission：
 
 patch 前读取当前 schema：
 
-```text
-# feishu_tools_describe（operation_id="drive.permission.public.patch"）
+```bash
+feishu_tools_describe（operation_id="drive.permission.public.patch"） --format json
 ```
 
 只 patch 当前 schema 支持的字段；对 Wiki 目标，必须省略 schema 明确标注为 Wiki 不支持的字段。
@@ -61,8 +61,8 @@ patch 前读取当前 schema：
 
 owner 转移前读取当前 schema：
 
-```text
-# feishu_tools_describe（operation_id="drive.permission.members.transfer_owner"）
+```bash
+feishu_tools_describe（operation_id="drive.permission.members.transfer_owner"） --format json
 ```
 
 显式确认后转移 owner：

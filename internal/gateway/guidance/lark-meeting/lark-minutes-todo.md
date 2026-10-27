@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `minutes.+todo`（网关不提供：仅支持用户身份）
+# `minutes.+todo` (not available in the gateway: user identity only)
 
 > **路由**：本命令操作**妙记内的 AI 待办**，不是飞书任务（Task）。用户说「在妙记里新建待办」时**必须**用本命令，**禁止**走 `lark-cli task` / `tasklists list` / `task.+create`。详见 生成和修改妙记（主题 `create-and-edit-minutes`）。
 
@@ -35,7 +35,6 @@
 | `--is-done` | 单条 add/update | `--is-done` = true，`--is-done=false` = false |
 | `--todo-id <id>` | 单条 update/delete | 已有待办 id |
 | `--todos <json>` | 批量模式 | JSON 数组，支持 `{"file_id": …}` / `@-`；与单条 flags 互斥 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## 单条模式
 

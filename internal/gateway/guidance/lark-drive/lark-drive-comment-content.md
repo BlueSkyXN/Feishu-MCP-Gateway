@@ -46,6 +46,6 @@
 
 ## 参考
 
-- lark-drive-add-comment（主题 `lark-drive-add-comment`） -- 添加评论
-- lark-drive-add-reply（主题 `lark-drive-add-reply`） -- 回复评论
-- lark-drive-update-reply（主题 `lark-drive-update-reply`） -- 更新回复
+- 主题 `lark-drive-add-comment` -- 添加评论
+- 主题 `lark-drive-add-reply` -- 回复评论
+- 主题 `lark-drive-update-reply` -- 更新回复

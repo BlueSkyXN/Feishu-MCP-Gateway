@@ -14,10 +14,10 @@ Phase files are references for this workflow, not independent skills. Do not rou
 
 Load other skills / references progressively:
 
-- Wiki / personal library target: `../../lark-wiki/SKILL.md`（`wiki` 领域指南）
-- Content read required: `../../lark-doc/SKILL.md`（`docs` 领域指南） and `../../lark-doc/references/lark-doc-fetch.md`（主题 `lark-doc-fetch`）
-- Sheet down-drill required: `../../lark-sheets/SKILL.md`（`sheets` 领域指南）
-- Base down-drill required: `../../lark-base/SKILL.md`（`base` 领域指南）
+- Wiki / personal library target: `../../lark-wiki/SKILL.md` (`wiki` domain指南)
+- Content read required: `../../lark-doc/SKILL.md` (`docs` domain指南) and topic `lark-doc-fetch`
+- Sheet down-drill required: `../../lark-sheets/SKILL.md` (`sheets` domain指南)
+- Base down-drill required: `../../lark-base/SKILL.md` (`base` domain指南)
 
 ## Agent Contract
 
@@ -75,12 +75,12 @@ When this workflow is triggered, the agent MUST:
 
 | File | Owns | Must Not Own |
 |------|------|--------------|
-| 主题 `lark-drive-workflow-knowledge-organize` | Workflow trigger, global contract, state machine, progressive load map, command family allowlist | Stage-specific rules, output templates, execution details |
-| 主题 `lark-drive-workflow-knowledge-organize-discovery` | `PARSE_SCOPE`, `INVENTORY`, target parsing, stop conditions, inventory limits, `ResourceItem` | Classification, plan generation, write execution |
-| 主题 `lark-drive-workflow-knowledge-organize-analysis` | `CONTENT_READ`, `ISSUE_ANALYSIS`, `RULE_GENERATION`, low-confidence reads, issue rules, problem pagination, classification, target tree | Plan execution, write confirmation, verification |
-| 主题 `lark-drive-workflow-knowledge-organize-planning` | `PLAN_GENERATION`, `EXEC_CONFIRM`, `PlanItem`, `DisplayItem`, plan pagination, plan revision, execution scope confirmation | Scope parsing, resource inventory, write execution, verification |
-| 主题 `lark-drive-workflow-knowledge-organize-execution` | `EXECUTE`, `VERIFY`, `PathTokenMap`, write execution, progress reporting, verification, next suggestions, internal recovery hooks | Scope parsing, resource inventory, classification, plan generation, plan revision, rollback execution details |
-| 主题 `lark-drive-workflow-knowledge-organize-rollback` | `ROLLBACK_CONFIRM`, `ROLLBACK`, `ROLLBACK_VERIFY`, `ROLLBACK_CLEANUP_CONFIRM`, `ROLLBACK_CLEANUP`, `ROLLBACK_CLEANUP_VERIFY`, recovery plan generation, recovery execution, cleanup verification | Scope parsing, resource inventory, classification, organization plan generation, normal write execution |
+| topic `lark-drive-workflow-knowledge-organize` | Workflow trigger, global contract, state machine, progressive load map, command family allowlist | Stage-specific rules, output templates, execution details |
+| topic `lark-drive-workflow-knowledge-organize-discovery` | `PARSE_SCOPE`, `INVENTORY`, target parsing, stop conditions, inventory limits, `ResourceItem` | Classification, plan generation, write execution |
+| topic `lark-drive-workflow-knowledge-organize-analysis` | `CONTENT_READ`, `ISSUE_ANALYSIS`, `RULE_GENERATION`, low-confidence reads, issue rules, problem pagination, classification, target tree | Plan execution, write confirmation, verification |
+| topic `lark-drive-workflow-knowledge-organize-planning` | `PLAN_GENERATION`, `EXEC_CONFIRM`, `PlanItem`, `DisplayItem`, plan pagination, plan revision, execution scope confirmation | Scope parsing, resource inventory, write execution, verification |
+| topic `lark-drive-workflow-knowledge-organize-execution` | `EXECUTE`, `VERIFY`, `PathTokenMap`, write execution, progress reporting, verification, next suggestions, internal recovery hooks | Scope parsing, resource inventory, classification, plan generation, plan revision, rollback execution details |
+| topic `lark-drive-workflow-knowledge-organize-rollback` | `ROLLBACK_CONFIRM`, `ROLLBACK`, `ROLLBACK_VERIFY`, `ROLLBACK_CLEANUP_CONFIRM`, `ROLLBACK_CLEANUP`, `ROLLBACK_CLEANUP_VERIFY`, recovery plan generation, recovery execution, cleanup verification | Scope parsing, resource inventory, classification, organization plan generation, normal write execution |
 
 ## Runtime State
 
@@ -143,21 +143,21 @@ Agent MUST read the phase file for the active state before executing that state.
 
 | State | Required Phase File |
 |-------|---------------------|
-| `PARSE_SCOPE` | 主题 `lark-drive-workflow-knowledge-organize-discovery`（主题 `lark-drive-workflow-knowledge-organize-discovery`） |
-| `INVENTORY` | 主题 `lark-drive-workflow-knowledge-organize-discovery`（主题 `lark-drive-workflow-knowledge-organize-discovery`） |
-| `CONTENT_READ` | 主题 `lark-drive-workflow-knowledge-organize-analysis`（主题 `lark-drive-workflow-knowledge-organize-analysis`） |
-| `ISSUE_ANALYSIS` | 主题 `lark-drive-workflow-knowledge-organize-analysis`（主题 `lark-drive-workflow-knowledge-organize-analysis`） |
-| `RULE_GENERATION` | 主题 `lark-drive-workflow-knowledge-organize-analysis`（主题 `lark-drive-workflow-knowledge-organize-analysis`） |
-| `PLAN_GENERATION` | 主题 `lark-drive-workflow-knowledge-organize-planning`（主题 `lark-drive-workflow-knowledge-organize-planning`） |
-| `EXEC_CONFIRM` | 主题 `lark-drive-workflow-knowledge-organize-planning`（主题 `lark-drive-workflow-knowledge-organize-planning`） |
-| `EXECUTE` | 主题 `lark-drive-workflow-knowledge-organize-execution`（主题 `lark-drive-workflow-knowledge-organize-execution`） |
-| `VERIFY` | 主题 `lark-drive-workflow-knowledge-organize-execution`（主题 `lark-drive-workflow-knowledge-organize-execution`） |
-| `ROLLBACK_CONFIRM` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
-| `ROLLBACK` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
-| `ROLLBACK_VERIFY` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
-| `ROLLBACK_CLEANUP_CONFIRM` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
-| `ROLLBACK_CLEANUP` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
-| `ROLLBACK_CLEANUP_VERIFY` | 主题 `lark-drive-workflow-knowledge-organize-rollback`（主题 `lark-drive-workflow-knowledge-organize-rollback`） |
+| `PARSE_SCOPE` | topic `lark-drive-workflow-knowledge-organize-discovery` |
+| `INVENTORY` | topic `lark-drive-workflow-knowledge-organize-discovery` |
+| `CONTENT_READ` | topic `lark-drive-workflow-knowledge-organize-analysis` |
+| `ISSUE_ANALYSIS` | topic `lark-drive-workflow-knowledge-organize-analysis` |
+| `RULE_GENERATION` | topic `lark-drive-workflow-knowledge-organize-analysis` |
+| `PLAN_GENERATION` | topic `lark-drive-workflow-knowledge-organize-planning` |
+| `EXEC_CONFIRM` | topic `lark-drive-workflow-knowledge-organize-planning` |
+| `EXECUTE` | topic `lark-drive-workflow-knowledge-organize-execution` |
+| `VERIFY` | topic `lark-drive-workflow-knowledge-organize-execution` |
+| `ROLLBACK_CONFIRM` | topic `lark-drive-workflow-knowledge-organize-rollback` |
+| `ROLLBACK` | topic `lark-drive-workflow-knowledge-organize-rollback` |
+| `ROLLBACK_VERIFY` | topic `lark-drive-workflow-knowledge-organize-rollback` |
+| `ROLLBACK_CLEANUP_CONFIRM` | topic `lark-drive-workflow-knowledge-organize-rollback` |
+| `ROLLBACK_CLEANUP` | topic `lark-drive-workflow-knowledge-organize-rollback` |
+| `ROLLBACK_CLEANUP_VERIFY` | topic `lark-drive-workflow-knowledge-organize-rollback` |
 
 ## Command Map
 
@@ -167,12 +167,12 @@ Use only command families allowed for the current state. Detailed syntax belongs
 |-------|--------------------------|---------|
 | `PARSE_SCOPE` | `drive.+inspect`, `wiki.+node-get`, `wiki.+space-list`, `wiki.spaces.get`, `drive.+search` | Resolve target scope |
 | `INVENTORY` | `wiki.+node-list`, `drive.files.list` (schema path: `drive.files.list`), `drive.metas.batch_query` | Recursively list and enrich resources |
-| `CONTENT_READ` | `docs.+fetch`, plus `sheets` 领域 / `base` 领域 when conditionally required | Partial content read for low-confidence items |
+| `CONTENT_READ` | `docs.+fetch`, plus `sheets` domain / `base` domain when conditionally required | Partial content read for low-confidence items |
 | `ISSUE_ANALYSIS` | No write commands | Analyze `resource_items` only |
 | `RULE_GENERATION` | No write commands | Generate classification rules and target tree |
 | `PLAN_GENERATION` | No write commands | Generate internal plan and user-facing pages |
 | `EXEC_CONFIRM` | No write commands | Ask user to confirm execution scope |
-| `EXECUTE` | `drive.+create-folder`, `drive.+move`, `wiki.+node-create`, `wiki.+move` existing-node mode only, `drive.+task_result`, `drive.+apply-permission`（网关不提供：仅支持用户身份） only when explicitly confirmed | Execute whitelisted writes |
+| `EXECUTE` | `drive.+create-folder`, `drive.+move`, `wiki.+node-create`, `wiki.+move` existing-node mode only, `drive.+task_result`, `drive.+apply-permission` (not available in the gateway: user identity only) only when explicitly confirmed | Execute whitelisted writes |
 | `VERIFY` | `wiki.+node-list`, `drive.files.list` (schema path: `drive.files.list`), `drive.+task_result` if async result remains pending | Verify actual result |
 | `ROLLBACK_CONFIRM` | No write commands | Generate internal recovery plan and ask for restore confirmation |
 | `ROLLBACK` | `drive.+move`, `wiki.+move` existing-node mode only, `drive.+task_result` | Execute confirmed reverse moves |
@@ -187,7 +187,7 @@ This workflow MUST NOT use `wiki.+move` docs-to-wiki mode. Wiki moves MUST use e
 
 ## Permission Request Gate
 
-`drive.+apply-permission`（网关不提供：仅支持用户身份） is a write operation and may notify the resource owner. If any state hits resource access denial:
+`drive.+apply-permission` (not available in the gateway: user identity only) is a write operation and may notify the resource owner. If any state hits resource access denial:
 
 1. Stop the current state.
 2. Show the single target resource, requested permission, reason / remark, and owner-notification implication when known.
@@ -208,21 +208,21 @@ Never request permission automatically, never batch permission requests, and nev
 
 ## References
 
-- Discovery phase（主题 `lark-drive-workflow-knowledge-organize-discovery`）
-- Analysis phase（主题 `lark-drive-workflow-knowledge-organize-analysis`）
-- Planning phase（主题 `lark-drive-workflow-knowledge-organize-planning`）
-- Execution phase（主题 `lark-drive-workflow-knowledge-organize-execution`）
-- Rollback phase（主题 `lark-drive-workflow-knowledge-organize-rollback`）
-- `drive` 领域指南
-- lark-drive-files-list（主题 `lark-drive-files-list`）
-- lark-drive-search（主题 `lark-drive-search`）
-- lark-drive-inspect（主题 `lark-drive-inspect`）
-- lark-drive-apply-permission（主题 `lark-drive-apply-permission`）
-- lark-drive-task-result（主题 `lark-drive-task-result`）
-- lark-drive-delete（主题 `lark-drive-delete`）
-- `wiki` 领域指南
-- lark-wiki-node-delete（主题 `lark-wiki-node-delete`）
-- `docs` 领域指南
-- lark-doc-fetch（主题 `lark-doc-fetch`）
-- `sheets` 领域指南
-- `base` 领域指南
+- Discovery phase (topic `lark-drive-workflow-knowledge-organize-discovery`)
+- Analysis phase (topic `lark-drive-workflow-knowledge-organize-analysis`)
+- Planning phase (topic `lark-drive-workflow-knowledge-organize-planning`)
+- Execution phase (topic `lark-drive-workflow-knowledge-organize-execution`)
+- Rollback phase (topic `lark-drive-workflow-knowledge-organize-rollback`)
+- `drive` domain指南
+- topic `lark-drive-files-list`
+- topic `lark-drive-search`
+- topic `lark-drive-inspect`
+- topic `lark-drive-apply-permission`
+- topic `lark-drive-task-result`
+- topic `lark-drive-delete`
+- `wiki` domain指南
+- topic `lark-wiki-node-delete`
+- `docs` domain指南
+- topic `lark-doc-fetch`
+- `sheets` domain指南
+- `base` domain指南

@@ -58,7 +58,6 @@ drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "delete_lo
 | `if_exists` | 否 | enum | 本地文件已存在时的策略：`overwrite`（**默认**，Drive 作为权威源时使用）/ `smart`（**推荐用于重复增量同步**；当本地 mtime 已与远端 `modified_time` 匹配或更新时跳过下载）/ `skip` |
 | `on_duplicate_remote` | 否 | enum | 云端多个条目映射到同一个 `rel_path` 时的策略：`fail`（默认）；如果冲突全是 `type=file`，还可选 `rename` / `newest` / `oldest` |
 | `delete_local` | 否 | bool | 删除本地"云端没有的常规文件"（**不删空目录**，因此是 file-level mirror）；**必须配合 管理员预授权（high_risk_operations）** |
-| 管理员预授权（high_risk_operations） | 否 | bool | 确认 `delete_local`；不传时该破坏性操作在 Validate 阶段被拒绝 |
 
 ## 比较与下载范围
 
@@ -119,5 +118,5 @@ drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "delete_lo
 ## 参考
 
 - `drive` 领域指南 —— 云空间（云盘/云存储）全部命令
-- lark-drive-status（主题 `lark-drive-status`） —— 下载前先看差异
-- lark-drive-download（主题 `lark-drive-download`） —— 单文件按需拉取
+- 主题 `lark-drive-status` —— 下载前先看差异
+- 主题 `lark-drive-download` —— 单文件按需拉取

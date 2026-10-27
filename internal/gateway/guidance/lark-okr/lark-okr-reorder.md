@@ -30,8 +30,6 @@ okr.+reorder {"cycle_id": "7000000000000000001", "level": "key-result", "objecti
 | `cycle_id`     | 是  | —      | OKR 周期 ID（int64 类型）。                                    |
 | `objective_id` | 条件 | —      | 目标 ID。当 `level=key-result` 时**必填**，用于定位父目标。           |
 | `ops`          | 是  | —      | JSON 数组格式的顺位调整操作。支持 `@文件路径` 或 `@-` 从 stdin 读取。          |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —      | 预览 API 调用而不实际执行                                         |
-|        | 否  | `json` | 输出格式                                                    |
 
 ## 工作流程
 

@@ -447,7 +447,7 @@ NPS 的 `group_by[0].field_name` 必须指向 Base 的评分字段（Dashboard �
 }
 ```
 
-> **更新时 `number_format` 按子字段合并**：例如现有 `{"formatName":"digital","precision":2}` 时只传 `{"number_format":{"precision":0}}`，服务端会保留 `formatName:"digital"` 并把精度改为 `0`。其它顶层 key 的更新策略见 lark-base-dashboard.md（主题 `lark-base-dashboard`）。
+> **更新时 `number_format` 按子字段合并**：例如现有 `{"formatName":"digital","precision":2}` 时只传 `{"number_format":{"precision":0}}`，服务端会保留 `formatName:"digital"` 并把精度改为 `0`。其它顶层 key 的更新策略见 主题 `lark-base-dashboard`。
 
 文本组件（Markdown 富文本）：
 

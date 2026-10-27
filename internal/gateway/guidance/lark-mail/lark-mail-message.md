@@ -39,8 +39,6 @@ mail.+message {"message_id": "<message-id>"}
 | `message_id=<id>` | 是 | — | 单个邮件 ID；多个 ID 使用 `mail.+messages` |
 | `mailbox=<email>` | 否 | 当前用户 | 邮箱地址（`user_mailbox_id`） |
 | `html` | 否 | true | 是否返回 HTML 正文（`false` 仅返回纯文本，减少带宽） |
-|  | 否 | json | 输出格式：`json`（默认）/ `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | 否 | — | 仅打印请求，不执行 |
 
 ## 返回值
 
@@ -181,11 +179,12 @@ mail.+reply  # 网关不提供：仅支持用户身份
 
 ### 按需获取附件或内嵌图片下载 URL
 
-```text
+```bash
 # 1. 读取邮件，从 .data.attachments[] 中获取附件 ID
 mail.+message {"message_id": "<id>"}
 
-# feishu_tools_describe（operation_id="mail.user_mailbox.message.attachments.download_url"）
+# 2. 仅为需要的 ID 获取下载 URL
+feishu_tools_describe（operation_id="mail.user_mailbox.message.attachments.download_url"）
 mail.user_mailbox.message.attachments.download_url {"params": {"user_mailbox_id": "me", "message_id": "<id>", "attachment_ids": ["att_xxx", "att_yyy"]}}
 ```
 

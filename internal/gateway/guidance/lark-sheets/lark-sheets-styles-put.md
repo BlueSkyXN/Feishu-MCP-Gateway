@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-sheets` 参考文档转换；调用约定见 `sheets` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# Lark Sheet Styles Put（`sheets.+styles-put`）
+# Lark Sheet Styles Put (`sheets.+styles-put`)
 
 > **本文定位**：对**已有**表格做美化收尾的默认入口——样式 / 边框 / 合并 / 行高列宽 / 冻结写成一份声明式规格，一次调用交付。样式**取什么值**（配色 / 字号 / 对齐 / 数字格式标准）以 主题 `lark-sheets-visual-standards` 为唯一权威，本文只讲**怎么落地**。
 >

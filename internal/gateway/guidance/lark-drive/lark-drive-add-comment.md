@@ -6,7 +6,7 @@
 
 ## 命令
 
-```text
+```bash
 # 默认：未指定位置时添加全文评论
 drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "content": "[{\"type\":\"text\",\"text\":\"请补充发布说明\"}]"}
 
@@ -63,7 +63,8 @@ drive.+add-comment {"doc": "<PRESENTATION_ID>", "type": "slides", "block_id": "<
 # 裸 token + 已知 block_id 的局部评论
 drive.+add-comment {"doc": "<DOCX_TOKEN>", "type": "docx", "block_id": "<BLOCK_ID>", "content": {"file_id": "<file_id>"}}
 
-# feishu_tools_describe（operation_id="drive.file.comments.create_v2"）
+# 如果需要更底层的原生 API，也可以直接调用 V2 协议
+feishu_tools_describe（operation_id="drive.file.comments.create_v"）（网关目录中没有此操作）2
 
 drive.file.comments.create_v2 {"params": {"file_token": "<DOC_TOKEN>"}, "data": {"file_type": "docx", "reply_elements": [{"type": "text", "text": "全文评论内容"}]}}
 
@@ -105,10 +106,10 @@ drive.+add-comment {"doc": "https://example.larksuite.com/docx/<DOC_ID>", "block
     - `<img id="bPk" ... />` 对应 `block_id=img!bPk`，表示给图片元素评论。
     - `<shape type="text" id="bPq">...</shape>` 对应 `block_id=shape!bPq`，表示给文本 shape 评论。
 
-- `content` 是结构化评论元素数组（`text` / `mention_user` / `link`），完整格式见 主题 `lark-drive-comment-content`（主题 `lark-drive-comment-content`）；上方示例已覆盖常见写法。
+- `content` 是结构化评论元素数组（`text` / `mention_user` / `link`），完整格式见 主题 `lark-drive-comment-content`；上方示例已覆盖常见写法。
 - 写入评论前会自动生成符合 OpenAPI 定义的请求体；shortcut 用户只需要传 `doc`、`content`，局部评论再传对应格式的 `block_id`。
 - dry-run（网关不提供，改为先读取核对） 仅预览调用链和请求体，不会实际写入。
-- 如果需要更底层的控制，仍可改用 `feishu_tools_describe`（operation_id="drive.file.comments.create_v2"） + `drive.file.comments.create_v2`。
+- 如果需要更底层的控制，仍可改用 `feishu_tools_describe（operation_id="drive.file.comments.create_v"）（网关目录中没有此操作）2` + `drive.file.comments.create_v2`。
 - 直接调用原生 `drive.file.comments.create_v2` 时，全文评论省略 `anchor`；docx/sheet/slides 局部评论传 `anchor.block_id`，Base 记录局部评论传 `anchor.block_id`（table_id）、`anchor.base_record_id`、`anchor.base_view_id`。
 - 直接调用原生 `drive.file.comments.*` / `drive.file.comment.replys.*` 评论 Base 文档时，`file_type` 填 `bitable`，不要填 `base`。
 

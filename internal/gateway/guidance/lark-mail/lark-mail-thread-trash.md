@@ -15,6 +15,9 @@ mail.+thread-trash {"thread_ids": ["<thread_id1>,<thread_id2>"]}
 # 指定公共邮箱或共享邮箱
 mail.+thread-trash {"mailbox": "shared@example.com", "thread_ids": ["<thread_id>"]}
 
+# 使用 bot 身份时必须显式指定邮箱
+mail.+thread-trash {"mailbox": "user@example.com", "thread_ids": ["<thread_id>"]}
+
 # Dry Run：只预览请求，不执行
 mail.+thread-trash {"thread_ids": ["<thread_id1>", "<thread_id2>"]}
 ```
@@ -23,8 +26,8 @@ mail.+thread-trash {"thread_ids": ["<thread_id1>", "<thread_id2>"]}
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
+| `mailbox=<email>` | 否 | 会话所属邮箱，默认 `me`；使用 应用身份 时必须显式传邮箱地址 |
 | `thread_ids=<ids>` | 是 | 会话 ID 列表，支持逗号分隔和重复传参；超过 20 个时自动分批提交 |
-| 管理员预授权（high_risk_operations） | 执行时必填 | 高风险写操作确认。只有用户确认删除预览后才加 |
 
 ## 注意事项
 

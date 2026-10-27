@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-calendar` 参考文档转换；调用约定见 `calendar` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `calendar.+meeting`（网关不提供：仅支持用户身份）
+# `calendar.+meeting` (not available in the gateway: user identity only)
 
 通过日程 ID（`event_id`） 获取关联的视频会议信息（`meeting_id`、`meeting_note`）。只读。
 

@@ -1,8 +1,8 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+flag-cancel`（网关不提供：仅支持用户身份）
+# `im.+flag-cancel` (not available in the gateway: user identity only)
 
-This skill maps to shortcut: `im.+flag-cancel`（网关不提供：仅支持用户身份）. Underlying API: `POST /open-apis/im/v1/flags/cancel`.
+This skill maps to shortcut: `im.+flag-cancel` (not available in the gateway: user identity only). Underlying API: `POST /open-apis/im/v1/flags/cancel`.
 
 ## Double-Cancel Behavior (Important)
 
@@ -42,14 +42,14 @@ The server doesn't return an error for cancel requests when the flag doesn't exi
 
 ## Note
 
-- **Do not call `im.+flag-list`（网关不提供：仅支持用户身份） for verification**: If the cancel API returns success, the flag is removed. Calling `im.+flag-list`（网关不提供：仅支持用户身份） to verify is expensive (requires full pagination) and unnecessary.
+- **Do not call `im.+flag-list` (not available in the gateway: user identity only) for verification**: If the cancel API returns success, the flag is removed. Calling `im.+flag-list` (not available in the gateway: user identity only) to verify is expensive (requires full pagination) and unnecessary.
 
 ## Finding Message ID Efficiently
 
 If you have message content but not the message ID:
 
 1. **Use `im.+messages-search`** to find the message by content, then extract `message_id` from the result
-2. **Do NOT use `im.+flag-list`（网关不提供：仅支持用户身份）** to find the message — it requires full pagination and is very inefficient
+2. **Do NOT use `im.+flag-list` (not available in the gateway: user identity only)** to find the message — it requires full pagination and is very inefficient
 
 ```bash
 # Search by message content to find message_id

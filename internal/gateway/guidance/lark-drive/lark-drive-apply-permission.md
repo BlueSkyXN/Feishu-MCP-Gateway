@@ -28,7 +28,6 @@
 | `type` | 否 | 目标类型，可选值 `doc` / `sheet` / `file` / `wiki` / `bitable` / `docx` / `mindnote` / `slides` / `apps`。传 URL 时由 shortcut 自动推断；如显式传入，必须与 URL 路径类型一致。bare token 必须显式传 |
 | `perm` | 是 | 申请的权限，仅支持 `view` 或 `edit`（**不支持 `full_access`**，CLI 侧会直接拒绝） |
 | `--remark` | 否 | 备注，会显示在权限申请卡片上 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求内容，不实际发送 |
 
 ## 输出
 

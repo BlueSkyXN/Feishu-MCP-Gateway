@@ -6,9 +6,10 @@
 
 ## 命令
 
-```bash
+```text
 
 # 以应用身份加入
+calendar.+join-event {"token": "<token>"}
 ```
 
 ## 参数
@@ -30,7 +31,7 @@
 
 ## 重复性日程
 
-加入范围取决于 token 反解出的日程本体是「原重复性日程」还是「例外」（参见 lark-calendar-recurring（主题 `lark-calendar-recurring`） 的关键概念）：
+加入范围取决于 token 反解出的日程本体是「原重复性日程」还是「例外」（参见 主题 `lark-calendar-recurring` 的关键概念）：
 
 - 分享的是**原重复性日程**（`{event_uid}_0`）：加入的是**整个序列**（含例外）。
 - 分享的是某个**例外**（`originalTime > 0` 的单次实例）：只加入这**一个例外日程**。
@@ -38,5 +39,5 @@
 ## 参考
 
 - `calendar` 领域指南 -- skill 入口与路由
-- lark-calendar-rsvp（主题 `lark-calendar-rsvp`） -- 已在日程中时回复接受/拒绝/待定（≠ 加入）
-- lark-calendar-recurring（主题 `lark-calendar-recurring`） -- 重复性日程的序列 vs 实例操作规范
+- 主题 `lark-calendar-rsvp` -- 已在日程中时回复接受/拒绝/待定（≠ 加入）
+- 主题 `lark-calendar-recurring` -- 重复性日程的序列 vs 实例操作规范

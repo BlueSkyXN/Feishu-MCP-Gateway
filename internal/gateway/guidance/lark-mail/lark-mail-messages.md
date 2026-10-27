@@ -41,8 +41,6 @@ mail.+messages {"message_ids": "<id1>,<id2>"}
 | `message_ids=<id1>,<id2>,<id3>` | 是 | — | 逗号分隔的邮件 ID 列表；超过 20 个 ID 时 CLI 自动按 20 拆批并合并输出 |
 | `mailbox=<email>` | 否 | 当前用户 | 邮箱地址（`user_mailbox_id`） |
 | `html` | 否 | true | 是否返回 HTML 正文（`false` 仅返回纯文本，减少带宽） |
-|  | 否 | json | 输出格式：`json`（默认）/ `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | 否 | — | 仅打印请求，不执行 |
 
 ## 返回值
 

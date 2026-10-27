@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `note.+transcript`（网关不提供：仅支持用户身份）
+# `note.+transcript` (not available in the gateway: user identity only)
 
 只在 `note.+detail` 已确认 `note_display_type=unified` 时使用。普通纪要逐字稿是独立 Docx 文档，应回到 `docs` 领域指南 读取 `verbatim_doc_token`。
 

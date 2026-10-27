@@ -10,9 +10,10 @@
 
 没有 `meeting_id` 时，按用户需要的视角查询：
 
-```bash
+```text
 
 # 目标用户正在参加、且应用机器人也在会中的会议
+vc.+meeting-list-active {"user_id": "<open_id>"}
 ```
 
 - `user_id` 必须是目标用户的 `ou_` open_id。
@@ -21,7 +22,7 @@
 - 用户只给 9 位会议号时，在活跃会议结果中按 `meeting_no` 匹配；匹配失败时不要自动入会。
 - `meeting_id` 从哪种身份取得，后续读取事件、发送消息和操作倒计时就沿用哪种身份。
 
-身份可见范围和会议号匹配见 `lark-vc-meeting-list-active`（主题 `lark-vc-meeting-list-active`）。
+身份可见范围和会议号匹配见 主题 `lark-vc-meeting-list-active`。
 
 ## 读取最新会中事件
 
@@ -30,7 +31,7 @@
 - 默认用 pretty 理解时间线；需要精确结构化字段、文档上下文或转发到 IM 时使用 JSON。
 - 不要用会中事件代替已结束会议的参会人快照或会后复盘。
 
-事件类型、分页、会后产物替代路径和错误码见 `lark-vc-meeting-events`（主题 `lark-vc-meeting-events`）。
+事件类型、分页、会后产物替代路径和错误码见 主题 `lark-vc-meeting-events`。
 
 ## 读取共享内容和文档上下文
 
@@ -41,7 +42,7 @@
 - 只有用户明确要求预览且事件提供受支持的 `element_type` 与 token 时才下载，并显式选择输出路径。
 - 关联或读取失败时标记 partial，保留原始标识和 raw payload；不要自动下载或猜测文档类型兜底。
 
-精确事件 schema 和后续命令见 `lark-vc-meeting-events`（主题 `lark-vc-meeting-events`） 的文档上下文部分。
+精确事件 schema 和后续命令见 主题 `lark-vc-meeting-events` 的文档上下文部分。
 
 ## 读取当前会议画面
 
@@ -51,7 +52,7 @@
 
 需要读取时执行：
 
-身份、会议 ID、输出文件和失败处理见 `lark-vc-meeting-screenshot`（主题 `lark-vc-meeting-screenshot`）。
+身份、会议 ID、输出文件和失败处理见 主题 `lark-vc-meeting-screenshot`。
 
 ## 发送会中文本或表情
 
@@ -62,7 +63,7 @@
 - 发送失败时停止并报告，不自动换身份或重复发送，避免重复可见副作用。
 - 用户要发送绑定群或 IM 消息时改用 `im` 领域，不要把会中消息命令当作群消息能力。
 
-文本、reaction 和权限规则见 `lark-vc-meeting-message-send`（主题 `lark-vc-meeting-message-send`）。
+文本、reaction 和权限规则见 主题 `lark-vc-meeting-message-send`。
 
 ## 操作会中倒计时
 
@@ -73,7 +74,7 @@
 - 用户只给 9 位会议号时，先用当前身份执行 `vc.+meeting-list-active` 并按 `meeting_no` 匹配。
 - `set` 和 `prolong` 需要 `duration`；提前结束或关闭时不要携带时长、提醒点或结束音频参数。
 
-动作、提醒点和权限规则见 `lark-vc-meeting-countdown`（主题 `lark-vc-meeting-countdown`）。
+动作、提醒点和权限规则见 主题 `lark-vc-meeting-countdown`。
 
 ## 处理未发现会议或权限错误
 

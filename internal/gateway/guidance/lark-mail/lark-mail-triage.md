@@ -55,7 +55,6 @@ mail.+triage {"page_size": "10"}
 | `folder_id=<id>` | — | 明确的文件夹 ID 筛选；等价于设置 `filter.folder_id` |
 | `is_unread` | — | 只看未读；等价于设置 `filter.is_unread=true` |
 | `query=<text>` | — | 全文搜索关键词 |
-|  | `table` | `table` / `json` / `data`（`json` 和 `data` 均输出含分页信息的对象） |
 | `max=<n>` | `20` | 最大返回条数（1-400），内部自动分页拉取 |
 | `--page-size <n>` | — | `max` 的别名；重复指定时后出现的值生效 |
 | `page_token=<token>` | — | 上一次响应返回的分页令牌，传入后从该位置继续拉取。令牌带 `search:` 或 `list:` 前缀，标识来源路径，不可混用 |
@@ -142,4 +141,4 @@ tip: read full content: single message use mail +message --mailbox 'shared@examp
 ## 参考
 
 - `mail` 领域指南 — 邮箱域总览
-- lark-mail-watch（主题 `lark-mail-watch`） — 实时监听新邮件
+- 主题 `lark-mail-watch` — 实时监听新邮件

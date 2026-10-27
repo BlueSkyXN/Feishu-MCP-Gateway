@@ -32,7 +32,6 @@ markdown.+diff {"file_token": "boxcnxxxx", "from_version": "7633658129540910621"
 | `to_version` | 否 | 目标远端版本；要求同时传 `from_version`，且不能与 `file` 一起使用。省略时表示远端最新版本 |
 | `file` | 否 | 本地 `.md` 文件路径；传入后进入“远端 vs 本地”比较模式 |
 | `context_lines` | 否 | unified diff 每个 hunk 前后保留的上下文行数，默认 `3` |
-|  | 否 | 仅支持 `json`（默认）和 `pretty` |
 
 ## 关键行为
 
@@ -137,4 +136,4 @@ markdown.+diff {"file_token": "boxcnxxxx", "from_version": "7633658129540910621"
 ## 参考
 
 - `markdown` 领域指南 — Markdown 域总览
-- lark-drive-version-history（主题 `lark-drive-version-history`） — 获取可用于 diff 的历史版本号
+- 主题 `lark-drive-version-history` — 获取可用于 diff 的历史版本号

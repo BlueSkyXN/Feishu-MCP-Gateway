@@ -10,7 +10,7 @@ This file owns confirmed write execution, PathTokenMap, progress reporting, veri
 
 Before executing rules in this file:
 
-1. `active_plan_items` and `execution_scope` MUST already exist from 主题 `lark-drive-workflow-knowledge-organize-planning`（主题 `lark-drive-workflow-knowledge-organize-planning`）.
+1. `active_plan_items` and `execution_scope` MUST already exist from topic `lark-drive-workflow-knowledge-organize-planning`.
 2. `target_tree` and `resource_items` MUST already exist.
 3. Use the `PlanItem` structure already produced by the planning phase. Do not regenerate or revise plans in this file.
 4. Follow command syntax, scope requirements, and confirmation behavior from referenced shortcut docs.
@@ -120,7 +120,7 @@ Rules:
 3. Save returned `folder_token` or `node_token` immediately after each successful create.
 4. Execute `move` only when `target_parent_path` resolves to a token.
 5. If same-name target ambiguity exists, inspect existing children when possible; otherwise mark `needs_review=true`.
-6. Before writing to `my_library` root, resolve the real `space_id` according to `wiki` 领域.
+6. Before writing to `my_library` root, resolve the real `space_id` according to `wiki` domain.
 
 ## State: VERIFY
 
@@ -139,9 +139,6 @@ MUST:
 9. Do not load the rollback phase or execute recovery until the user explicitly chooses to try restore.
 
 Verification table:
-
-| plan_id | 动作 | 标题 | 预期目标 | 实际目标 | 预期 token | 实际 token | 状态 | 失败原因 |
-|---------|------|------|----------|----------|------------|------------|------|----------|
 
 ### Verification Result
 

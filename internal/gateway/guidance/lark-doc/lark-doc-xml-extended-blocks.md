@@ -2,7 +2,7 @@
 
 # XML 扩展块补充说明
 
-本文件用于补充说明 block XML 扩展能力。常用标签和通用规则见 主题 `lark-doc-xml`（主题 `lark-doc-xml`）；后续新增其他 block 说明时可继续追加到本文件。
+本文件用于补充说明 block XML 扩展能力。常用标签和通用规则见 主题 `lark-doc-xml`；后续新增其他 block 说明时可继续追加到本文件。
 
 ## 拓展标签
 - `<bookmark name="示例站点" href="https://example.com"></bookmark>`

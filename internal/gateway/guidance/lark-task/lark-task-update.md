@@ -33,7 +33,7 @@ task.+update {"task_id": "<task_guid>", "data": "{\"description\": \"New descrip
 ## Workflow
 
 1. Confirm with the user the tasks to update and the fields.
-2. Execute `task.+update`（task_id="..."）
+2. Execute `task.+update` (task_id="...")
 3. Read `data.updated_fields` and `data.tasks[].confirmed` from the result and report only the fields confirmed by the server.
 4. Do not routinely call `task.tasks.get` after the update when `confirmed` already contains the required state. Query details only if a required field is absent or the user explicitly asks for a full verification.
 

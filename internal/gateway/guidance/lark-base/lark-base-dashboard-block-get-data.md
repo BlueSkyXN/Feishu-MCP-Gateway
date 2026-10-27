@@ -2,7 +2,7 @@
 
 # `base.+dashboard-block-get-data`
 
-> **前置条件：** 先阅读 lark-base-dashboard.md（主题 `lark-base-dashboard`） 了解 dashboard 整体工作流。
+> **前置条件：** 先阅读 主题 `lark-base-dashboard` 了解 dashboard 整体工作流。
 
 获取仪表盘图表组件（block）的**最终计算结果**，返回一份适合 AI 直接消费的图表协议 JSON。
 
@@ -95,8 +95,6 @@ base.+dashboard-block-get {"base_token": "bascn***************CtadY", "dashboard
 |------|------|------|
 | `base_token=<token>` | 是 | Base Token，标识目标多维表格 |
 | `block_id=<id>` | 是 | 图表 Block ID，即目标组件的唯一标识 |
-|  | 否 | 输出格式，遵循 CLI 全局输出格式规则 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 只预览 API 调用，不真正执行 |
 
 > [!TIP]
 > 这个命令**不需要** `dashboard_id`。只要 `base_token + block_id` 即可定位并读取图表结果。
@@ -706,6 +704,6 @@ GET /open-apis/base/v3/bases/bascn_example_token/dashboards/blocks/chtxxxxxxxx/d
 
 ## 参考
 
-- lark-base-dashboard.md（主题 `lark-base-dashboard`） — dashboard 模块总指引
+- 主题 `lark-base-dashboard` — dashboard 模块总指引
 - `base.+dashboard-block-get` — 获取 block 元数据
 - Dashboard Block 配置（主题 `lark-base-dashboard-block-config`） — data_config 结构和组件类型说明

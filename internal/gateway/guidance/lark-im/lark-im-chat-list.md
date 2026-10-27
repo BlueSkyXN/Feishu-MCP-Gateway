@@ -2,6 +2,8 @@
 
 # `im.+chat-list`
 
+List chats the current user (or bot, with app identity) is a member of. **Not a search API — there is no `query` parameter; the call always returns the full member list, paginated.** For keyword-based lookup (e.g. find a group by name or by member), use `im.+chat-search` (topic `lark-im-chat-search`) instead.
+
 This skill maps to the shortcut: `im.+chat-list` (internally calls `GET /open-apis/im/v1/chats`).
 
 ## Commands
@@ -44,8 +46,6 @@ im.+chat-list
 | `page_token=<token>` | No | - | Starting cursor, normally returned by a previous response |
 | `page_all` | No | - | Automatically fetch and merge subsequent pages; capped by `page_limit` |
 | `page_limit=<n>` | No | 1-1000, default 10 | Maximum pages fetched by `page_all` |
-|  | No | - | Output as JSON |
-| dry-run（网关不提供，改为先读取核对） | No | - | Preview the request without executing it |
 
 With `page_all`, `page_token` sets the starting cursor. If `meta.pagination.complete=false`, resume from `meta.pagination.next_token` or raise `page_limit`.
 
@@ -76,6 +76,10 @@ For p2p rows in the response: `name` is the peer's display name, `owner_id` foll
 
 ## Bot identity and p2p
 
+`tenant_access_token` cannot list p2p chats — to protect user privacy, bot identity is not permitted to enumerate p2p single chats. Behavior under app identity:
+
+- `types=p2p` → rejected at validation time with an actionable error; no request is sent.
+- `types=p2p,group` → CLI strips `p2p` and sends `types=group`. Request proceeds; only groups are returned. The strip is a **request-level adjustment**, surfaced two ways so neither humans nor agents miss it:
     - **stdout JSON**: a top-level `notices` array gains a structured entry:
 ```json
       {
@@ -87,6 +91,8 @@ For p2p rows in the response: `name` is the peer's display name, `owner_id` foll
 ```
     - The `filter` slot stays scoped to `exclude_muted`; `notices` is a separate top-level key, so the two never collide and no priority is needed when both fire.
     - DryRun emits the same stderr warning so a previewed request truthfully reflects what Execute will send (parity with `shortcuts/drive/drive_search.go`).
+- `types=group` → accepted, returns groups normally.
+- app identity (no `types`) → unchanged, returns groups.
 
 ## Filtering muted chats
 

@@ -5,17 +5,23 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # calendar (v4)
 
-**CRITICAL — 凡涉及预约日程/会议室、调整时间或查询/搜索会议室，第一步 MUST 读 主题 `lark-calendar-schedule-meeting`（主题 `lark-calendar-schedule-meeting`）。仅编辑字段（改标题/描述）或增删参会人（不涉及时间和会议室）时可跳过，直接读 主题 `lark-calendar-update`（主题 `lark-calendar-update`）。**
+**CRITICAL — 凡涉及预约日程/会议室、调整时间或查询/搜索会议室，第一步 MUST 读 主题 `lark-calendar-schedule-meeting`。仅编辑字段（改标题/描述）或增删参会人（不涉及时间和会议室）时可跳过，直接读 主题 `lark-calendar-update`。**
 
 ## 身份
 
 按**日程归属**选身份：
 
-```bash
+- 查看/管理 bot 自己创建/拥有的日程 → 应用身份
+
+**对话人称映射**：「我」= 登录用户，「你」= 应用（bot）；作为字段取值的人称（参会人、会议 owner 等）不参与身份判定，如「你创建日程，邀请我、会议 owner 为我」→ 应用身份 创建，登录用户仅作参会人与会议 owner。
+
+```text
 # bot 自建或参与的日程 → bot
+calendar.+agenda
 ```
 
 ## Shortcuts
@@ -110,8 +116,8 @@ calendar.+freebusy {"start": "2026-03-11T09:00:00+08:00", "end": "2026-03-11T18:
 
 | 场景 | 前置要求 |
 |------|----------|
-| 预约日程/会议、调整时间、查会议室 | 先读 lark-calendar-schedule-meeting.md（主题 `lark-calendar-schedule-meeting`） |
-| 仅编辑字段（标题/描述）或增删参会人 | 先定位 `event_id`，再读 lark-calendar-update.md（主题 `lark-calendar-update`） |
+| 预约日程/会议、调整时间、查会议室 | 先读 主题 `lark-calendar-schedule-meeting` |
+| 仅编辑字段（标题/描述）或增删参会人 | 先定位 `event_id`，再读 主题 `lark-calendar-update` |
 | 调用任何 Shortcut | 先读其对应 reference 文档 |
 
 ## 写操作反馈
@@ -175,7 +181,7 @@ calendar.+freebusy {"start": "2026-03-11T09:00:00+08:00", "end": "2026-03-11T18:
 
 ```bash
 # 通用调用格式
-lark-cli calendar <resource> <method> [flags]
+calendar.<resource>.<method> {参数}
 
 # 查询用户主日历
 calendar.calendars.primary
@@ -192,10 +198,10 @@ calendar.events.delete {"calendar_id": "<calendar_id>", "event_id": "<event_id>"
 ### 查询资源的方法列表以及方法的使用方式
 
 - 列出某资源下的方法：`feishu_tools_describe`
-- 查看方法的cli flag：`feishu_tools_describe`
-- 查看方法API参数：`feishu_tools_describe`
+- 查看方法的cli flag：`calendar.<resource>.<method> {参数} -h`
+- 查看方法API参数：`feishu_tools_describe（operation_id="calendar.<resource>.<method>"）`
 
-`<resource>` 为 `calendars`（日历本身）/ `events`（日程）/ `event.attendees`（参与人）/ `freebusys`（忙闲）。例：`feishu_tools_describe`（operation_id="calendar.events.delete"）。
+`<resource>` 为 `calendars`（日历本身）/ `events`（日程）/ `event.attendees`（参与人）/ `freebusys`（忙闲）。例：`feishu_tools_describe（operation_id="calendar.events.delete"）`。
 
 ## 常用其他域命令
 

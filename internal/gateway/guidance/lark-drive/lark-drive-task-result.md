@@ -5,6 +5,7 @@
 查询异步任务结果。该 shortcut 聚合了导入、导出、Drive 文件/文件夹移动/删除、Wiki 节点 / 文档迁入 Wiki、Wiki 节点移出 Wiki、Wiki 删除等多种异步任务的结果查询，统一接口方便调用。
 
 > [!IMPORTANT]
+> 对于 `import` 场景，如果使用 应用身份 且这次查询**已经拿到最终在线文档目标**（`ready=true` 且返回了最终 `token` / `url`），CLI 会**再次尝试为当前 CLI 用户自动授予该资源的 `full_access`（可管理权限）**。
 >
 > 此时结果里会额外返回 `permission_grant` 字段，明确说明授权结果：
 > - `status = granted`：当前 CLI 用户已获得该导入结果的可管理权限
@@ -91,6 +92,7 @@ drive.+task_result {"scenario": "wiki_delete_space", "task_id": "<TASK_ID>"}
 - `job_status_label`: 便于阅读的状态标签，例如 `success` / `processing`
 - `token`: 导入后的文档 token
 - `url`: 导入后的文档链接
+- `permission_grant`: 仅 应用身份 且这次查询已经拿到最终在线文档目标时返回，用于说明是否已自动为当前 CLI 用户授予可管理权限；如果当前仍是 `ready=false`，则不会返回这个字段
 
 ### Export 场景返回
 
@@ -238,6 +240,7 @@ drive.+import {"file": {"file_id": "<file_id>"}, "type": "sheet"}
 
 # 2. 轮询导入结果
 drive.+task_result {"scenario": "import", "ticket": "<IMPORT_TICKET>"}
+# 如果这里返回 ready=true 且使用，结果还会包含 permission_grant
 ```
 
 ### 配合 `drive.+move` 使用
@@ -301,6 +304,7 @@ drive.+export-download {"file_token": "<EXPORTED_FILE_TOKEN>"}
 | wiki_delete_node | `wiki:space:read` |
 
 > [!NOTE]
+> `import` 场景在 应用身份 且任务最终就绪时，还可能额外尝试一次协作者授权；如果 `permission_grant.status = failed`，请根据失败信息检查应用是否具备相应的文档协作者授权能力。
 
 ## 参考
 

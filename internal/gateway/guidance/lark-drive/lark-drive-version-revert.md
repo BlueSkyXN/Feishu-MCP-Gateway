@@ -2,6 +2,13 @@
 
 # `drive.+version-revert`
 
+## 命令
+
+```text
+drive.+version-revert {"file_token": "boxcnxxxxxxxx", "version": "7633658129540910621"}
+
+```
+
 ## 参数
 
 | 参数 | 必填 | 说明 |

@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 > [!IMPORTANT]
 > - 运行 `lark-cli --version`，确认可用，无需询问用户。
@@ -28,7 +29,7 @@
 
 | 场景 | 行动 | 写入方式 | 对原内容 |
 |---|---|---|---|
-| 用户**已提供** Mermaid/PlantUML/SVG 代码，或明确指定用该格式 | 使用该代码 → `whiteboard.+update`（主题 `lark-whiteboard-update`），`input_format` 取单值 `mermaid` / `plantuml` / `svg`；写入非空已有画板并需要 overwrite 时，先确认会整板重建；若 SVG 用于修改已有画板，先走 主题 `svg-edit`（主题 `svg-edit`） 有损确认 | overwrite / append | 按用户要求 |
+| 用户**已提供** Mermaid/PlantUML/SVG 代码，或明确指定用该格式 | 使用该代码 → `whiteboard.+update`（主题 `lark-whiteboard-update`），`input_format` 取单值 `mermaid` / `plantuml` / `svg`；写入非空已有画板并需要 overwrite 时，先确认会整板重建；若 SVG 用于修改已有画板，先走 主题 `svg-edit` 有损确认 | overwrite / append | 按用户要求 |
 | 从零新建复杂图表（架构/流程/组织等） | → **§ 创作 Workflow（主题 `lark-whiteboard-workflow`）** | 首次写入 | — |
 | 修改 / 增补已有画板 | → **§ 编辑 Workflow（主题 `lark-whiteboard-workflow`）** | 见该表 | 见该表 |
 
@@ -43,5 +44,5 @@
 
 ## 不在本 skill 范围
 - 文档内容编辑 → `docs` 领域 `docs` 领域指南
-- 在文档中创建画板 → lark-doc-whiteboard.md（主题 `lark-doc-whiteboard`）
+- 在文档中创建画板 → 主题 `lark-doc-whiteboard`
 - 表格 / Base 操作 → `sheets` 领域指南 / `base` 领域指南

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+reply-all`（网关不提供：仅支持用户身份）
+# `mail.+reply-all` (not available in the gateway: user identity only)
 
 回复全部会自动处理：
 - 自动聚合原邮件发件人、原 To、原 Cc
@@ -13,7 +13,7 @@
 
 ## CRITICAL — 发送工作流（必须遵循）
 
-**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 lark-mail-html.md（主题 `lark-mail-html`），其中包含邮件书写规范**
+**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 主题 `lark-mail-html`，其中包含邮件书写规范**
 
 此命令默认**只保存草稿**，不会发送邮件。回复全部会发送给**所有**原始收件人，需要发送时有两种合规方式：
 
@@ -84,7 +84,6 @@ mail.+reply-all  # 网关不提供：仅支持用户身份
 | `--confirm-send` | 否 | 确认发送回复（默认只保存草稿）。仅在用户明确确认后使用 |
 | `--send-time <timestamp>` | 否 | 定时发送时间，Unix 时间戳（秒）。需至少为当前时间 + 5 分钟。配合 `--confirm-send` 使用可定时发送邮件 |
 | `--request-receipt` | 否 | 请求已读回执（RFC 3798 Message Disposition Notification）。在出站 EML 里写 `Disposition-Notification-To: <sender>` 头。收件人的邮件客户端可能弹出提示、自动发送或忽略——送达不保证 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求，不执行 |
 
 ## 返回值
 
@@ -114,12 +113,12 @@ mail.+reply-all  # 网关不提供：仅支持用户身份
 
 - `automation_send_disable_reason`：发送被邮箱自动化设置拦截时返回的原因
 - `automation_send_disable_reference`：发送被拦截时的草稿打开链接
-- `recall_available` / `recall_tip`：发送成功后若返回可撤回提示，按需参考 lark-mail-recall（主题 `lark-mail-recall`）
+- `recall_available` / `recall_tip`：发送成功后若返回可撤回提示，按需参考 主题 `lark-mail-recall`
 
 字段语义：
 
 - 若返回中包含 `automation_send_disable_reason` / `automation_send_disable_reference`，说明回复全部未真正发出，而是被邮箱设置拦截。此时应直接向用户展示原因和草稿打开链接，不要继续假设已经发送成功
-- 若返回中包含 `recall_available: true`，说明该邮件支持撤回；仅当用户明确要求撤回时，读取 lark-mail-recall（主题 `lark-mail-recall`） 并执行撤回流程
+- 若返回中包含 `recall_available: true`，说明该邮件支持撤回；仅当用户明确要求撤回时，读取 主题 `lark-mail-recall` 并执行撤回流程
 
 ## 典型场景
 
@@ -169,7 +168,7 @@ mail.user_mailbox.drafts.cancel_scheduled_send  # 网关不提供：仅支持用
 回复发送后，分两种情况处理：
 
 - 若返回中有 `automation_send_disable_reason` / `automation_send_disable_reference`：说明发送被邮箱设置拦截，应直接告诉用户原因并提供草稿打开链接，**不要**调用 `send_status`
-- 若用户基于发送结果要求撤回，先读取 lark-mail-recall（主题 `lark-mail-recall`），再执行撤回流程
+- 若用户基于发送结果要求撤回，先读取 主题 `lark-mail-recall`，再执行撤回流程
 
 **1. 确认投递状态**（仅立即发送且返回非空 `message_id` 时必须）
 

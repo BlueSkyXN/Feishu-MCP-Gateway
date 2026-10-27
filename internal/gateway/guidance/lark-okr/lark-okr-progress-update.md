@@ -30,8 +30,6 @@ okr.+progress-update {"progress_id": "1234567890123456789", "content": "{\"text\
 | `progress_percent` | 否  | —         | 进度百分比(-99999999999 - 99999999999)。百分比的取值通常在 0-100，但允许超过此范围，以表示超额完成或负增长等情况。挂载的目标或关键结果的量化指标不使用百分比单位时，以这个字段更新当前值。系统内最多保留两位小数 |
 | `progress_status`  | 否  | —         | 进度状态：`normal`（正常） \| `overdue`（逾期） \| `done`（已完成）。仅在指定 `progress_percent` 时生效。                               |
 | `user_id_type`     | 否  | `open_id` | 用户 ID 类型：`open_id` \| `union_id` \| `user_id`                                                                  |
-| dry-run（网关不提供，改为先读取核对）          | 否  | —         | 预览 API 调用而不实际执行。                                                                                               |
-|            | 否  | `json`    | 输出格式。                                                                                                          |
 
 ## 工作流程
 
@@ -63,7 +61,7 @@ okr.+progress-update {"progress_id": "1234567890123456789", "content": "{\"text\
 其中：
 
 - `content` 字段是 JSON 字符串，为 OKR ContentBlock
-  富文本格式。请参考 lark-okr-contentblock.md（主题 `lark-okr-contentblock`） 了解详细信息。
+  富文本格式。请参考 主题 `lark-okr-contentblock` 了解详细信息。
 - `progress_rate.status` 返回可读字符串：`normal`（正常）、`overdue`（逾期）、`done`（已完成）。
 
 ## 参考

@@ -34,7 +34,7 @@
 | `vc.+recording` | `minute_token` |
 | `minutes.+search` | `minute_token` |
 
-`minute_token` 不要直接传给 `note.+detail`：需要关联 Note 时，先从本命令结果读取 `note_id`。跨产物流程由 `query-minutes-and-artifacts`（主题 `query-minutes-and-artifacts`） 编排。
+`minute_token` 不要直接传给 `note.+detail`：需要关联 Note 时，先从本命令结果读取 `note_id`。跨产物流程由 主题 `query-minutes-and-artifacts` 编排。
 
 ## 相关场景
 - 查询妙记及其产物（主题 `query-minutes-and-artifacts`）

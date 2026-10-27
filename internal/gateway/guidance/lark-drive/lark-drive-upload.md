@@ -39,10 +39,12 @@ lark-cli drive files upload_finish --data '{
   "block_num": 1
 }'
 
-# feishu_tools_describe
+# 查看完整参数定义
+feishu_tools_describe（operation_id="drive.files.upload_prepare"）（网关目录中没有此操作）
 ```
 
 > [!IMPORTANT]
+> 如果文件是**以应用身份（bot）新建上传**的，如 `drive.+upload` 在上传成功后，CLI 会**尝试为当前 CLI 用户自动授予该文件的 `full_access`（可管理权限）**。
 >
 > 如果这次调用传了 `file_token`，表示是在**覆盖已有文件**，CLI **不会**额外修改该文件权限。
 >

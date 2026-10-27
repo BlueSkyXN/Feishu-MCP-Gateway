@@ -73,7 +73,6 @@ minutes.+search {"query": "预算复盘"}
 | `end=<time>`            | 否  | 结束时间（ISO 8601 或仅日期）                  |
 | `page_size=<n>`         | 否  | 每页数量，默认 `15`，最大 `30`                 |
 | `page_token=<token>`    | 否  | 下一页分页 token                          |
-| dry-run（网关不提供，改为先读取核对）               | 否  | 预览 API 调用，不执行                        |
 
 ## 核心约束
 

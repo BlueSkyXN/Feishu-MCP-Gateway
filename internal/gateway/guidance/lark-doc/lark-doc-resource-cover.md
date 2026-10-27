@@ -65,5 +65,5 @@ docs.+resource-delete {"doc": "doxcnXXX", "type": "cover"}
 
 ## 参考
 
-- lark-doc-media-download（主题 `lark-doc-media-download`） — 下载正文素材或画板缩略图
-- lark-doc-media-insert（主题 `lark-doc-media-insert`） — 在正文插入图片/文件
+- 主题 `lark-doc-media-download` — 下载正文素材或画板缩略图
+- 主题 `lark-doc-media-insert` — 在正文插入图片/文件

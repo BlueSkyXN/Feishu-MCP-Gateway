@@ -23,8 +23,6 @@ drive.+member-add {"token": "<bare_token_or_url>", "type": "bitable", "member_id
 | `member_kind` | 条件必填 | 仅当 `member_type=wikispaceid` 时填写，映射到请求 body 的 `type` 字段。取值：`wiki_space_member` / `wiki_space_viewer` / `wiki_space_editor`。其他 member-type 禁止传此参数。 |
 | `perm` | 否 | 授权角色：`view`（默认）/ `edit` / `full_access`                                                                                                                                             |
 | `perm_type` | 否 | 只作用 wiki 节点权限范围：`container`（默认，当前页面+子页面）/ `single_page`（仅当前页面）                                                                                                                      |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求，不实际授权                                                                                                                                                                         |
-| 管理员预授权（high_risk_operations） | 真实执行时是 | 确认高风险写操作                                                                                                                                                                            |
 
 ## 输出
 

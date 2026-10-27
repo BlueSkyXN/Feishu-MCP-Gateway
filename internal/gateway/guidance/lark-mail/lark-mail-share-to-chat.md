@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+share-to-chat`（网关不提供：仅支持用户身份）
+# `mail.+share-to-chat` (not available in the gateway: user identity only)
 
 将邮件以卡片形式分享到飞书 IM 会话（群聊或个人对话）。内部两步完成：创建分享凭证 → 发送卡片到 IM。
 
@@ -31,7 +31,6 @@ mail.+share-to-chat  # 网关不提供：仅支持用户身份
 | `--receive-id <id>` | 是 | 目标接收者 ID，类型由 `--receive-id-type` 决定 |
 | `--receive-id-type <type>` | 否 | 接收者 ID 类型（默认 `chat_id`）。可选：`chat_id` / `open_id` / `user_id` / `union_id` / `email` |
 | `mailbox=<email>` | 否 | 邮箱地址（默认 `me`） |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求，不执行 |
 
 ## 返回值
 

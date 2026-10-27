@@ -19,6 +19,8 @@
 
 | meeting_id 来源 | 操作时身份 |
 | --- | --- |
+| `vc.+meeting-list-active` (user_id="<user_open_id>") | `vc.+meeting-countdown` |
+| `vc.+meeting-join` 返回的 `meeting.id` | `vc.+meeting-countdown` |
 
 ## 参数
 
@@ -46,6 +48,12 @@ Dry-run 请求体示例：
 }
 ```
 
+## 延长倒计时
+
+```text
+vc.+meeting-countdown {"meeting_id": "<meeting_id>", "action": "prolong", "duration": 2}
+```
+
 ## 提前结束或关闭倒计时
 
 提前结束或关闭倒计时窗口时不要传 `duration`、`need_play_audio_at_end` 或 `reminder_before_end`。
@@ -68,7 +76,7 @@ Dry-run 请求体示例：
 
 ## 相关
 
-- lark-vc-meeting-list-active（主题 `lark-vc-meeting-list-active`） — 发现当前进行中会议 ID
-- lark-vc-meeting-events（主题 `lark-vc-meeting-events`） — 读取会中事件
-- lark-vc-meeting-message-send（主题 `lark-vc-meeting-message-send`） — 发送会中文本或 reaction
-- lark-vc-agent-meeting-join（主题 `lark-vc-agent-meeting-join`） — 应用机器人入会
+- 主题 `lark-vc-meeting-list-active` — 发现当前进行中会议 ID
+- 主题 `lark-vc-meeting-events` — 读取会中事件
+- 主题 `lark-vc-meeting-message-send` — 发送会中文本或 reaction
+- 主题 `lark-vc-agent-meeting-join` — 应用机器人入会

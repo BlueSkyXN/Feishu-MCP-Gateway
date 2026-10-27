@@ -4,7 +4,7 @@
 
 局部编辑走 **shortcut `slides.+replace-slide`（主题 `lark-slides-replace-slide`）**（块级替换 / 插入），配合 `slides.+xml-get` 读原页拿 `block_id`。整页重建走 **`slides.+update-slide`（主题 `lark-slides-update-slide`）**，多页就每页各跑一次 —— 它原地覆盖并保留 `slide_id` 和页序；只有写进 `content` 且带原 id 的元素才会保留元素 id，遗漏的元素会被删除。
 
-> 生成 XML 前**必读** xml-schema-quick-ref.md（主题 `references-xml-xml-schema-quick-ref`）。
+> 生成 XML 前**必读** 主题 `references-xml-xml-schema-quick-ref`。
 
 ## 决策树：block_replace vs block_insert
 
@@ -99,8 +99,8 @@ SID="slide_id_here"
 
 ## 相关文档
 
-- lark-slides-replace-slide.md（主题 `lark-slides-replace-slide`） — `slides.+replace-slide` shortcut 参数详情
-- lark-slides-update-slide.md（主题 `lark-slides-update-slide`） — `slides.+update-slide` shortcut 参数详情（整页覆盖）
-- lark-slides-xml-presentations-get.md（主题 `lark-slides-xml-presentations-get`） — `slides.+xml-get` 参数与单页读取方法
-- lark-slides-media-upload.md（主题 `lark-slides-media-upload`） — 上传图片拿 file_token
-- xml-schema-quick-ref.md（主题 `references-xml-xml-schema-quick-ref`） — XML 元素和属性速查
+- 主题 `lark-slides-replace-slide` — `slides.+replace-slide` shortcut 参数详情
+- 主题 `lark-slides-update-slide` — `slides.+update-slide` shortcut 参数详情（整页覆盖）
+- 主题 `lark-slides-xml-presentations-get` — `slides.+xml-get` 参数与单页读取方法
+- 主题 `lark-slides-media-upload` — 上传图片拿 file_token
+- 主题 `references-xml-xml-schema-quick-ref` — XML 元素和属性速查

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `minutes.+update`（网关不提供：仅支持用户身份）
+# `minutes.+update` (not available in the gateway: user identity only)
 
 修改飞书妙记的标题（topic）。
 

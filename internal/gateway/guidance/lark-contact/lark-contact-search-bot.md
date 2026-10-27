@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-contact` 参考文档转换；调用约定见 `contact` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `contact.+search-bot`（网关不提供：仅支持用户身份）
+# `contact.+search-bot` (not available in the gateway: user identity only)
 
 按关键词搜索当前用户可见的机器人。仅支持 user 身份,需要 `search:bot` 权限。
 

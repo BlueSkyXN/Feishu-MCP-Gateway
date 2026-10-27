@@ -6,6 +6,7 @@ package gateway
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
 	"net/http/httptest"
 	"os"
 	"regexp"
@@ -79,6 +80,60 @@ func TestGuidanceIsConsistentWithCatalog(t *testing.T) {
 	}
 	if _, _, content, ok := g.topic("lark-sheets-read-data"); !ok || !strings.Contains(content, "`sheets.+csv-get`") {
 		t.Fatal("sheets topic not translated")
+	}
+}
+
+// 指南正文不保留身份切换参数、CLI 全局 flag 的表格行和按 shell 区分的写法表。
+// 无法安全转换的 lark-cli 脚本片段保留原文，数量超过上限时检查 scripts/lark_guidance.py 的转换规则。
+func TestGuidanceTextHasNoCLIOnlyLeftovers(t *testing.T) {
+	const maxCLIResidue = 32
+	identity := regexp.MustCompile(`--as\b`)
+	cli := regexp.MustCompile(`lark-cli [a-z]`)
+	rule := regexp.MustCompile(`^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$`)
+	shell := regexp.MustCompile(`\b(?:bash|zsh|PowerShell|cmd\.exe)\b`)
+	residue := 0
+	err := fs.WalkDir(guidanceFS, "guidance", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") {
+			return err
+		}
+		b, err := guidanceFS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		lines := strings.Split(string(b), "\n")
+		fence := false
+		for i := 0; i < len(lines); i++ {
+			line := lines[i]
+			if identity.MatchString(line) {
+				t.Errorf("%s:%d: identity flag kept: %s", path, i+1, line)
+			}
+			if !strings.HasPrefix(line, "> 由 ") && cli.MatchString(line) {
+				residue++
+			}
+			if strings.HasPrefix(strings.TrimSpace(line), "```") {
+				fence = !fence
+				continue
+			}
+			if fence || !strings.HasPrefix(strings.TrimSpace(line), "|") || i+1 >= len(lines) || !rule.MatchString(lines[i+1]) {
+				continue
+			}
+			if shell.MatchString(line) {
+				t.Errorf("%s:%d: shell-specific table kept: %s", path, i+1, line)
+			}
+			for i += 2; i < len(lines) && strings.HasPrefix(strings.TrimSpace(lines[i]), "|"); i++ {
+				if cells := strings.Split(lines[i], "|"); len(cells) > 2 && strings.TrimSpace(cells[1]) == "" {
+					t.Errorf("%s:%d: table row lost its first cell: %s", path, i+1, lines[i])
+				}
+			}
+			i--
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if residue > maxCLIResidue {
+		t.Errorf("lark-cli 原文残留 %d 行，超过 %d；检查 scripts/lark_guidance.py 的转换规则", residue, maxCLIResidue)
 	}
 }
 

@@ -2,6 +2,16 @@
 
 # `drive.+version-get`
 
+## 命令
+
+```text
+drive.+version-get {"file_token": "boxcnxxxxxxxx", "version": "7633658129540910621"}
+
+drive.+version-get {"file_token": "boxcnxxxxxxxx", "version": "7633658129540910621", "output": "./downloads/"}
+
+drive.+version-get {"file_token": "boxcnxxxxxxxx", "version": "7633658129540910621", "output": "./artifact.bin", "overwrite": true}
+```
+
 ## 参数
 
 | 参数 | 必填 | 说明 |

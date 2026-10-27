@@ -35,16 +35,15 @@ task.+create {"summary": "Test Task"}
 | `tasklist_id=<id>` | No | The GUID of the tasklist, or a full AppLink URL (the CLI will automatically extract the `guid` parameter from the URL). |
 | `idempotency_key=<key>` | No | Client token to ensure idempotency of the request. |
 | `data=<json>` | No | JSON object merged into the task create request for API fields without dedicated flags, such as `{"is_milestone":true}`. Explicit named flags override same-named fields in this object. |
-| dry-run（网关不提供，改为先读取核对） | No | Preview the API call (JSON payload) without actually creating the task. |
 
-> **Required:** If `task.+create` has no dedicated flag for a field requested by the user, first inspect `feishu_tools_describe`（operation_id="task.tasks.create"）, then add that field to `data` using the exact field name, type, and nesting from the Meta API request-body schema. Do not omit requested fields or guess their JSON shape. Keep fields already supplied through dedicated flags out of `data`.
+> **Required:** If `task.+create` has no dedicated flag for a field requested by the user, first inspect `feishu_tools_describe (operation_id="task.tasks.create")`, then add that field to `data` using the exact field name, type, and nesting from the Meta API request-body schema. Do not omit requested fields or guess their JSON shape. Keep fields already supplied through dedicated flags out of `data`.
 
 Prefer this shortcut over the raw `tasks create` command when `data` can express the request. Do not assume that other shortcuts support `data`; check each shortcut's `feishu_tools_describe` output first.
 
 ## Workflow
 
 1. Confirm with the user: task summary, due date, assignee, and tasklist if necessary.
-2. Execute `task.+create`（summary="..."）
+2. Execute `task.+create` (summary="...")
 3. Judge success by `ok == true` in the stdout JSON (the success envelope has no `code` field — do not test `code == 0`), then report the result: task ID (`data.guid`) and summary.
 
 Example success response:
@@ -65,4 +64,4 @@ Example success response:
 
 ## References
 
-- `task` 领域指南 -- All task commands
+- `task` domain指南 -- All task commands

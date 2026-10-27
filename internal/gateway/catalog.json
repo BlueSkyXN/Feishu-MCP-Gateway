@@ -10457,7 +10457,7 @@
       ],
       "query_fields": [],
       "parameter_defaults": {},
-      "description": "Upload file. User identity requires `im:resource` scope on the UAT",
+      "description": "Upload file",
       "pack": "im.write",
       "risk": "write",
       "command": [
@@ -10697,7 +10697,7 @@
       ],
       "query_fields": [],
       "parameter_defaults": {},
-      "description": "Upload image. User identity requires `im:resource` scope on the UAT",
+      "description": "Upload image",
       "pack": "im.write",
       "risk": "write",
       "command": [
@@ -23353,7 +23353,7 @@
               },
               "score": {
                 "type": "number",
-                "description": "ObjectiveScore：[0,1]，Supports one decimal place",
+                "description": "ObjectiveScore：[0,1], Supports one decimal place",
                 "minimum": 0.0,
                 "maximum": 1.0
               }
@@ -44563,7 +44563,7 @@
           },
           "delete_remote": {
             "type": "boolean",
-            "description": "delete Drive files absent locally (file-level mirror; remote-only directories are not removed); requires 管理员预授权（high_risk_operations）"
+            "description": "delete Drive files absent locally (file-level mirror; remote-only directories are not removed); requires administrator pre-authorization (high_risk_operations)"
           },
           "idempotency_key": {
             "type": "string",
@@ -44693,7 +44693,7 @@
           },
           "delete_local": {
             "type": "boolean",
-            "description": "delete local regular files absent from Drive (file-level mirror; empty directories are NOT pruned); requires 管理员预授权（high_risk_operations）"
+            "description": "delete local regular files absent from Drive (file-level mirror; empty directories are NOT pruned); requires administrator pre-authorization (high_risk_operations)"
           },
           "idempotency_key": {
             "type": "string",
@@ -76361,7 +76361,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq（网关不提供） to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
           },
           "overwrite": {
             "type": "boolean",
@@ -76666,7 +76666,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq（网关不提供） to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
           },
           "overwrite": {
             "type": "boolean",
@@ -76925,7 +76925,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq（网关不提供） to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
           },
           "overwrite": {
             "type": "boolean",
@@ -84717,7 +84717,7 @@
       "id": "mail.+thread-trash",
       "tool": "feishu_mail_thread_trash",
       "kind": "shortcut",
-      "description": "Soft-delete existing mail threads. Batches thread IDs in groups of 20 and calls batch_trash sequentially. Requires 管理员预授权（high_risk_operations）.",
+      "description": "Soft-delete existing mail threads. Batches thread IDs in groups of 20 and calls batch_trash sequentially. Requires administrator pre-authorization (high_risk_operations).",
       "pack": "mail.write",
       "risk": "high-risk-write",
       "command": [
@@ -85106,7 +85106,7 @@
       "id": "mail.+rule-create",
       "tool": "feishu_mail_rule_create",
       "kind": "shortcut",
-      "description": "Create a mailbox rule from semantic condition/action aliases; use dry-run（网关不提供，改为先读取核对） to inspect the raw request.",
+      "description": "Create a mailbox rule from semantic condition/action aliases; use dry-run (not available in the gateway; read and verify first) to inspect the raw request.",
       "pack": "mail.write",
       "risk": "high-risk-write",
       "command": [
@@ -85509,7 +85509,7 @@
       "id": "mail.+rule-delete",
       "tool": "feishu_mail_rule_delete",
       "kind": "shortcut",
-      "description": "Delete one mailbox rule. Without 管理员预授权（high_risk_operations）, the shortcut fetches the target and returns a confirmation summary without deleting.",
+      "description": "Delete one mailbox rule. Without administrator pre-authorization (high_risk_operations), the shortcut fetches the target and returns a confirmation summary without deleting.",
       "pack": "mail.write",
       "risk": "high-risk-write",
       "command": [
@@ -88473,7 +88473,7 @@
           },
           "raw": {
             "type": "boolean",
-            "description": "print raw XML to stdout instead of the JSON envelope; incompatible with `output` and jq（网关不提供）"
+            "description": "print raw XML to stdout instead of the JSON envelope; incompatible with `output` and jq (not available in the gateway)"
           },
           "slide_id": {
             "type": "string",
@@ -91865,7 +91865,7 @@
       "id": "whiteboard.+update",
       "tool": "feishu_whiteboard_update",
       "kind": "shortcut",
-      "description": "Update an existing whiteboard in lark document with mermaid, plantuml or whiteboard dsl. refer to `whiteboard` 领域 skill for more details.",
+      "description": "Update an existing whiteboard in lark document with mermaid, plantuml or whiteboard dsl. refer to `whiteboard` domain skill for more details.",
       "pack": "whiteboard.write",
       "risk": "write",
       "command": [
@@ -92001,7 +92001,7 @@
       "id": "docs.+whiteboard-update",
       "tool": "feishu_docs_whiteboard_update",
       "kind": "shortcut",
-      "description": "Update an existing whiteboard in lark document with mermaid, plantuml or whiteboard dsl. refer to `whiteboard` 领域 skill for more details.",
+      "description": "Update an existing whiteboard in lark document with mermaid, plantuml or whiteboard dsl. refer to `whiteboard` domain skill for more details.",
       "pack": "docs.write",
       "risk": "write",
       "command": [

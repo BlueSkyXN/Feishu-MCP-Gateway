@@ -19,7 +19,7 @@ drive.+add-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "com
 | `token` | 与 `url` 二选一 | 裸 token 或 URL。裸 token 必须搭配 `type`；wiki token 使用 `type=wiki`。 |
 | `type` | 裸 token 时必填 | 传 token 对应类型：`doc`、`docx`、`sheet`、`file`、`slides`、`bitable`、`base`、`apps`、`wiki`。wiki token 使用 `wiki`；传 `base` 时，CLI 会按 `bitable` 类型处理。 |
 | `comment_id` | 是 | 要回复的评论 ID；来自 `drive.+list-comments` 的 `items[].comment_id` |
-| `content` | 是 | `reply_elements` JSON，`type=text` 文本自动转义；完整 schema、mention_user/link、10000 字符限制见 主题 `lark-drive-comment-content`（主题 `lark-drive-comment-content`） |
+| `content` | 是 | `reply_elements` JSON，`type=text` 文本自动转义；完整 schema、mention_user/link、10000 字符限制见 主题 `lark-drive-comment-content` |
 
 ## 回复限制
 
@@ -42,6 +42,6 @@ drive.+add-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "com
 
 ## 参考
 
-- lark-drive-comment-content（主题 `lark-drive-comment-content`） -- `content` 格式
-- lark-drive-batch-query-comments（主题 `lark-drive-batch-query-comments`） -- 按 ID 查 is_whole/is_solved
-- lark-drive-list-replies（主题 `lark-drive-list-replies`） -- 获取回复
+- 主题 `lark-drive-comment-content` -- `content` 格式
+- 主题 `lark-drive-batch-query-comments` -- 按 ID 查 is_whole/is_solved
+- 主题 `lark-drive-list-replies` -- 获取回复

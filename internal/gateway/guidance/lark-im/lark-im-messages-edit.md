@@ -26,8 +26,9 @@ Editing rewrites a message visible to other people. Before calling it, you **mus
 | Clear the edited message's attachment zone | `clear_attachments` | Sets `files:[]` on the post content. Requires a post message; mutually exclusive with `set_attachments` |
 | Keep the existing attachment zone while rewriting the body | *(no attachment flag)* | **Default.** Editing with only `markdown` / `text` / `content` leaves the current `files` array untouched — a body-only edit never drops attachments |
 
-```bash
+```text
 # Read the replacement Markdown from a local file
+im.+messages-edit {"message_id": "om_xxx", "markdown": {"file_id": "<file_id>"}}
 ```
 
 ## Editing the Attachment Zone
@@ -38,6 +39,10 @@ Editing rewrites a message visible to other people. Before calling it, you **mus
 
 To edit a message so it attaches (or re-attaches) files:
 
+```text
+im.+messages-edit {"message_id": "om_xxx", "markdown": "Updated content", "set_attachments": ["file_xxx", "file_yyy"]}
+```
+
 - `set_attachments` accepts a bare file/folder key (`file_xxx`), and may be repeated.
 - **`set_attachments` is a replace, not an append:** the flag values become the final `files` array. Send/reply's `attachment` merges; edit's `set_attachments` replaces.
 - **Mutually exclusive with `content` carrying files:** when `content` already contains a `files` array, `set_attachments` and `clear_attachments` are rejected — declare the attachment zone either via `content` or via the attachment flags, not both. Use `markdown` (which never emits a `files` array) or a `content` without `files` together with the attachment flags.
@@ -46,6 +51,10 @@ To edit a message so it attaches (or re-attaches) files:
 - The edited content replaces the whole message content, so include every file you want to keep in the new attachment zone.
 
 To **clear** the attachment zone entirely, pass `clear_attachments` instead of `set_attachments`:
+
+```text
+im.+messages-edit {"message_id": "om_xxx", "markdown": "Updated content", "clear_attachments": true}
+```
 
 - `clear_attachments` sets the post content's `files` array to `[]`, telling the server to remove all file/folder attachments.
 - It cannot be used together with `set_attachments`.
@@ -62,7 +71,6 @@ To **clear** the attachment zone entirely, pass `clear_attachments` instead of `
 | `set_attachments=<key>` | One content option | Repeatable bare file/folder key (`file_xxx`); **replaces** the post attachment zone — the flag values become the final `files` array, discarding any `files` written in `content`, and duplicate keys are sent once. Name/size/mime/is_folder are filled by the server |
 | `clear_attachments` | One content option | Clear the post attachment zone by setting `files:[]` |
 | `msg_type=<type>` | No | Message type (default `text`). When `markdown`/`set_attachments`/`clear_attachments` is used the effective type is inferred automatically |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it |
 
 ## Return Value
 

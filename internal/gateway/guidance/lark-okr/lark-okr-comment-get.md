@@ -24,8 +24,6 @@ okr.+comment-get {"comment_id": "7000000000000000001"}
 | `comment_id`   | 是   | —       | 评论 ID，int64 正整数。                                                                |
 | `user_id_type` | 否   | open_id | open_id、union_id、user_id 或 user_key。                                               |
 | `style`        | 否   | simple  | simple 返回半纯文本格式，不涉及字体/颜色等信息时推荐使用；richtext 返回 ContentBlock。 |
-| dry-run（网关不提供，改为先读取核对）      | 否   | —       | 预览 API 调用而不实际执行。                                                            |
-|        | 否   | json    | 输出格式。                                                                             |
 
 ## 工作流程
 

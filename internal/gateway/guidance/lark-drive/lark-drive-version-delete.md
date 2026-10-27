@@ -2,13 +2,19 @@
 
 # `drive.+version-delete`
 
+## 命令
+
+```text
+drive.+version-delete {"file_token": "boxcnxxxxxxxx", "version": "7633658129540910621"}
+
+```
+
 ## 参数
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `file_token` | 是 | 目标文件 token |
 | `version` | 是 | `drive.+version-history` 返回的长数字 `version` 字段，不是 `tag` |
-| 管理员预授权（high_risk_operations） | 是 | 确认执行高风险删除操作 |
 
 ## 返回值
 

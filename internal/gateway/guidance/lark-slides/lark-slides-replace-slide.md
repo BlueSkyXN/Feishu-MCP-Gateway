@@ -106,7 +106,7 @@
 <polyline topLeftX="10" topLeftY="10" width="100" height="50" points="0,0 50,50 100,0"/>
 ```
 
-`<table>`（2×2）：
+`<table>` (2×2)：
 ```xml
 <table topLeftX="30" topLeftY="80">
   <colgroup><col span="2" width="110"/></colgroup>
@@ -209,4 +209,4 @@ SID=yyy
 
 - `slides.+xml-get`（主题 `lark-slides-xml-presentations-get`） — 读原页拿 `block_id` / `revision_id`
 - `slides.+media-upload`（主题 `lark-slides-media-upload`） — 上传图片拿 `file_token`
-- slides-editing.md（主题 `slides-editing`） — 读-改-写闭环 + 决策树
+- 主题 `slides-editing` — 读-改-写闭环 + 决策树

@@ -27,8 +27,6 @@ okr.+progress-get {"progress_id": "1234567890123456789"}
 | `progress_id`  | 是  | —           | 进展记录 ID（int64 类型，正整数）                                               |
 | `style`        | 否  | `simple`    | 输出风格：`simple`（半纯文本 SemiPlainContent，推荐） \| `richtext`（原始 ContentBlock JSON）。请参考 ContentBlock 格式（主题 `lark-okr-contentblock`）。 |
 | `user_id_type` | 否  | `open_id`   | 用户 ID 类型：`open_id` \| `union_id` \| `user_id`                           |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —           | 预览 API 调用而不实际执行。                                                        |
-|        | 否  | `json`      | 输出格式。                                                                     |
 
 ## 工作流程
 
@@ -84,7 +82,7 @@ okr.+progress-get {"progress_id": "1234567890123456789"}
 - `content` 字段格式由 `style` 控制：
   - `style=simple`（默认）：`SemiPlainContent` 对象，包含 `text`、`mention`、`docs`、`images` 字段。`text` 中包含 `@{userID}` 占位符用于标识 mention 位置。
   - `style=richtext`：JSON 字符串，为 OKR ContentBlock 富文本格式
-- 请参考 lark-okr-contentblock.md（主题 `lark-okr-contentblock`） 了解两种格式的详细信息。
+- 请参考 主题 `lark-okr-contentblock` 了解两种格式的详细信息。
 - `progress_rate.status` 返回可读字符串：`normal`（正常）、`overdue`（逾期）、`done`（已完成）。
 
 ## 参考

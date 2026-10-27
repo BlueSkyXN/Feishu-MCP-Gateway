@@ -32,8 +32,6 @@ calendar.+transfer {"event_id": "<event_id>", "to_user_id": "ou_xxx"}
 | `calendar_id=<id>` | 否 | 日程所在日历 ID（省略则使用主日历） |
 | `remove_original_organizer` | 否 | 转让后把原组织者移出参与人；默认保留。日程在共享日历上时服务端一定会移除 |
 | `transfer_series` | 否 | 确认整个重复性序列一起转让；重复性日程必填 |
-| 管理员预授权（high_risk_operations） | **是**（非 dry-run） | 高敏写操作确认 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## 转让方向
 
@@ -43,6 +41,8 @@ calendar.+transfer {"event_id": "<event_id>", "to_user_id": "ou_xxx"}
 
 | 方向 | 命令 |
 |------|------|
+| bot → user | `to_user_id <用户 open_id>` |
+| bot → bot | `to_user_id <另一个 bot 的 open_id>` |
 
 **取接收人 open_id**：
 

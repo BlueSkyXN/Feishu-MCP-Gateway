@@ -54,7 +54,7 @@ SID=yyy       # 要加图的那一页
 注意事项：
 
 1. **`<img>` 坐标避开现有元素** —— 先读现有元素 bbox 挑空白区；空间不够就先用 `block_replace` 挪动/缩小现有元素后再放图
-2. **`<img>` 的 `width:height` 对齐原图比例** —— 比例不一致会被裁剪，参见 xml-schema-quick-ref.md（主题 `references-xml-xml-schema-quick-ref`） `<img>` 说明
+2. **`<img>` 的 `width:height` 对齐原图比例** —— 比例不一致会被裁剪，参见 主题 `references-xml-xml-schema-quick-ref` `<img>` 说明
 
 ## 上传约束
 

@@ -109,7 +109,6 @@ drive.+search {"query": "方案", "page_token": "<PAGE_TOKEN>"}
 | `query=<text>` | 否 | 搜索关键词；支持服务端高级语法（`intitle:`、`""`、`OR`、`-`）。空字符串或省略表示纯 filter 浏览。**长度上限 30 个字符（按 Unicode 码点算，中文每字算 1 个，与 ASCII 同口径）；超过 30 服务端直接报 `99992402 field validation failed`，不会截断** |
 | `page_size=<n>` | 否 | 每页数量，默认 15，最大 20。超过 20 自动 clamp；非正数（≤0）回落 15；**非数字值直接返回 validation 错误** |
 | `page_token=<token>` | 否 | 上一次响应里的 `page_token`，用于翻页 |
-|  | 否 | `json`（默认）/ `pretty` |
 
 ### 身份维度
 

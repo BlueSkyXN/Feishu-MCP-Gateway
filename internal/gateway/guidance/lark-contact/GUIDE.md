@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 ## 选哪个命令
 
@@ -36,15 +37,15 @@ im.+messages-send {"user_id": "ou_xxx", "text": "Hi!"}
 
 批量查同事的个人状态 / 个性签名(先用 schema 看参数)。
 
-```text
-# contact.user_profiles.batch_query（网关不提供：仅支持用户身份）
+```bash
+feishu_tools_describe（operation_id="contact.user_profiles.batch_query"）（网关不提供：仅支持用户身份）
 ```
 
 搜索命中多条且后续操作有副作用(发消息、邀请会议等),把候选列给用户挑;不要擅自选第一条。
 
 ## 搜索机器人 / 智能体
 
-`contact.+search-bot`（网关不提供：仅支持用户身份） 使用 user 身份按关键词搜索当前用户可见的机器人,返回 `ou_` 开头的机器人 open_id。参数细节等见 `lark-contact-search-bot.md`（主题 `lark-contact-search-bot`）。
+`contact.+search-bot`（网关不提供：仅支持用户身份） 使用 user 身份按关键词搜索当前用户可见的机器人,返回 `ou_` 开头的机器人 open_id。参数细节等见 主题 `lark-contact-search-bot`。
 
 ## 注意事项
 

@@ -494,7 +494,7 @@ sheets.+csv-put {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "start_cell"
 > ✅ `=` 开头的单元格会被当作公式计算（不是字面量文本）：
 >
 > ```bash
-> `sheets.+csv-put`（url="..."，sheet_name="Sheet1"） \
+> `sheets.+csv-put` (url="...", sheet_name="Sheet1") \
 >   `start_cell` "A1" \
 >   `csv` $'name,score\nalice,=SUM(B2:B10)'
 > # ↑ B2 写入公式 =SUM(B2:B10)，读回 formula 保留、value 为计算结果。
@@ -505,7 +505,7 @@ sheets.+csv-put {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "start_cell"
 >
 > ```bash
 > # 从 G4 写一个 2 列 3 行的统计块；=COUNTIF 含逗号 + 内部引号，建议转义
-> `sheets.+csv-put`（url="..."，sheet_name="Sheet1"） \
+> `sheets.+csv-put` (url="...", sheet_name="Sheet1") \
 >   `start_cell` "G4" \
 >   `csv` $'统计项,结果\n成绩总和,=SUM(C5:C22)\n及格人数,"=COUNTIF(D5:D22,""及格"")"'
 > # ↑ "=COUNTIF(D5:D22,""及格"")"：外层双引号包裹整格，内部 "及格" 的引号翻倍成 ""及格""。
@@ -516,7 +516,7 @@ sheets.+csv-put {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "start_cell"
 >
 > ```bash
 > # 同样的统计块，结构化写入无需任何转义
-> `sheets.+cells-set`（url="..."，sheet_name="Sheet1"，range="G4:H6"） \
+> `sheets.+cells-set` (url="...", sheet_name="Sheet1", range="G4:H6") \
 >   `cells` '`{"value":"统计项"},{"value":"结果"}],[{"value":"成绩总和"},{"formula":"=SUM(C5:C22)"}],[{"value":"及格人数"},{"formula":"=COUNTIF(D5:D22,\"及格\")"}`'
 > ```
 

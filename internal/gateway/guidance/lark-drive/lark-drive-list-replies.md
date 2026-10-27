@@ -21,7 +21,7 @@ drive.+list-replies {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "
 | `comment_id` | 是 | 评论 ID；来自 `drive.+list-comments` 的 `items[].comment_id` |
 | `page_size` | 否 | 1-100，默认 50 |
 | `page_token` | 否 | 上次输出的 `page_token`；`has_more=true` 时用它续拉 |
-| `need_reaction` | 否 | 在回复上返回 reaction 数据，见 主题 `lark-drive-reactions`（主题 `lark-drive-reactions`） |
+| `need_reaction` | 否 | 在回复上返回 reaction 数据，见 主题 `lark-drive-reactions` |
 
 ## 行为说明
 
@@ -48,7 +48,7 @@ drive.+list-replies {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "
 
 ## 参考
 
-- lark-drive-list-comments（主题 `lark-drive-list-comments`） -- 评论卡片模型与统计口径
-- lark-drive-update-reply（主题 `lark-drive-update-reply`） -- 更新回复
-- lark-drive-delete-reply（主题 `lark-drive-delete-reply`） -- 删除回复
-- lark-drive-reactions（主题 `lark-drive-reactions`） -- reaction 查询与写入
+- 主题 `lark-drive-list-comments` -- 评论卡片模型与统计口径
+- 主题 `lark-drive-update-reply` -- 更新回复
+- 主题 `lark-drive-delete-reply` -- 删除回复
+- 主题 `lark-drive-reactions` -- reaction 查询与写入

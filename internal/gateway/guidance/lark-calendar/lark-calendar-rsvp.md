@@ -27,7 +27,6 @@ calendar.+rsvp {"calendar_id": "cal_xxx", "event_id": "evt_xxx", "rsvp_status": 
 | `event_id=<id>` | **是** | 日程 ID |
 | `rsvp_status=<status>` | **是** | 回复状态，可选值：`accept` (接受), `decline` (拒绝), `tentative` (待定) |
 | `calendar_id=<id>` | 否 | 日历 ID（省略则使用主日历） |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## 提示
 

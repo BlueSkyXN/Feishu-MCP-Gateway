@@ -6,6 +6,6 @@
 
 | 关键词             | Leaf                               |
 |-----------------|------------------------------------|
-| XHS、小红书         | 主题 `xiaohongshu`（主题 `xiaohongshu`） |
-| 微信、wechat       | 主题 `wechat`（主题 `wechat`）           |
-| 邮件、email、e-mail | 主题 `email`（主题 `email`）             |
+| XHS、小红书         | 主题 `xiaohongshu` |
+| 微信、wechat       | 主题 `wechat`           |
+| 邮件、email、e-mail | 主题 `email`             |

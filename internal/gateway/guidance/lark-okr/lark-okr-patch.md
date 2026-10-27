@@ -32,8 +32,6 @@ okr.+patch {"level": "objective", "target_id": "1234567890123456789", "content":
 | `score`      | 否¹ | —         | 分数值，0-1 之间，最多一位小数（如 0.5、1.0）。                                                                                                            |
 | `deadline`   | 否¹ | —         | 截止时间，毫秒级时间戳（如 1735776000000）。                                                                                                      |
 | `user_id_type` | 否  | `open_id` | 用户 ID 类型：`open_id` \| `union_id` \| `user_id`                                                                                        |
-| dry-run（网关不提供，改为先读取核对）    | 否  | —         | 预览 API 调用而不实际执行。                                                                                                                     |
-|      | 否  | `json`    | 输出格式。                                                                                                                                |
 
 > ¹ 至少需要提供 `content`、`notes`、`score`、`deadline` 中的一个字段。
 

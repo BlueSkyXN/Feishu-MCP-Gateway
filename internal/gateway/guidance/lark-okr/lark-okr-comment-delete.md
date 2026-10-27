@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-okr` 参考文档转换；调用约定见 `okr` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `okr.+comment-delete`（网关不提供：仅支持用户身份）
+# `okr.+comment-delete` (not available in the gateway: user identity only)
 
 永久删除一条评论。删除划词评论时只删除指定评论，不会删除同一 selection.id 下的其他评论。
 
@@ -21,9 +21,6 @@ okr.+comment-delete  # 网关不提供：仅支持用户身份
 | 参数         | 必填         | 默认值 | 说明                                                        |
 |--------------|--------------|--------|-------------------------------------------------------------|
 | `comment_id` | 是           | —      | 要删除的评论 ID，int64 正整数。建议先由 `okr.+comment-get` 核对。 |
-| 管理员预授权（high_risk_operations）        | 真实执行时是 | —      | 确认 high-risk-write 操作。dry-run（网关不提供，改为先读取核对） 时不需要。             |
-| dry-run（网关不提供，改为先读取核对）    | 否           | —      | 预览 API 调用而不实际执行。                                 |
-|      | 否           | json   | 输出格式。                                                  |
 
 ## 工作流程
 

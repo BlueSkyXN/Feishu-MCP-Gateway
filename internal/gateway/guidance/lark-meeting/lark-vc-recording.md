@@ -31,8 +31,6 @@ vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28"}
 |------|------|------|
 | `meeting_ids=<ids>` | 二选一 | 会议 ID，逗号分隔支持批量 |
 | `calendar_event_ids=<ids>` | 二选一 | 日程事件 ID，逗号分隔支持批量 |
-|  | 否 | 输出格式：json (默认) / pretty / table / ndjson / csv |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## 核心约束
 

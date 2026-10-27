@@ -70,7 +70,7 @@ Category (分类): Objective 的分组标签
 | 2 | `invalid` | 已失效（通常仍可填写） |
 | 3 | `hidden`  | 已隐藏（不可见）    |
 
-> **SHORTCUT：** `okr.+cycle-list` lark-okr-cycle-list.md（主题 `lark-okr-cycle-list`） 获取用户的周期列表，可按时间筛选
+> **SHORTCUT：** `okr.+cycle-list` 主题 `lark-okr-cycle-list` 获取用户的周期列表，可按时间筛选
 >
 > **API：** `cycles.list`
 
@@ -96,7 +96,7 @@ Category (分类): Objective 的分组标签
 | `category_id` | `string`       | 否  | 所属分类 ID                                                 |
 
 > **SHORTCUT：**
-> - `okr.+cycle-detail` lark-okr-cycle-detail.md（主题 `lark-okr-cycle-detail`） 获取某个用户周期下的全部目标和关键结果。时间相关的字段会以日期时间格式解析
+> - `okr.+cycle-detail` 主题 `lark-okr-cycle-detail` 获取某个用户周期下的全部目标和关键结果。时间相关的字段会以日期时间格式解析
 >
 > **API：**
 > - `cycle.objectives.list` — 获取周期下的目标列表
@@ -175,11 +175,11 @@ Category (分类): Objective 的分组标签
 | `source_url`    | `string`       | 否  | 来源 URL，用于在 OKR 界面中显示进展来源链接                              |
 
 > **SHORTCUT：**
-> - `okr.+progress-get` lark-okr-progress-get.md（主题 `lark-okr-progress-get`） 获取单条进展记录
-> - `okr.+progress-create` lark-okr-progress-create.md（主题 `lark-okr-progress-create`） 为目标或关键结果创建进展记录
-> - `okr.+progress-update` lark-okr-progress-update.md（主题 `lark-okr-progress-update`） 更新进展记录内容
-> - `okr.+progress-delete` lark-okr-progress-delete.md（主题 `lark-okr-progress-delete`） 删除进展记录
-> - `okr.+progress-list` lark-okr-progress-list.md（主题 `lark-okr-progress-list`） 获取目标/关键结果下的进展记录
+> - `okr.+progress-get` 主题 `lark-okr-progress-get` 获取单条进展记录
+> - `okr.+progress-create` 主题 `lark-okr-progress-create` 为目标或关键结果创建进展记录
+> - `okr.+progress-update` 主题 `lark-okr-progress-update` 更新进展记录内容
+> - `okr.+progress-delete` 主题 `lark-okr-progress-delete` 删除进展记录
+> - `okr.+progress-list` 主题 `lark-okr-progress-list` 获取目标/关键结果下的进展记录
 
 ---
 
@@ -230,14 +230,14 @@ Category (分类): Objective 的分组标签
 - `delete` 永久删除指定评论，不会连带删除同一评论串的其他评论，且删除后不可找回。
 
 > **SHORTCUT：**
-> - `okr.+comment-detail` lark-okr-comment-detail.md（主题 `lark-okr-comment-detail`） 获取周期下全部对象的评论并按评论串整理
-> - `okr.+comment-list` lark-okr-comment-list.md（主题 `lark-okr-comment-list`） 分页获取单个评论目标下的评论
-> - `okr.+comment-get` lark-okr-comment-get.md（主题 `lark-okr-comment-get`） 获取单条评论
-> - `okr.+comment-create`（网关不提供：仅支持用户身份） lark-okr-comment-create.md（主题 `lark-okr-comment-create`） 创建评论、回复或挂入已有划词串
-> - `okr.+comment-patch`（网关不提供：仅支持用户身份） lark-okr-comment-patch.md（主题 `lark-okr-comment-patch`） 修改评论正文
-> - `okr.+comment-delete`（网关不提供：仅支持用户身份） lark-okr-comment-delete.md（主题 `lark-okr-comment-delete`） 永久删除单条评论
-> - `okr.+comment-solve`（网关不提供：仅支持用户身份） lark-okr-comment-solve-reopen.md（主题 `lark-okr-comment-solve-reopen`） 解决评论/评论串
-> - `okr.+comment-reopen`（网关不提供：仅支持用户身份） lark-okr-comment-solve-reopen.md（主题 `lark-okr-comment-solve-reopen`） 重新打开评论/评论串
+> - `okr.+comment-detail` 主题 `lark-okr-comment-detail` 获取周期下全部对象的评论并按评论串整理
+> - `okr.+comment-list` 主题 `lark-okr-comment-list` 分页获取单个评论目标下的评论
+> - `okr.+comment-get` 主题 `lark-okr-comment-get` 获取单条评论
+> - `okr.+comment-create`（网关不提供：仅支持用户身份） 主题 `lark-okr-comment-create` 创建评论、回复或挂入已有划词串
+> - `okr.+comment-patch`（网关不提供：仅支持用户身份） 主题 `lark-okr-comment-patch` 修改评论正文
+> - `okr.+comment-delete`（网关不提供：仅支持用户身份） 主题 `lark-okr-comment-delete` 永久删除单条评论
+> - `okr.+comment-solve`（网关不提供：仅支持用户身份） 主题 `lark-okr-comment-solve-reopen` 解决评论/评论串
+> - `okr.+comment-reopen`（网关不提供：仅支持用户身份） 主题 `lark-okr-comment-solve-reopen` 重新打开评论/评论串
 ---
 
 ## Indicator (指标)

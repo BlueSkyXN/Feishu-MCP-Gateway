@@ -38,7 +38,7 @@
     }
    ],
    "prerequisites": [
-    "Explicit user confirmation is required before passing 管理员预授权（high_risk_operations）; an agent must not self-approve the deletion.",
+    "Explicit user confirmation is required before passing administrator pre-authorization (high_risk_operations); an agent must not self-approve the deletion.",
     "Pass `command_id` from `application.+slash-command-list`, or pass `command` to let the CLI resolve the current id by name with a live list request."
    ],
    "related": [
@@ -94,15 +94,15 @@
   },
   "apps.+user-id-convert": {
    "tips": [
-    "Example: `apps.+user-id-convert`（convert_type=\"open-id-to-miaoda\"，ids=\"ou_abc123,ou_def456\"）",
+    "Example: `apps.+user-id-convert` (convert_type=\"open-id-to-miaoda\", ids=\"ou_abc123,ou_def456\")",
     "Unresolved IDs are not an error: they land in data.missed with reason not_found, keyed by input position.",
     "ID-form/direction mismatch (e.g. an ou_ id under miaoda-to-open-id) is dropped by the server and reported in missed; check the ID prefix matches `convert_type`."
    ]
   },
   "base.+advperm-disable": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Disabling advanced permissions invalidates existing custom roles; confirm the target Base before passing 管理员预授权（high_risk_operations）."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Disabling advanced permissions invalidates existing custom roles; confirm the target Base before passing administrator pre-authorization (high_risk_operations)."
    ]
   },
   "base.+advperm-enable": {
@@ -112,11 +112,11 @@
   },
   "base.+app-block-create": {
    "tips": [
-    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}]}\"）",
-    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Monthly sales\"，type=\"column\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"group_by\\\":[{\\\"field_name\\\":\\\"Month\\\",\\\"sort\\\":{\\\"type\\\":\\\"group\\\",\\\"order\\\":\\\"asc\\\"}}]}]}\"）",
+    "`base.+app-block-create` (app_token=\"<app_token>\", page_id=\"<page_id>\", name=\"Order Count\", type=\"statistics\", data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}]}\")",
+    "`base.+app-block-create` (app_token=\"<app_token>\", page_id=\"<page_id>\", name=\"Monthly sales\", type=\"column\", data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"group_by\\\":[{\\\"field_name\\\":\\\"Month\\\",\\\"sort\\\":{\\\"type\\\":\\\"group\\\",\\\"order\\\":\\\"asc\\\"}}]}]}\")",
     "Chart blocks use multi-datasource data_config: one top-level base_token shared by all sources, with table_name/series/count_all/group_by/filter inside each data_sources[] element (text needs none). App block commands carry no `base_token`.",
-    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Notes\"，type=\"text\"，data_config=\"{\\\"text\\\":\\\"# Sales overview\\\"}\"）",
-    "`base.+app-block-create`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Open orders\"，type=\"list\"，sub_type=\"standard\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"table_name\\\":\\\"Orders\\\"}\"）",
+    "`base.+app-block-create` (app_token=\"<app_token>\", page_id=\"<page_id>\", name=\"Notes\", type=\"text\", data_config=\"{\\\"text\\\":\\\"# Sales overview\\\"}\")",
+    "`base.+app-block-create` (app_token=\"<app_token>\", page_id=\"<page_id>\", name=\"Open orders\", type=\"list\", sub_type=\"standard\", data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"table_name\\\":\\\"Orders\\\"}\")",
     "For list creates, omit optional columns/fields to use the product defaults. The CLI sends them only when explicitly provided.",
     "Before creating data-backed blocks, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
     "A list accepts exactly one base_token, and that Base must be in the same Workspace as the App.",
@@ -130,7 +130,7 @@
   },
   "base.+app-block-get": {
    "tips": [
-    "`base.+app-block-get`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"）",
+    "`base.+app-block-get` (app_token=\"<app_token>\", page_id=\"<page_id>\", block_id=\"<block_id>\")",
     "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
     "Returns WidgetDetail: widget_id, name, type, optional chart_token/list sub_type, and data_config.",
     "For a text block, the Markdown content is in data_config.text — read it here; text has no `base.+app-block-get-data` endpoint.",
@@ -140,7 +140,7 @@
   },
   "base.+app-block-get-data": {
    "tips": [
-    "`base.+app-block-get-data`（app_token=\"<app_token>\"，base_token=\"<base_token>\"，block_id=\"<chart_token>\"）",
+    "`base.+app-block-get-data` (app_token=\"<app_token>\", base_token=\"<base_token>\", block_id=\"<chart_token>\")",
     "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
     "`block_id` must be a chart_token, not a widget_id.",
     "Read `base_token` from the chart block data_config.base_token; do not choose an arbitrary `base.+app-get` ref key when the app references multiple Bases.",
@@ -150,7 +150,7 @@
   },
   "base.+app-block-list": {
    "tips": [
-    "`base.+app-block-list`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "`base.+app-block-list` (app_token=\"<app_token>\", page_id=\"<page_id>\")",
     "A returned component with type=unsupported can only be identified in this list; `base.+app-block-get`, `base.+app-block-get-data`, and `base.+app-block-update` do not support it and will return an error.",
     "Use block_id for `base.+app-block-get`/update. For chart data, pass chart_token to `base.+app-block-get-data` `block_id`.",
     "These are page blocks, not dashboard blocks: do not pass a block_id from here to `base.+dashboard-block-get`."
@@ -158,8 +158,8 @@
   },
   "base.+app-block-update": {
    "tips": [
-    "`base.+app-block-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"，name=\"Monthly sales\"）",
-    "`base.+app-block-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true,\\\"filter\\\":{\\\"conjunction\\\":\\\"and\\\",\\\"conditions\\\":[{\\\"field_name\\\":\\\"Status\\\",\\\"operator\\\":\\\"is\\\",\\\"value\\\":\\\"Closed\\\"}]}}]}\"）",
+    "`base.+app-block-update` (app_token=\"<app_token>\", page_id=\"<page_id>\", block_id=\"<block_id>\", name=\"Monthly sales\")",
+    "`base.+app-block-update` (app_token=\"<app_token>\", page_id=\"<page_id>\", block_id=\"<block_id>\", data_config=\"{\\\"base_token\\\":\\\"basxxx\\\",\\\"data_sources\\\":[{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true,\\\"filter\\\":{\\\"conjunction\\\":\\\"and\\\",\\\"conditions\\\":[{\\\"field_name\\\":\\\"Status\\\",\\\"operator\\\":\\\"is\\\",\\\"value\\\":\\\"Closed\\\"}]}}]}\")",
     "Do not call this command for a component whose `base.+app-block-list` result has type=unsupported; the API will return an error.",
     "Read lark-base-app-block-data-config.md as the SSOT; do not invent data_config from natural language.",
     "Use `base.+app-block-get` first to inspect the current data_config before replacing nested values.",
@@ -170,8 +170,8 @@
   },
   "base.+app-create": {
    "tips": [
-    "`base.+app-create`（name=\"Sales app\"，workspace_token=\"<workspace_token>\"）",
-    "`base.+app-create`（name=\"Sales app\"，workspace_token=\"<workspace_token>\"，theme_style=\"cloudBlue\"）",
+    "`base.+app-create` (name=\"Sales app\", workspace_token=\"<workspace_token>\")",
+    "`base.+app-create` (name=\"Sales app\", workspace_token=\"<workspace_token>\", theme_style=\"cloudBlue\")",
     "This command creates a new empty BaseApp; it does not copy an existing BaseApp or its pages and blocks.",
     "Create or select a Base separately when the app needs data.",
     "Record the returned app_token; page and block commands require it."
@@ -179,14 +179,14 @@
   },
   "base.+app-get": {
    "tips": [
-    "`base.+app-get`（app_token=\"<app_token>\"）",
+    "`base.+app-get` (app_token=\"<app_token>\")",
     "ref maps each Base token currently referenced by app widgets to the names of its referenced tables; table/field/record commands take the Base token keys.",
     "The response includes page summaries. Use `base.+app-page-get` or `base.+app-block-list` for component details."
    ]
   },
   "base.+app-page-create": {
    "tips": [
-    "`base.+app-page-create`（app_token=\"<app_token>\"，name=\"Overview\"）",
+    "`base.+app-page-create` (app_token=\"<app_token>\", name=\"Overview\")",
     "Page names must be unique within an app; the CLI checks existing pages before creation.",
     "Record the returned page_id; every +app-block-* command needs it.",
     "This release creates top-level pages only; PageGroup placement is not supported."
@@ -194,38 +194,38 @@
   },
   "base.+app-page-delete": {
    "tips": [
-    "`base.+app-page-delete`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "`base.+app-page-delete` (app_token=\"<app_token>\", page_id=\"<page_id>\")",
     "Deleting a page also deletes its blocks and cannot be recovered; the base data behind the blocks is untouched.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+app-page-get": {
    "tips": [
-    "`base.+app-page-get`（app_token=\"<app_token>\"，page_id=\"<page_id>\"）",
+    "`base.+app-page-get` (app_token=\"<app_token>\", page_id=\"<page_id>\")",
     "The response is PageDetail and always includes widget summaries. Use `base.+app-block-list` when you need paginated widget details."
    ]
   },
   "base.+app-page-list": {
    "tips": [
-    "`base.+app-page-list`（app_token=\"<app_token>\"）",
+    "`base.+app-page-list` (app_token=\"<app_token>\")",
     "Use the returned page_id for `base.+app-page-get`/update/delete and every +app-block-* command.",
     "If a returned page has name=\"\", the current user has no permission to that page; do not treat it as an untitled page or use it as an operation target."
    ]
   },
   "base.+app-page-update": {
    "tips": [
-    "`base.+app-page-update`（app_token=\"<app_token>\"，page_id=\"<page_id>\"，name=\"Overview\"）",
+    "`base.+app-page-update` (app_token=\"<app_token>\", page_id=\"<page_id>\", name=\"Overview\")",
     "Page names must be unique within an app; the CLI excludes the current page while checking.",
     "Renaming does not move the page; ordering and parent stay unchanged."
    ]
   },
   "base.+base-block-create": {
    "tips": [
-    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"folder\"，name=\"Project Docs\"）",
-    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"table\"，name=\"Tasks\"）",
-    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"docx\"，name=\"Spec\"，parent_id=\"<folder_block_id>\"）",
-    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"dashboard\"，name=\"Metrics\"）",
-    "Example: `base.+base-block-create`（base_token=\"<base_token>\"，type=\"workflow\"，name=\"Approval Flow\"）",
+    "Example: `base.+base-block-create` (base_token=\"<base_token>\", type=\"folder\", name=\"Project Docs\")",
+    "Example: `base.+base-block-create` (base_token=\"<base_token>\", type=\"table\", name=\"Tasks\")",
+    "Example: `base.+base-block-create` (base_token=\"<base_token>\", type=\"docx\", name=\"Spec\", parent_id=\"<folder_block_id>\")",
+    "Example: `base.+base-block-create` (base_token=\"<base_token>\", type=\"dashboard\", name=\"Metrics\")",
+    "Example: `base.+base-block-create` (base_token=\"<base_token>\", type=\"workflow\", name=\"Approval Flow\")",
     "Creates a folder, table, docx, dashboard, or workflow entry.",
     "Do not pass null for `parent_id`. Omit it to create at the root level.",
     "Created resources still use their own commands for content operations, such as table/field/record/docx/dashboard/workflow commands."
@@ -233,21 +233,21 @@
   },
   "base.+base-block-delete": {
    "tips": [
-    "Example: `base.+base-block-delete`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "Example: `base.+base-block-delete` (base_token=\"<base_token>\", block_id=\"<block_id>\")",
     "Deletes the block identified by `block_id`.",
     "Recursive folder deletion is not supported. If a folder is not empty, move or delete its children first.",
     "Different block types may have independent backing resources; deletion follows backend semantics.",
     "Use `base.+base-block-list` first when you need to confirm the target block id.",
-    "If the user already explicitly confirmed this exact delete target, pass 管理员预授权（high_risk_operations） without asking again."
+    "If the user already explicitly confirmed this exact delete target, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+base-block-list": {
    "tips": [
-    "Example: `base.+base-block-list`（base_token=\"<base_token>\"）",
-    "Example: `base.+base-block-list`（base_token=\"<base_token>\"，type=\"table\"）",
-    "Example: `base.+base-block-list`（base_token=\"<base_token>\"，parent_id=\"<folder_block_id>\"）",
-    "JQ crop: `base.+base-block-list`（base_token=\"<base_token>\"） | jq '.blocks[] | {type, name, block_id: .id, parent_id}'",
-    "JQ crop docx: `base.+base-block-list`（base_token=\"<base_token>\"，type=\"docx\"） | jq '.blocks[] | {name, docx_token}'",
+    "Example: `base.+base-block-list` (base_token=\"<base_token>\")",
+    "Example: `base.+base-block-list` (base_token=\"<base_token>\", type=\"table\")",
+    "Example: `base.+base-block-list` (base_token=\"<base_token>\", parent_id=\"<folder_block_id>\")",
+    "JQ crop: `base.+base-block-list` (base_token=\"<base_token>\") | jq '.blocks[] | {type, name, block_id: .id, parent_id}'",
+    "JQ crop docx: `base.+base-block-list` (base_token=\"<base_token>\", type=\"docx\") | jq '.blocks[] | {name, docx_token}'",
     "Blocks are resources managed directly by the base, such as folder, table, docx, dashboard, and workflow.",
     "For table, dashboard, and workflow blocks, returned id is the table-id, dashboard-id, or workflow-id used by the corresponding commands.",
     "For docx blocks, use the returned docx_token with docx commands.",
@@ -260,10 +260,10 @@
   },
   "base.+base-block-move": {
    "tips": [
-    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，parent_id=\"<folder_block_id>\"）",
-    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，after_id=\"<sibling_block_id>\"）",
-    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，before_id=\"<sibling_block_id>\"）",
-    "Example: `base.+base-block-move`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "Example: `base.+base-block-move` (base_token=\"<base_token>\", block_id=\"<block_id>\", parent_id=\"<folder_block_id>\")",
+    "Example: `base.+base-block-move` (base_token=\"<base_token>\", block_id=\"<block_id>\", after_id=\"<sibling_block_id>\")",
+    "Example: `base.+base-block-move` (base_token=\"<base_token>\", block_id=\"<block_id>\", before_id=\"<sibling_block_id>\")",
+    "Example: `base.+base-block-move` (base_token=\"<base_token>\", block_id=\"<block_id>\")",
     "Omit `parent_id` to move the block to root; do not pass null.",
     "`before_id` and `after_id` are mutually exclusive.",
     "When moving a folder, its children remain under that folder."
@@ -271,7 +271,7 @@
   },
   "base.+base-block-rename": {
    "tips": [
-    "Example: `base.+base-block-rename`（base_token=\"<base_token>\"，block_id=\"<block_id>\"，name=\"New name\"）",
+    "Example: `base.+base-block-rename` (base_token=\"<base_token>\", block_id=\"<block_id>\", name=\"New name\")",
     "Renames the block identified by `block_id`.",
     "Block names must be unique in the base; use `base.+base-block-list` first when you need to check existing names.",
     "Use `base.+base-block-list` first when you need to resolve the target block id from a visible name."
@@ -280,15 +280,15 @@
   "base.+base-copy": {
    "tips": [
     "BaseApp/AppMode copy is unsupported. Do not pass an app_token or use this command as a substitute.",
-    "Example: `base.+base-copy`（base_token=\"<base_token>\"，name=\"Copy of Project Tracker\"）",
+    "Example: `base.+base-copy` (base_token=\"<base_token>\", name=\"Copy of Project Tracker\")",
     "Use `without_content` when the user wants only structure.",
     "If copied as bot, output may include permission_grant; report it so the user knows whether they can open the new Base."
    ]
   },
   "base.+base-create": {
    "tips": [
-    "Example: `base.+base-create`（name=\"Project Tracker\"，time_zone=\"Asia/Shanghai\"）",
-    "Strongly recommended initial table schema: `base.+base-create`（name=\"Project Tracker\"，table_name=\"Tasks\"，fields=\"[{\\\"name\\\":\\\"Title\\\",\\\"type\\\":\\\"text\\\"},{\\\"name\\\":\\\"Status\\\",\\\"type\\\":\\\"select\\\",\\\"options\\\":[{\\\"name\\\":\\\"Todo\\\"},{\\\"name\\\":\\\"Done\\\"}]}]\"）",
+    "Example: `base.+base-create` (name=\"Project Tracker\", time_zone=\"Asia/Shanghai\")",
+    "Strongly recommended initial table schema: `base.+base-create` (name=\"Project Tracker\", table_name=\"Tasks\", fields=\"[{\\\"name\\\":\\\"Title\\\",\\\"type\\\":\\\"text\\\"},{\\\"name\\\":\\\"Status\\\",\\\"type\\\":\\\"select\\\",\\\"options\\\":[{\\\"name\\\":\\\"Todo\\\"},{\\\"name\\\":\\\"Done\\\"}]}]\")",
     "Before using `fields`, read lark-base-field-schema.md or rely on the same field JSON shape used by `base.+field-create`; do not invent field properties.",
     "If `table_name` and `fields` are both omitted, Base creates one initial table with the platform default schema.",
     "If created as bot, output may include permission_grant; report it so the user knows whether they can open the new Base."
@@ -329,12 +329,12 @@
   },
   "base.+dashboard-block-create": {
    "tips": [
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\"）",
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Revenue\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":2}}\"）",
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Satisfaction NPS\"，type=\"nps\"，data_config=\"{\\\"table_name\\\":\\\"Survey\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Score\\\",\\\"mode\\\":\\\"integrated\\\"}],\\\"category_range\\\":[0,6,8,10]}\"）",
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Top Owners\"，type=\"ranking\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Owner\\\"}],\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\"）",
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Dashboard Note\"，type=\"text\"，data_config=\"{\\\"text\\\":\\\"# Sales Dashboard\\\"}\"）",
-    "`base.+dashboard-block-create`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，name=\"Order Count\"，type=\"statistics\"，data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\"，position=\"{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\"）",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Order Count\", type=\"statistics\", data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\")",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Revenue\", type=\"statistics\", data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}],\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":2}}\")",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Satisfaction NPS\", type=\"nps\", data_config=\"{\\\"table_name\\\":\\\"Survey\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Score\\\",\\\"mode\\\":\\\"integrated\\\"}],\\\"category_range\\\":[0,6,8,10]}\")",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Top Owners\", type=\"ranking\", data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"group_by\\\":[{\\\"field_name\\\":\\\"Owner\\\"}],\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\")",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Dashboard Note\", type=\"text\", data_config=\"{\\\"text\\\":\\\"# Sales Dashboard\\\"}\")",
+    "`base.+dashboard-block-create` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", name=\"Order Count\", type=\"statistics\", data_config=\"{\\\"table_name\\\":\\\"Orders\\\",\\\"count_all\\\":true}\", position=\"{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\")",
     "Before creating data-backed blocks, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
     "data_config uses table and field names, not table_id or field_id.",
     "Read lark-base-dashboard-block-config.md as the SSOT for chart templates, filters, metric rules, and type-specific fields; do not invent data_config from natural language.",
@@ -346,13 +346,13 @@
   },
   "base.+dashboard-block-delete": {
    "tips": [
-    "`base.+dashboard-block-delete`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"）",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "`base.+dashboard-block-delete` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\")",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+dashboard-block-get": {
    "tips": [
-    "`base.+dashboard-block-get`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"）",
+    "`base.+dashboard-block-get` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\")",
     "Use this command for block metadata such as name, type, layout, and data_config.",
     "Text block content is stored in data_config.text; include it when the user asks for all dashboard content.",
     "Use `base.+dashboard-block-get-data` when you need the computed chart result instead of metadata."
@@ -360,7 +360,7 @@
   },
   "base.+dashboard-block-get-data": {
    "tips": [
-    "`base.+dashboard-block-get-data`（base_token=\"<base_token>\"，block_id=\"<block_id>\"）",
+    "`base.+dashboard-block-get-data` (base_token=\"<base_token>\", block_id=\"<block_id>\")",
     "This command does not need `dashboard_id`.",
     "Use `base.+dashboard-block-get` first when you need block metadata like name, type, or data_config.",
     "This command returns computed chart protocol JSON directly, not wrapped block metadata.",
@@ -370,18 +370,18 @@
   },
   "base.+dashboard-block-list": {
    "tips": [
-    "`base.+dashboard-block-list`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"）",
+    "`base.+dashboard-block-list` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\")",
     "Use returned block_id and type values for `base.+dashboard-block-get`/update/delete/get-data.",
     "For a complete dashboard, use `page_size` 100; while has_more=true, pass the returned page_token to `page_token` and continue until has_more=false."
    ]
   },
   "base.+dashboard-block-update": {
    "tips": [
-    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，name=\"Total Sales\"）",
-    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\"）",
-    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，data_config=\"{\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":0}}\"）",
-    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<block_id>\"，position=\"{\\\"x\\\":6,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\"）",
-    "`base.+dashboard-block-update`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"，block_id=\"<ranking_block_id>\"，data_config=\"{\\\"limit_size\\\":20}\"）",
+    "`base.+dashboard-block-update` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\", name=\"Total Sales\")",
+    "`base.+dashboard-block-update` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\", data_config=\"{\\\"series\\\":[{\\\"field_name\\\":\\\"Amount\\\",\\\"rollup\\\":\\\"SUM\\\"}]}\")",
+    "`base.+dashboard-block-update` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\", data_config=\"{\\\"number_format\\\":{\\\"formatName\\\":\\\"dollar_rounded\\\",\\\"precision\\\":0}}\")",
+    "`base.+dashboard-block-update` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<block_id>\", position=\"{\\\"x\\\":6,\\\"y\\\":0,\\\"w\\\":6,\\\"h\\\":4}\")",
+    "`base.+dashboard-block-update` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\", block_id=\"<ranking_block_id>\", data_config=\"{\\\"limit_size\\\":20}\")",
     "Read lark-base-dashboard-block-config.md as the SSOT for data_config templates, filters, metric rules, and type-specific fields; do not invent data_config from natural language.",
     "Use `base.+dashboard-block-get` first to inspect the current data_config before replacing nested values.",
     "Block type cannot be changed; delete and recreate the block to change chart type.",
@@ -396,9 +396,9 @@
   },
   "base.+dashboard-delete": {
    "tips": [
-    "`base.+dashboard-delete`（base_token=\"<base_token>\"，dashboard_id=\"<dashboard_id>\"）",
+    "`base.+dashboard-delete` (base_token=\"<base_token>\", dashboard_id=\"<dashboard_id>\")",
     "Deleting a dashboard also deletes its blocks and cannot be recovered.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+dashboard-get": {
@@ -426,68 +426,68 @@
   },
   "base.+field-create": {
    "tips": [
-    "Example text: `base.+field-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，json={\"name\": \"Status\", \"type\": \"text\"}）",
-    "Example select: `base.+field-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]}）",
+    "Example text: `base.+field-create` (base_token=\"<base_token>\", table_id=\"<table_id>\", json={\"name\": \"Status\", \"type\": \"text\"})",
+    "Example select: `base.+field-create` (base_token=\"<base_token>\", table_id=\"<table_id>\", json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]})",
     "`base.+field-create` defines storage schema only: choose a documented field type from explicit stored-value requirements and the user's semantics. Treat the field name or business purpose only as a clue to confirm; do not use it to invent derived behavior. Use style only to format the chosen type.",
     "For explicitly requested derived, automatic, synchronized, or backfilled behavior, use documented formula, lookup, link, workflow, or automation only. If unsupported, do not probe code/web/OpenAPI, create a storage placeholder, or claim completion; report the boundary and alternatives.",
     "Agent hint: for multiple fields in one table, prefer one array; array items are created sequentially.",
     "For generated arrays, prefer `json` @file or an argv-safe subprocess call; do not double-escape JSON inside shell command substitution.",
-    "For large arrays, bound successful stdout with jq（网关不提供） 'if .ok then (.data | {created,total,field_get_recommended,next_step,verification_hint}) else . end'; this preserves the full partial-failure envelope. Omit the projection when individual field IDs are needed.",
-    "On successful simple fields, next_step:done means stop: do not list/get fields unless readback is explicitly requested; if needed, filter `base.+field-list` with jq（网关不提供） instead of printing every field."
+    "For large arrays, bound successful stdout with jq (not available in the gateway) 'if .ok then (.data | {created,total,field_get_recommended,next_step,verification_hint}) else . end'; this preserves the full partial-failure envelope. Omit the projection when individual field IDs are needed.",
+    "On successful simple fields, next_step:done means stop: do not list/get fields unless readback is explicitly requested; if needed, filter `base.+field-list` with jq (not available in the gateway) instead of printing every field."
    ]
   },
   "base.+field-delete": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example: `base.+field-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"）"
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example: `base.+field-delete` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"Status\")"
    ]
   },
   "base.+field-extension-get": {
    "tips": [
-    "Example: `base.+field-extension-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"）",
+    "Example: `base.+field-extension-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"<field_id>\")",
     "Returns current_extension; null means the field has no recognizable extension configuration."
    ]
   },
   "base.+field-extension-update": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example update: `base.+field-extension-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，json={\"extension_id\": \"builtin_llm_completion\", \"inputs\": {\"prompt\": [{\"type\": \"text\", \"text\": \"Summarize \"}, {\"type\": \"field_ref\", \"field\": \"Description\"}]}}）",
-    "Example clear: `base.+field-extension-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，json={}）",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example update: `base.+field-extension-update` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"<field_id>\", json={\"extension_id\": \"builtin_llm_completion\", \"inputs\": {\"prompt\": [{\"type\": \"text\", \"text\": \"Summarize \"}, {\"type\": \"field_ref\", \"field\": \"Description\"}]}})",
+    "Example clear: `base.+field-extension-update` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"<field_id>\", json={})",
     "Read lark-base-field-extension.md before constructing builtin_llm_completion prompt JSON."
    ]
   },
   "base.+field-extension-update-cells": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example column: `base.+field-extension-update-cells`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，type=\"column\"，view_id=\"<view_id>\"）",
-    "Example row: `base.+field-extension-update-cells`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"<field_id>\"，type=\"row\"，record_id=[\"<record_id_1>\", \"<record_id_2>\"]）",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example column: `base.+field-extension-update-cells` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"<field_id>\", type=\"column\", view_id=\"<view_id>\")",
+    "Example row: `base.+field-extension-update-cells` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"<field_id>\", type=\"row\", record_id=[\"<record_id_1>\", \"<record_id_2>\"])",
     "Column updates may touch every visible record in the selected view; row updates must pass explicit record IDs."
    ]
   },
   "base.+field-get": {
    "tips": [
-    "Example: `base.+field-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"）",
+    "Example: `base.+field-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"Status\")",
     "field-id accepts a field ID (fld...) or the field name from the current table.",
     "Returns full field configuration; use it as the baseline before `base.+field-update`."
    ]
   },
   "base.+field-search-options": {
    "tips": [
-    "Example: `base.+field-search-options`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，keyword=\"Do\"）",
+    "Example: `base.+field-search-options` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"Status\", keyword=\"Do\")",
     "Use only for select fields, whether multiple is false or true."
    ]
   },
   "base.+field-update": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example text: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，json={\"name\": \"Status\", \"type\": \"text\"}）",
-    "Example select: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"Status\"，json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]}）",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example text: `base.+field-update` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"Status\", json={\"name\": \"Status\", \"type\": \"text\"})",
+    "Example select: `base.+field-update` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=\"Status\", json={\"name\": \"Status\", \"type\": \"select\", \"multiple\": false, \"options\": [{\"name\": \"Todo\"}, {\"name\": \"Done\"}]})",
     "Example auto_number update: `base.+field-update`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=\"编号\"，json={\"name\": \"编号\", \"type\": \"auto_number\", \"style\": {\"rules\": [{\"type\": \"text\", \"text\": \"TASK-\"}, {\"type\": \"created_time\", \"date_format\": \"yyyyMM\"}, {\"type\": \"text\", \"text\": \"-\"}, {\"type\": \"incremental_number\", \"length\": 4}]}}）",
     "Update uses full field-definition PUT semantics. Read the current field first with `base.+field-get`, then send the target state.",
     "When `json`.type is \"auto_number\", updating the numbering rules also reapplies them to existing numbers; just submit the target field definition and do not add extra low-level parameters.",
     "Type conversion is allowlist-based: only use CLI for safe conversions; otherwise migrate through a new field, or ask the user to finish high-risk conversions in the web UI.",
     "Formula and lookup updates require reading the corresponding guide first.",
-    "Agent hint: use the `base` 领域 skill's field-update guide for JSON shape, type-conversion rules, and limits."
+    "Agent hint: use the `base` domain skill's field-update guide for JSON shape, type-conversion rules, and limits."
    ]
   },
   "base.+form-create": {
@@ -498,7 +498,7 @@
   "base.+form-delete": {
    "tips": [
     "Use `base.+form-list` or `base.+form-get` first when the form target is ambiguous.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+form-questions-create": {
@@ -513,7 +513,7 @@
     "Run `base.+form-questions-list` first and use returned question IDs; question IDs are field IDs.",
     "Default behavior is destructive: it deletes the underlying fields and all record data in those fields.",
     "Use `keep_field` when you only want to remove questions from the form while preserving fields and data; those fields can be added back with `base.+form-questions-create` using use_existing_field=true and field_id.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+form-questions-list": {
@@ -540,7 +540,7 @@
     "Example (no attachments): `share_token` shrXXXX `json` '{\"fields\":{\"Service Rating\":5,\"Review\":\"Good service\"}}'",
     "Example (with attachments): `share_token` shrXXXX `base_token` basXXX `json` '{\"fields\":{\"Service Rating\":5},\"attachments\":{\"Attachment\":[\"./report.pdf\"]}}'",
     "\"fields\" maps field names to cell values; \"attachments\" maps field names to local file path arrays — the CLI uploads them in parallel and merges them into the submission.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+record-batch-create": {
@@ -571,13 +571,13 @@
   },
   "base.+record-delete": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example: `base.+record-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id_1>\", \"<record_id_2>\"]）"
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example: `base.+record-delete` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id_1>\", \"<record_id_2>\"])"
    ]
   },
   "base.+record-download-attachment": {
    "tips": [
-    "Example: `base.+record-download-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，file_token=[\"<file_token>\"]，output=\"./downloads/\"）",
+    "Example: `base.+record-download-attachment` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=\"<record_id>\", file_token=[\"<file_token>\"], output=\"./downloads/\")",
     "Omit `file_token` to download every attachment in the record.",
     "Base attachments should be downloaded with this command; other download commands may fail for Base attachment files.",
     "With one `file_token`, `output` may be a file path or directory; with multiple or omitted `file_token` values, `output` must be an existing directory."
@@ -585,9 +585,9 @@
   },
   "base.+record-get": {
    "tips": [
-    "Example: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]）",
-    "Example with projection: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"rec_001\", \"rec_002\"]，field_id=[\"Name\", \"Status\"]）",
-    "Example for analysis input: `base.+record-get`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]，field_id=[\"<field>\"]，output=\"./record.ndjson\"）",
+    "Example: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id>\"])",
+    "Example with projection: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"rec_001\", \"rec_002\"], field_id=[\"Name\", \"Status\"])",
+    "Example for analysis input: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id>\"], field_id=[\"<field>\"], output=\"./record.ndjson\")",
     "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
     "Use `field_id` as a projection boundary to avoid loading large cell values into context when they are not needed.",
     "Use `base.+record-get` when record_id is already known; otherwise use `base.+record-search` or `base.+record-list`."
@@ -595,15 +595,15 @@
   },
   "base.+record-history-list": {
    "tips": [
-    "Example: `base.+record-history-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"）",
+    "Example: `base.+record-history-list` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=\"<record_id>\")",
     "This reads one record's history only; it is not a table-wide audit scan."
    ]
   },
   "base.+record-list": {
    "tips": [
-    "Example: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，limit=50）",
-    "Example with projection: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=[\"Name\", \"Status\"]，limit=50）",
-    "Example for analysis: `base.+record-list`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，field_id=[\"Name\", \"Status\"]，output=\"./records.ndjson\"）",
+    "Example: `base.+record-list` (base_token=\"<base_token>\", table_id=\"<table_id>\", limit=50)",
+    "Example with projection: `base.+record-list` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=[\"Name\", \"Status\"], limit=50)",
+    "Example for analysis: `base.+record-list` (base_token=\"<base_token>\", table_id=\"<table_id>\", field_id=[\"Name\", \"Status\"], output=\"./records.ndjson\")",
     "Text equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"==\",\"Launch plan\"`}'",
     "Text contains/like filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"intersects\",\"urgent\"`}'",
     "Number equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Score\",\"==\",95`}'",
@@ -617,10 +617,10 @@
   },
   "base.+record-remove-attachment": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example: `base.+record-remove-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，field_id=\"<attachment_field_id>\"，file_token=[\"<file_token>\"]）",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example: `base.+record-remove-attachment` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=\"<record_id>\", field_id=\"<attachment_field_id>\", file_token=[\"<file_token>\"])",
     "Repeat `file_token` to remove multiple attachments from the same cell in one call.",
-    "This is a high-risk write command and requires 管理员预授权（high_risk_operations）."
+    "This is a high-risk write command and requires administrator pre-authorization (high_risk_operations)."
    ]
   },
   "base.+record-search": {
@@ -628,9 +628,9 @@
     "Happy path fields: keyword (string), search_fields (1-20 field names/ids), select_fields (optional projection, <=50), view_id (optional), offset (default 0), limit (default 10 inline or 2000 for ndjson; inline range 1-200, ndjson range 1-2000).",
     "JSON constraints: keyword length >=1; search_fields length 1-20; select_fields length <=50; offset >=0 defaults to 0; omitted limit uses 10 inline or 2000 for ndjson.",
     "view_id scopes search to records in that view; when select_fields is omitted, returned fields follow that view's visible fields.",
-    "Example: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，field_id=[\"Name\", \"Status\"]，limit=20）",
-    "Example with filter/sort JSON: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，filter_json={\"file_id\": \"<file_id>\"}，sort_json=[{\"field\": \"Updated\", \"desc\": true}]）",
-    "Example for analysis: `base.+record-search`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，keyword=\"Alice\"，search_field=[\"Name\"]，field_id=[\"Name\", \"Status\"]，output=\"./records.ndjson\"）",
+    "Example: `base.+record-search` (base_token=\"<base_token>\", table_id=\"<table_id>\", keyword=\"Alice\", search_field=[\"Name\"], field_id=[\"Name\", \"Status\"], limit=20)",
+    "Example with filter/sort JSON: `base.+record-search` (base_token=\"<base_token>\", table_id=\"<table_id>\", keyword=\"Alice\", search_field=[\"Name\"], filter_json={\"file_id\": \"<file_id>\"}, sort_json=[{\"field\": \"Updated\", \"desc\": true}])",
+    "Example for analysis: `base.+record-search` (base_token=\"<base_token>\", table_id=\"<table_id>\", keyword=\"Alice\", search_field=[\"Name\"], field_id=[\"Name\", \"Status\"], output=\"./records.ndjson\")",
     "Text equality filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"==\",\"Launch plan\"`}'",
     "Text contains/like filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Title\",\"intersects\",\"urgent\"`}'",
     "Option intersection filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Tags\",\"intersects\",[\"P0\",\"Blocked\"`]}'",
@@ -643,14 +643,14 @@
   },
   "base.+record-share-link-create": {
    "tips": [
-    "Example: `base.+record-share-link-create`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=[\"<record_id>\"]）",
+    "Example: `base.+record-share-link-create` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id>\"])",
     "Max 100 record IDs per call; duplicate IDs are ignored.",
     "Output record_share_links maps record_id to URL; records without permission or missing records may be absent."
    ]
   },
   "base.+record-upload-attachment": {
    "tips": [
-    "Example: `base.+record-upload-attachment`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，record_id=\"<record_id>\"，field_id=\"<attachment_field_id>\"，file=[{\"file_id\": \"<file_id>\"}]）",
+    "Example: `base.+record-upload-attachment` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=\"<record_id>\", field_id=\"<attachment_field_id>\", file=[{\"file_id\": \"<file_id>\"}])",
     "Repeat `file` to append multiple attachments: `file` ./report.pdf `file` ./screenshot.png",
     "Reuse returned file_token values for download/remove"
    ]
@@ -676,10 +676,10 @@
   },
   "base.+role-delete": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
     "Requires advanced permissions to be enabled and the caller to be a Base admin.",
     "Only custom roles can be deleted; system roles cannot be deleted.",
-    "Use `base.+role-get` first if the role target is ambiguous, then pass 管理员预授权（high_risk_operations） to confirm deletion."
+    "Use `base.+role-get` first if the role target is ambiguous, then pass administrator pre-authorization (high_risk_operations) to confirm deletion."
    ]
   },
   "base.+role-get": {
@@ -696,7 +696,7 @@
   },
   "base.+role-update": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
     "Requires advanced permissions to be enabled and the caller to be a Base admin.",
     "Update is a delta merge: only changed fields are updated, others remain unchanged.",
     "Use lark-base-advanced-permission-and-role.md as the module entry and lark-base-role-config.md as the role permission schema."
@@ -704,7 +704,7 @@
   },
   "base.+table-copy": {
    "tips": [
-    "Example: `base.+table-copy`（base_token=\"<base_token>\"，table_id=\"Tasks\"，name=\"Tasks copy\"）",
+    "Example: `base.+table-copy` (base_token=\"<base_token>\", table_id=\"Tasks\", name=\"Tasks copy\")",
     "table-id accepts a table ID or name in the current Base.",
     "The default copies schema only; use `range` all only when records must also be copied.",
     "Use `wait` with `range` all to wait locally; otherwise continue with the returned next_command."
@@ -724,14 +724,14 @@
   },
   "base.+table-delete": {
    "tips": [
-    "Example: `base.+table-delete`（base_token=\"<base_token>\"，table_id=\"Old Tasks\"）",
+    "Example: `base.+table-delete` (base_token=\"<base_token>\", table_id=\"Old Tasks\")",
     "table-id accepts a table ID (tbl...) or the table name in the current Base.",
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again."
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again."
    ]
   },
   "base.+table-get": {
    "tips": [
-    "Example: `base.+table-get`（base_token=\"<base_token>\"，table_id=\"Tasks\"）",
+    "Example: `base.+table-get` (base_token=\"<base_token>\", table_id=\"Tasks\")",
     "table-id accepts a table ID (tbl...) or the table name in the current Base."
    ]
   },
@@ -755,9 +755,9 @@
   },
   "base.+url-resolve": {
    "tips": [
-    "Example: `base.+url-resolve`（url=\"https://example.larkoffice.com/base/<base_token>?table=<table_id>&view=<view_id>\"）",
-    "BaseApp example: `base.+url-resolve`（url=\"https://example.larkoffice.com/app/<app_token>?pre_pathname=/base/workspace/<workspace_token>&pageId=<page_id>\"）",
-    "Only URLs are accepted. For Base titles or keywords, use `base.+title-resolve`（网关不提供：仅支持用户身份） --title."
+    "Example: `base.+url-resolve` (url=\"https://example.larkoffice.com/base/<base_token>?table=<table_id>&view=<view_id>\")",
+    "BaseApp example: `base.+url-resolve` (url=\"https://example.larkoffice.com/app/<app_token>?pre_pathname=/base/workspace/<workspace_token>&pageId=<page_id>\")",
+    "Only URLs are accepted. For Base titles or keywords, use `base.+title-resolve` (not available in the gateway: user identity only) --title."
    ]
   },
   "base.+view-create": {
@@ -771,8 +771,8 @@
   },
   "base.+view-delete": {
    "tips": [
-    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass 管理员预授权（high_risk_operations） without asking again.",
-    "Example: `base.+view-delete`（base_token=\"<base_token>\"，table_id=\"<table_id>\"，view_id=\"Old View\"）"
+    "This is a high-risk write command. If the user explicitly requested it and the target is unambiguous, pass administrator pre-authorization (high_risk_operations) without asking again.",
+    "Example: `base.+view-delete` (base_token=\"<base_token>\", table_id=\"<table_id>\", view_id=\"Old View\")"
    ]
   },
   "base.+view-set-card": {
@@ -784,7 +784,7 @@
   },
   "base.+view-set-filter": {
    "tips": [
-    "Agent hint: use the `base` 领域 skill's view-set-filter guide for usage and limits."
+    "Agent hint: use the `base` domain skill's view-set-filter guide for usage and limits."
    ]
   },
   "base.+view-set-group": {
@@ -820,7 +820,7 @@
   },
   "base.+workflow-create": {
    "tips": [
-    "`base.+workflow-create`（base_token=\"<base_token>\"，json=\"<内容>\"）",
+    "`base.+workflow-create` (base_token=\"<base_token>\", json=\"<内容>\")",
     "client_token is required and should be unique per create request.",
     "New workflows are created disabled; call `base.+workflow-enable` after creation when the user wants it active.",
     "Before constructing steps, use `base.+table-list` and `base.+field-list` to confirm real table and field names.",
@@ -857,7 +857,7 @@
   },
   "base.+workflow-update": {
    "tips": [
-    "`base.+workflow-update`（base_token=\"<base_token>\"，workflow_id=\"<workflow_id>\"，json=\"<内容>\"）",
+    "`base.+workflow-update` (base_token=\"<base_token>\", workflow_id=\"<workflow_id>\", json=\"<内容>\")",
     "PUT uses full replacement semantics; omitting steps clears the existing workflow steps.",
     "Use `base.+workflow-get` first, then edit the returned definition and keep title/status/steps fields you do not intend to change.",
     "workflow-id must start with wkf; do not pass a tbl table ID.",
@@ -868,18 +868,18 @@
   },
   "base.+workspace-create": {
    "tips": [
-    "`base.+workspace-create`（name=\"Growth team\"）",
+    "`base.+workspace-create` (name=\"Growth team\")",
     "Record the returned workspace_token and url; `base.+workspace-entity-list`, `base.+workspace-move-in`, and `base.+app-create` need the token."
    ]
   },
   "base.+workspace-entity-list": {
    "tips": [
-    "`base.+workspace-entity-list`（workspace_token=\"<workspace_token>\"，type=\"baseapp\"）"
+    "`base.+workspace-entity-list` (workspace_token=\"<workspace_token>\", type=\"baseapp\")"
    ]
   },
   "base.+workspace-move-in": {
    "tips": [
-    "`base.+workspace-move-in`（workspace_token=\"<workspace_token>\"，entity_token=\"<base_token>\"）",
+    "`base.+workspace-move-in` (workspace_token=\"<workspace_token>\", entity_token=\"<base_token>\")",
     "This moves the entity into the workspace tree; it does not create the Base or App.",
     "The current OpenAPI does not accept entity_type or ordering fields for move-in."
    ]
@@ -898,14 +898,14 @@
   },
   "calendar.+transfer": {
    "tips": [
-    "Transferring is irreversible and also moves meeting minutes, notes and attachments to the new organizer; pass 管理员预授权（high_risk_operations） to confirm.",
-    "Example: `calendar.+transfer`（event_id=\"<uid_originalTime>\"，to_user_id=\"ou_xxx\"）"
+    "Transferring is irreversible and also moves meeting minutes, notes and attachments to the new organizer; pass administrator pre-authorization (high_risk_operations) to confirm.",
+    "Example: `calendar.+transfer` (event_id=\"<uid_originalTime>\", to_user_id=\"ou_xxx\")"
    ]
   },
   "contact.+get-user": {
    "avoid_when": [
-    "You don't have the user's id yet, or want to match by name/keyword → use `contact.+search-user`（网关不提供：仅支持用户身份）",
-    "Running as a user — `contact.+search-user`（网关不提供：仅支持用户身份） --user-ids covers by-id reads and more in one tool"
+    "You don't have the user's id yet, or want to match by name/keyword → use `contact.+search-user` (not available in the gateway: user identity only)",
+    "Running as a user — `contact.+search-user` (not available in the gateway: user identity only) --user-ids covers by-id reads and more in one tool"
    ],
    "tips": [
     "`user_id_type` must match the id you pass (default open_id)"
@@ -914,7 +914,7 @@
     "lark-contact-get-user"
    ],
    "use_when": [
-    "Fetch one user's profile by id, or your own with `user_id` omitted. Use it under bot identity — `contact.+search-user`（网关不提供：仅支持用户身份） is user-only."
+    "Fetch one user's profile by id, or your own with `user_id` omitted. Use it under bot identity — `contact.+search-user` (not available in the gateway: user identity only) is user-only."
    ]
   },
   "docs.+create": {
@@ -977,7 +977,7 @@
   "docs.+update": {
    "tips": [
     "Prefer `str_replace` or `block_*` commands for targeted edits. Use `overwrite` only when replacing the entire document is intended; it can discard unrelated rich content.",
-    "Before a `block_*` edit, fetch the target with `docs.+fetch`（detail=\"with-ids\"） and a narrow `scope`; refetch after structural changes before reusing block IDs.",
+    "Before a `block_*` edit, fetch the target with `docs.+fetch` (detail=\"with-ids\") and a narrow `scope`; refetch after structural changes before reusing block IDs.",
     "Before authoring `content`, read the matching XML or Markdown guide under Related skills when available, unless already read. For XML, use only documented DocxXML tags.",
     "Match `doc_format` to `content`; for multiline content, pass a JSON string or `{\"file_id\": …}`."
    ],
@@ -1001,7 +1001,7 @@
    "tips": [
     "Comment IDs come from `drive.+list-comments` (items[].comment_id).",
     "`comment_ids` accepts comma-separated values and repeated flags, up to 100 IDs per call.",
-    "`need_relation` returns the docx comment anchor (items[].relation with the block position); see the `drive` 领域 comment-location guide.",
+    "`need_relation` returns the docx comment anchor (items[].relation with the block position); see the `drive` domain comment-location guide.",
     "Wiki URLs/tokens are resolved to the underlying document automatically."
    ]
   },
@@ -1039,7 +1039,7 @@
     "Supported `member_type` values: email, openid, unionid, openchat, opendepartmentid, groupid, appid, wikispaceid.",
     "When `member_type=wikispaceid,` pass `member_kind` wiki_space_member, wiki_space_viewer, or wiki_space_editor.",
     "`member_type` is required; if the ID prefix conflicts with `member_type` (e.g. ou_xxx with email), the command rejects it.",
-    "`perm` defaults to view (safest); use dry-run（网关不提供，改为先读取核对） first when granting edit or full_access.",
+    "`perm` defaults to view (safest); use dry-run (not available in the gateway; read and verify first) first when granting edit or full_access.",
     "For wiki nodes, `perm_type` defaults to container (current page and sub-pages), except `member_type=wikispaceid` where `member_kind` provides the wiki-space role."
    ]
   },
@@ -1072,7 +1072,7 @@
     "Subfolders recurse and are reproduced as local directories under `local_dir`; missing parents are created automatically.",
     "For repeat syncs, `if_exists=smart` is the recommended best-effort incremental mode: it compares local mtime with Drive modified_time and skips downloads when the local copy is already up to date.",
     "Duplicate remote rel_path conflicts fail by default. Use `on_duplicate_remote=rename` to download duplicate files with stable hashed suffixes.",
-    "`delete_local` requires 管理员预授权（high_risk_operations）; without 管理员预授权（high_risk_operations） the command is rejected upfront so a stray flag never deletes anything."
+    "`delete_local` requires administrator pre-authorization (high_risk_operations); without administrator pre-authorization (high_risk_operations) the command is rejected upfront so a stray flag never deletes anything."
    ]
   },
   "drive.+push": {
@@ -1082,15 +1082,15 @@
     "For repeat syncs, `if_exists=smart` is a best-effort incremental mode: it compares local mtime with Drive modified_time and skips uploads when the remote copy is already up to date; otherwise it falls through to the same overwrite path as `if_exists=overwrite.`",
     "Duplicate remote rel_path conflicts fail by default before upload, overwrite, or delete. Use `on_duplicate_remote=newest|oldest` only when the conflict is duplicate files and you explicitly want to target one.",
     "Default `if_exists=skip` is the safe choice while the upload_all overwrite-version field is rolling out. Pass `if_exists=overwrite` to replace remote bytes; on tenants without the field it surfaces a structured api_error and the run exits non-zero. The same caveat applies when `if_exists=smart` decides the remote file is older and falls through to overwrite.",
-    "`delete_remote` requires 管理员预授权（high_risk_operations）; without 管理员预授权（high_risk_operations） the command is rejected upfront so a stray flag never deletes anything.",
-    "`delete_remote` 管理员预授权（high_risk_operations） also requires the space:document:delete scope. Validate runs a dynamic pre-flight check when the flag is on, so a missing grant fails the run before any upload — preventing a half-synced state where files were uploaded but the cleanup pass cannot delete.",
+    "`delete_remote` requires administrator pre-authorization (high_risk_operations); without administrator pre-authorization (high_risk_operations) the command is rejected upfront so a stray flag never deletes anything.",
+    "`delete_remote` administrator pre-authorization (high_risk_operations) also requires the space:document:delete scope. Validate runs a dynamic pre-flight check when the flag is on, so a missing grant fails the run before any upload — preventing a half-synced state where files were uploaded but the cleanup pass cannot delete.",
     "Item-level failures (upload, overwrite, folder, delete) bump summary.failed and the run exits non-zero. If any upload or folder step fails, the `delete_remote` phase is skipped entirely so a partial upload never triggers remote deletion."
    ]
   },
   "drive.+react-reply": {
    "tips": [
     "Reply IDs come from `drive.+list-replies` (items[].reply_id); reacting to the root reply reacts to the comment itself.",
-    "`emoji` is case-sensitive and validated locally against the platform reaction_type list (the server accepts and persists arbitrary strings as broken reactions); the full list is in the `drive` 领域 reactions guide.",
+    "`emoji` is case-sensitive and validated locally against the platform reaction_type list (the server accepts and persists arbitrary strings as broken reactions); the full list is in the `drive` domain reactions guide.",
     "Read reactions back via `need_reaction` on `drive.+list-replies` / `drive.+batch-query-comments`; entries with count=0 are leftovers of removed reactions — filter by count>0.",
     "add and delete are idempotent: re-adding an existing reaction or deleting an absent one succeeds without change. delete only cancels the current identity's reaction."
    ]
@@ -1640,13 +1640,13 @@
   "sheets.+batch-chart-create": {
    "tips": [
     "Each operation directly contains `sheets.+chart-create-basic` flags such as sheet_name, chart_type, and data_range; do not wrap it in shortcut/input. The legacy wrapped shape remains accepted for compatibility.",
-    "dry-run（网关不提供，改为先读取核对） prints the translated internal MCP body (tool_name / operation / basic_chart) for inspection only; never copy that body back into `operations`.",
+    "dry-run (not available in the gateway; read and verify first) prints the translated internal MCP body (tool_name / operation / basic_chart) for inspection only; never copy that body back into `operations`.",
     "Inspect succeeded, failed, and results after execution. Keep successful charts, retry only failed indexes, then call `sheets.+chart-list` once per affected sheet and repair mismatches with `sheets.+batch-chart-update` instead of deleting/recreating charts."
    ]
   },
   "sheets.+batch-update": {
    "tips": [
-    "high-risk-write: preview with dry-run（网关不提供，改为先读取核对）, get the user's explicit consent, then re-run with 管理员预授权（high_risk_operations） appended — do not pass 管理员预授权（high_risk_operations） before the user has confirmed (without it the call exits 10 asking for confirmation).",
+    "high-risk-write: preview with dry-run (not available in the gateway; read and verify first), get the user's explicit consent, then re-run with administrator pre-authorization (high_risk_operations) appended — do not pass administrator pre-authorization (high_risk_operations) before the user has confirmed (without it the call exits 10 asking for confirmation).",
     "Execution is fail-fast, NOT transactional: on \"N succeeded, M failed\" the succeeded sub-ops stay applied (no rollback) — fix the failure and resend ONLY the operations from the first failed index onward; resending the whole batch re-applies the succeeded ones. Pass `continue_on_error` to keep going past failures instead.",
     "Each sub-op is {shortcut, input}. Do NOT pass input.operation (implied by shortcut name). Repeated input.excel_id / input.spreadsheet_token / input.url fields are ignored; the top-level locator wins.",
     "Chart operations are supported, but prefer `sheets.+batch-chart-create` / `sheets.+batch-chart-update` for chart-only work because their contracts and partial-failure recovery are simpler."
@@ -1654,7 +1654,7 @@
   },
   "sheets.+cells-batch-clear": {
    "tips": [
-    "high-risk-write — always preview with dry-run（网关不提供，改为先读取核对）; clear is not undoable.",
+    "high-risk-write — always preview with dry-run (not available in the gateway; read and verify first); clear is not undoable.",
     "Every `ranges` item must carry a sheet prefix (e.g. \"Sheet1!A1:A10\"); all ranges are cleared with the same `scope`.",
     "Can't delete an embedded pivot/chart by clearing cells — remove the object itself with `sheets.+pivot-delete` / `sheets.+chart-delete`."
    ]
@@ -1668,13 +1668,13 @@
   },
   "sheets.+cells-clear": {
    "tips": [
-    "high-risk-write — pass 管理员预授权（high_risk_operations） to confirm (exit 10 without it), or preview with dry-run（网关不提供，改为先读取核对） first; clear is not undoable.",
+    "high-risk-write — needs administrator pre-authorization (high_risk_operations); read the target range first; clear is not undoable.",
     "Can't delete an embedded pivot/chart by clearing cells — remove the object itself with `sheets.+pivot-delete` / `sheets.+chart-delete`."
    ]
   },
   "sheets.+cells-replace": {
    "tips": [
-    "Always preview with dry-run（网关不提供，改为先读取核对） before running — replace can mutate every matching cell across the sheet."
+    "Always preview with dry-run (not available in the gateway; read and verify first) before running — replace can mutate every matching cell across the sheet."
    ]
   },
   "sheets.+cells-set": {
@@ -1691,7 +1691,7 @@
   },
   "sheets.+cells-set-style": {
    "tips": [
-    "Example: `sheets.+cells-set-style`（url=\"<URL>\"，sheet_name=\"Sheet1\"，range=\"A1:D1\"，font_weight=\"bold\"，background_color=\"#F0F0F0\"，horizontal_alignment=\"center\"）",
+    "Example: `sheets.+cells-set-style` (url=\"<URL>\", sheet_name=\"Sheet1\", range=\"A1:D1\", font_weight=\"bold\", background_color=\"#F0F0F0\", horizontal_alignment=\"center\")",
     "Borders take JSON: `border_styles` '{\"top\":{\"style\":\"solid\",\"weight\":\"thin\",\"color\":\"#000000\"}}' (sides: top/bottom/left/right)."
    ]
   },
@@ -1703,31 +1703,31 @@
   },
   "sheets.+chart-config-update": {
    "tips": [
-    "dry-run（网关不提供，改为先读取核对） validates the request shape only; execution reads the current chart snapshot, so X-axis bounds can still be rejected unless the existing bottom X axis is continuous (valueType=linear)."
+    "dry-run (not available in the gateway; read and verify first) validates the request shape only; execution reads the current chart snapshot, so X-axis bounds can still be rejected unless the existing bottom X axis is continuous (valueType=linear)."
    ]
   },
   "sheets.+cols-resize": {
    "tips": [
-    "Example: `sheets.+cols-resize`（url=\"<URL>\"，sheet_name=\"Sheet1\"，range=\"A:C\"，width=120）",
+    "Example: `sheets.+cols-resize` (url=\"<URL>\", sheet_name=\"Sheet1\", range=\"A:C\", width=120)",
     "Different widths per column in one batch request: `widths` '{\"A\":80,\"C:E\":120}'. Widths are pixels (px ≈ chars × 8 + 16), not Excel character units."
    ]
   },
   "sheets.+dim-delete": {
    "tips": [
-    "Row/column deletion is irreversible. Always preview with dry-run（网关不提供，改为先读取核对） first.",
+    "Row/column deletion is irreversible. Always preview with dry-run (not available in the gateway; read and verify first) first.",
     "Scattered ranges: `ranges` '[\"5:5\",\"8:8\",\"11:13\"]' deletes them in one batch request (fail-fast, no rollback) — the CLI orders positions descending, so indexes never shift under you."
    ]
   },
   "sheets.+dim-freeze": {
    "tips": [
-    "Example: `sheets.+dim-freeze`（url=\"<URL>\"，sheet_name=\"Sheet1\"，rows=1，cols=2） (holds the header row and the first 2 columns in one call)",
+    "Example: `sheets.+dim-freeze` (url=\"<URL>\", sheet_name=\"Sheet1\", rows=1, cols=2) (holds the header row and the first 2 columns in one call)",
     "Freezing is not additive: `dimension` row `count` 1 followed by `dimension` column `count` 2 leaves ONLY the columns frozen. Pass `rows`/`cols` together instead of calling twice",
     "To unfreeze one axis but keep the other, state the survivor: `rows` 0 `cols` 2. Bare `count` 0 clears both"
    ]
   },
   "sheets.+dim-insert": {
    "tips": [
-    "Example: `sheets.+dim-insert`（url=\"<URL>\"，sheet_name=\"Sheet1\"，position=\"3\"，count=2，inherit_style=\"before\"）",
+    "Example: `sheets.+dim-insert` (url=\"<URL>\", sheet_name=\"Sheet1\", position=\"3\", count=2, inherit_style=\"before\")",
     "Rows vs columns comes from `position` alone: a row number (3) inserts rows, a column letter (C) inserts columns — there is no `dimension` flag."
    ]
   },
@@ -1739,7 +1739,7 @@
   },
   "sheets.+history-revert": {
    "tips": [
-    "Revert overwrites the current spreadsheet content. Always run with dry-run（网关不提供，改为先读取核对） first to verify the target spreadsheet and history_version_id.",
+    "Revert overwrites the current spreadsheet content. Always run with dry-run (not available in the gateway; read and verify first) first to verify the target spreadsheet and history_version_id.",
     "Revert is asynchronous — pass the returned id to `sheets.+history-revert-status` to track in-progress / success / failure."
    ]
   },
@@ -1768,7 +1768,7 @@
   },
   "sheets.+sheet-delete": {
    "tips": [
-    "Sheet deletion is irreversible. Always run with dry-run（网关不提供，改为先读取核对） first to verify the target sheet_id/sheet_name."
+    "Sheet deletion is irreversible. Always run with dry-run (not available in the gateway; read and verify first) first to verify the target sheet_id/sheet_name."
    ]
   },
   "sheets.+sheet-info": {
@@ -1788,7 +1788,7 @@
   },
   "sheets.+styles-put": {
    "tips": [
-    "Example: `sheets.+styles-put`（url=\"<URL>\"，styles={\"styles\": [{\"name\": \"Sheet1\", \"cell_styles\": [{\"range\": \"A1:F1\", \"font_weight\": \"bold\"}], \"freeze\": {\"rows\": 1}}]}）",
+    "Example: `sheets.+styles-put` (url=\"<URL>\", styles={\"styles\": [{\"name\": \"Sheet1\", \"cell_styles\": [{\"range\": \"A1:F1\", \"font_weight\": \"bold\"}], \"freeze\": {\"rows\": 1}}]})",
     "Same `styles` vocabulary as `sheets.+workbook-create` / `sheets.+table-put`; one item per target sheet, name = the real sheet name.",
     "A spec of up to 100 operations goes out as ONE atomic batch request; a larger one is split, and each request is atomic only on its own — a later failure leaves the earlier requests applied.",
     "Style stamps are safe to re-run. Merges are not: re-sending an applied merge_cells can be rejected as an overlap, so after a partial failure read the sheet back (`sheets.+cells-get` `include` style) and resend only the merges that did not land."
@@ -1802,7 +1802,7 @@
   },
   "sheets.+table-put": {
    "tips": [
-    "Example: `sheets.+table-put`（url=\"<URL>\"，sheets=\"{\\\"sheets\\\":[{\\\"name\\\":\\\"S1\\\",\\\"columns\\\":[\\\"City\\\",\\\"Rev\\\"],\\\"dtypes\\\":{\\\"Rev\\\":\\\"float64\\\"},\\\"data\\\":`\\\"SH\\\",1234.5`}]}\"）",
+    "Example: `sheets.+table-put` (url=\"<URL>\", sheets=\"{\\\"sheets\\\":[{\\\"name\\\":\\\"S1\\\",\\\"columns\\\":[\\\"City\\\",\\\"Rev\\\"],\\\"dtypes\\\":{\\\"Rev\\\":\\\"float64\\\"},\\\"data\\\":`\\\"SH\\\",1234.5`}]}\")",
     "Writes into an existing spreadsheet — pass `url` or `spreadsheet_token`. To create a new workbook first, use `sheets.+workbook-create`, then point `spreadsheet_token` here.",
     "Payload sheets are matched to existing sub-sheets by name (created when absent). Date columns take ISO yyyy-mm-dd strings — converted to real dates (serial + date format).",
     "`styles` applies number formats, colors, merges, and row/col sizes in the same call (same shape as `sheets.+workbook-create`'s `styles`): one styles item per written sheet, name-matched. Skips the separate `sheets.+cells-set-style` round-trip."
@@ -1840,7 +1840,7 @@
   "slides.+delete-slide": {
    "tips": [
     "Deletion is not undoable in place; recover a wrongly deleted page with `slides.+history-list` then `slides.+history-revert`.",
-    "Use dry-run（网关不提供，改为先读取核对） to confirm which presentation and slide_id will be hit before running."
+    "Use dry-run (not available in the gateway; read and verify first) to confirm which presentation and slide_id will be hit before running."
    ],
    "topics": [
     "lark-slides-delete-slide"
@@ -1899,7 +1899,7 @@
   },
   "slides.+update": {
    "tips": [
-    "Read the page first with `slides.+xml-get`（slide_id=\"<id>\"）, edit that XML, hand it back whole",
+    "Read the page first with `slides.+xml-get` (slide_id=\"<id>\"), edit that XML, hand it back whole",
     "Anything left out of `content` is removed from the page — pass the full page, not a fragment",
     "Editing one element is cheaper with `slides.+replace-slide`",
     "<img src=\"@path\"> placeholders resolve against the current directory, not the directory of an @file passed to `content`, and are deduplicated per call"
@@ -1915,7 +1915,7 @@
   },
   "slides.+update-slide": {
    "tips": [
-    "Read the page first with `slides.+xml-get`（slide_id=\"<id>\"）, edit that XML, hand it back whole",
+    "Read the page first with `slides.+xml-get` (slide_id=\"<id>\"), edit that XML, hand it back whole",
     "Anything left out of `content` is removed from the page — pass the full page, not a fragment",
     "Editing one element is cheaper with `slides.+replace-slide`",
     "<img src=\"@path\"> placeholders resolve against the current directory, not the directory of an @file passed to `content`, and are deduplicated per call"
@@ -1994,7 +1994,7 @@
   "wiki.+delete-space": {
    "tips": [
     "Deletion is irreversible; double-check `space_id` before running.",
-    "This is a high-risk-write command; pass 管理员预授权（high_risk_operations） to confirm the deletion.",
+    "This is a high-risk-write command; pass administrator pre-authorization (high_risk_operations) to confirm the deletion.",
     "If the API returns a long-running task, this command polls for a bounded window and then returns a follow-up drive +task_result command."
    ]
   },
@@ -2046,7 +2046,7 @@
   "wiki.+node-delete": {
    "tips": [
     "Deletion is irreversible; double-check `node_token` and `obj_type` before running.",
-    "This is a high-risk-write command; pass 管理员预授权（high_risk_operations） to confirm the deletion.",
+    "This is a high-risk-write command; pass administrator pre-authorization (high_risk_operations) to confirm the deletion.",
     "`node_token` accepts a raw token (wikcnXXX, docxXXX, ...) or a Lark URL like https://feishu.cn/wiki/<token> or https://feishu.cn/docx/<token>; URL paths also imply `obj_type`.",
     "Run `wiki.+node-get` first to confirm space_id / obj_type when in doubt.",
     "Resolving the node also calls node_by_token and requires Wiki node read permission, including when `space_id` is provided.",
@@ -2071,7 +2071,7 @@
   "wiki.+space-list": {
    "tips": [
     "Default fetches a single page (matches other list shortcuts in this CLI); pass `page_all` to pull every page.",
-    "The underlying API never returns the my_library personal library; resolve it via `wiki.spaces.get`（params={\"space_id\": \"my_library\"}）."
+    "The underlying API never returns the my_library personal library; resolve it via `wiki.spaces.get` (params={\"space_id\": \"my_library\"})."
    ]
   }
  },
@@ -2204,7 +2204,7 @@
     },
     {
      "id": "lark-calendar-meeting",
-     "title": "`calendar.+meeting`（网关不提供：仅支持用户身份）"
+     "title": "`calendar.+meeting` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-calendar-meeting-relation",
@@ -2258,11 +2258,11 @@
     },
     {
      "id": "lark-contact-search-bot",
-     "title": "`contact.+search-bot`（网关不提供：仅支持用户身份）"
+     "title": "`contact.+search-bot` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-contact-search-user",
-     "title": "`contact.+search-user`（网关不提供：仅支持用户身份）"
+     "title": "`contact.+search-user` (not available in the gateway: user identity only)"
     }
    ]
   },
@@ -2804,15 +2804,15 @@
     },
     {
      "id": "lark-im-feed-group-list",
-     "title": "`im.+feed-group-list`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-group-list` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-feed-group-list-item",
-     "title": "`im.+feed-group-list-item`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-group-list-item` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-feed-group-query-item",
-     "title": "`im.+feed-group-query-item`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-group-query-item` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-feed-groups",
@@ -2820,27 +2820,27 @@
     },
     {
      "id": "lark-im-feed-shortcut-create",
-     "title": "`im.+feed-shortcut-create`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-shortcut-create` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-feed-shortcut-list",
-     "title": "`im.+feed-shortcut-list`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-shortcut-list` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-feed-shortcut-remove",
-     "title": "`im.+feed-shortcut-remove`（网关不提供：仅支持用户身份）"
+     "title": "`im.+feed-shortcut-remove` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-flag-cancel",
-     "title": "`im.+flag-cancel`（网关不提供：仅支持用户身份）"
+     "title": "`im.+flag-cancel` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-flag-create",
-     "title": "`im.+flag-create`（网关不提供：仅支持用户身份）"
+     "title": "`im.+flag-create` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-flag-list",
-     "title": "`im.+flag-list`（网关不提供：仅支持用户身份）"
+     "title": "`im.+flag-list` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-im-message-enrichment",
@@ -2946,19 +2946,19 @@
     },
     {
      "id": "lark-mail-decline-receipt",
-     "title": "`mail.+decline-receipt`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+decline-receipt` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-draft-create",
-     "title": "`mail.+draft-create`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+draft-create` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-draft-edit",
-     "title": "`mail.+draft-edit`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+draft-edit` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-forward",
-     "title": "`mail.+forward`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+forward` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-html",
@@ -2974,11 +2974,11 @@
     },
     {
      "id": "lark-mail-message-modify",
-     "title": "`mail.+message-modify`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+message-modify` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-message-trash",
-     "title": "`mail.+message-trash`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+message-trash` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-messages",
@@ -2994,11 +2994,11 @@
     },
     {
      "id": "lark-mail-reply",
-     "title": "`mail.+reply`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+reply` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-reply-all",
-     "title": "`mail.+reply-all`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+reply-all` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-rules",
@@ -3006,7 +3006,7 @@
     },
     {
      "id": "lark-mail-send",
-     "title": "`mail.+send`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+send` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-send-as",
@@ -3014,7 +3014,7 @@
     },
     {
      "id": "lark-mail-send-receipt",
-     "title": "`mail.+send-receipt`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+send-receipt` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-send-status",
@@ -3022,11 +3022,11 @@
     },
     {
      "id": "lark-mail-share-to-chat",
-     "title": "`mail.+share-to-chat`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+share-to-chat` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-signature",
-     "title": "`mail.+signature`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+signature` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-mail-template",
@@ -3058,7 +3058,7 @@
     },
     {
      "id": "lark-mail-watch",
-     "title": "`mail.+watch`（网关不提供：仅支持用户身份）"
+     "title": "`mail.+watch` (not available in the gateway: user identity only)"
     }
    ]
   },
@@ -3114,23 +3114,23 @@
     },
     {
      "id": "lark-minutes-speaker-replace",
-     "title": "`minutes.+speaker-replace`（网关不提供：仅支持用户身份）"
+     "title": "`minutes.+speaker-replace` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-minutes-summary",
-     "title": "`minutes.+summary`（网关不提供：仅支持用户身份）"
+     "title": "`minutes.+summary` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-minutes-todo",
-     "title": "`minutes.+todo`（网关不提供：仅支持用户身份）"
+     "title": "`minutes.+todo` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-minutes-update",
-     "title": "`minutes.+update`（网关不提供：仅支持用户身份）"
+     "title": "`minutes.+update` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-minutes-upload",
-     "title": "`minutes.+upload`（网关不提供：仅支持用户身份）"
+     "title": "`minutes.+upload` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-note-detail",
@@ -3138,7 +3138,7 @@
     },
     {
      "id": "lark-note-transcript",
-     "title": "`note.+transcript`（网关不提供：仅支持用户身份）"
+     "title": "`note.+transcript` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-vc-agent-meeting-end",
@@ -3224,11 +3224,11 @@
     },
     {
      "id": "lark-okr-comment-create",
-     "title": "`okr.+comment-create`（网关不提供：仅支持用户身份）"
+     "title": "`okr.+comment-create` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-okr-comment-delete",
-     "title": "`okr.+comment-delete`（网关不提供：仅支持用户身份）"
+     "title": "`okr.+comment-delete` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-okr-comment-detail",
@@ -3244,11 +3244,11 @@
     },
     {
      "id": "lark-okr-comment-patch",
-     "title": "`okr.+comment-patch`（网关不提供：仅支持用户身份）"
+     "title": "`okr.+comment-patch` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-okr-comment-solve-reopen",
-     "title": "`okr.+comment-solve`（网关不提供：仅支持用户身份） / `okr.+comment-reopen`（网关不提供：仅支持用户身份）"
+     "title": "`okr.+comment-solve` (not available in the gateway: user identity only) / `okr.+comment-reopen` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-okr-contentblock",
@@ -3354,7 +3354,7 @@
     },
     {
      "id": "lark-sheets-formula-verify",
-     "title": "Lark Sheet Formula Verify（`sheets.+formula-verify`）"
+     "title": "Lark Sheet Formula Verify (`sheets.+formula-verify`)"
     },
     {
      "id": "lark-sheets-history",
@@ -3386,7 +3386,7 @@
     },
     {
      "id": "lark-sheets-styles-put",
-     "title": "Lark Sheet Styles Put（`sheets.+styles-put`）"
+     "title": "Lark Sheet Styles Put (`sheets.+styles-put`)"
     },
     {
      "id": "lark-sheets-visual-standards",
@@ -3578,11 +3578,11 @@
     },
     {
      "id": "lark-task-get-my-tasks",
-     "title": "`task.+get-my-tasks`（网关不提供：仅支持用户身份）"
+     "title": "`task.+get-my-tasks` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-task-get-related-tasks",
-     "title": "`task.+get-related-tasks`（网关不提供：仅支持用户身份）"
+     "title": "`task.+get-related-tasks` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-task-reminder",
@@ -3594,7 +3594,7 @@
     },
     {
      "id": "lark-task-search",
-     "title": "`task.+search`（网关不提供：仅支持用户身份）"
+     "title": "`task.+search` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-task-sections",
@@ -3614,7 +3614,7 @@
     },
     {
      "id": "lark-task-tasklist-search",
-     "title": "`task.+tasklist-search`（网关不提供：仅支持用户身份）"
+     "title": "`task.+tasklist-search` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-task-tasklist-task-add",
@@ -3766,15 +3766,15 @@
     },
     {
      "id": "lark-wiki-member-add",
-     "title": "`wiki` 领域 `wiki.+member-add`"
+     "title": "`wiki` domain `wiki.+member-add`"
     },
     {
      "id": "lark-wiki-member-list",
-     "title": "`wiki` 领域 `wiki.+member-list`"
+     "title": "`wiki` domain `wiki.+member-list`"
     },
     {
      "id": "lark-wiki-member-remove",
-     "title": "`wiki` 领域 `wiki.+member-remove`"
+     "title": "`wiki` domain `wiki.+member-remove`"
     },
     {
      "id": "lark-wiki-move",
@@ -3786,7 +3786,7 @@
     },
     {
      "id": "lark-wiki-node-copy",
-     "title": "`wiki` 领域 `wiki.+node-copy`"
+     "title": "`wiki` domain `wiki.+node-copy`"
     },
     {
      "id": "lark-wiki-node-create",
@@ -3794,23 +3794,23 @@
     },
     {
      "id": "lark-wiki-node-delete",
-     "title": "`wiki` 领域 `wiki.+node-delete`"
+     "title": "`wiki` domain `wiki.+node-delete`"
     },
     {
      "id": "lark-wiki-node-get",
-     "title": "`wiki` 领域 `wiki.+node-get`"
+     "title": "`wiki` domain `wiki.+node-get`"
     },
     {
      "id": "lark-wiki-node-list",
-     "title": "`wiki` 领域 `wiki.+node-list`"
+     "title": "`wiki` domain `wiki.+node-list`"
     },
     {
      "id": "lark-wiki-space-create",
-     "title": "`wiki` 领域 `wiki.+space-create`（网关不提供：仅支持用户身份）"
+     "title": "`wiki` domain `wiki.+space-create` (not available in the gateway: user identity only)"
     },
     {
      "id": "lark-wiki-space-list",
-     "title": "`wiki` 领域 `wiki.+space-list`"
+     "title": "`wiki` domain `wiki.+space-list`"
     }
    ]
   }

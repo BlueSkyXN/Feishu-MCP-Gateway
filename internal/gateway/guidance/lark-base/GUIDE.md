@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # Base
 
@@ -24,7 +25,7 @@
 
 ## Base 模板中心
 
-模板中心是公开的 Base 模板库，不是用户云空间里的已有 Base。用户想用现成模板创建新 Base，且没有指向已有对象的锚点（没有 Base URL、没有“我的/最近访问的表”、没有具体已存在的 Base 名）时，可读取 lark-base-template-center.md（主题 `lark-base-template-center`） 查找模板中心模板；`base.+template-categories` 列出公开模板分类，`base.+template-list` 按分类列出公开模板，`base.+template-search` 按业务关键词搜索公开模板。
+模板中心是公开的 Base 模板库，不是用户云空间里的已有 Base。用户想用现成模板创建新 Base，且没有指向已有对象的锚点（没有 Base URL、没有“我的/最近访问的表”、没有具体已存在的 Base 名）时，可读取 主题 `lark-base-template-center` 查找模板中心模板；`base.+template-categories` 列出公开模板分类，`base.+template-list` 按分类列出公开模板，`base.+template-search` 按业务关键词搜索公开模板。
 
 ## Base Block 资源模型
 
@@ -60,7 +61,7 @@ Block 的 `id` 按类型直接作为对应模块坐标：
 | `docx` | Block 另带 `docx_token`；正文由 `docs` 领域 处理 |
 | `folder` | `id` 是目录 Block ID，也可作为 `parent_id`；只组织子 Block |
 
-## Table Block（The Core）
+## Table Block (The Core)
 
 Table 本身是 Base Block，也是 Base 的核心数据存储层；Field、Record、View 和 Form 是 Table 内部对象，不是 Base Block。业务数据查询、写入、关联、统计和分析都从 Table 开始。先用 `base.+table-list` 定位 Table；字段名和目标已知的普通读取可直接进入 Record 命令，只有写入、筛选或关联等依赖字段类型/schema 的任务才补 `base.+field-list`。多表的 `base.+field-list` 可以并发执行。基础的 Record / CellValue 读写直接按下方路径；reference 只承载高级分析、完整协议和边界细节。
 
@@ -235,7 +236,7 @@ Workflow 本身是 Base Block，其内部是一张由 `next` / `children` 连接
 2. **写入配置：** `base.+workflow-create` 创建完整定义，`base.+workflow-update` 更新完整定义；构造或修改配置前读取 Workflow（主题 `lark-base-workflow`），由该入口继续路由 step 类型和 schema。
 3. **运行状态控制：** `base.+workflow-enable` / `base.+workflow-disable` 启用或停用已有 Workflow，不修改 steps 执行图。
 
-## Advanced Permission（AdvPerm）
+## Advanced Permission (AdvPerm)
 
 AdvPerm 为 Base 开启细粒度权限模式；Role 在此基础上配置 Base、Table、View、Field、Record、Dashboard 和 Docx 等资源的访问能力，适合按团队或职责限制可见范围、编辑能力、复制下载和数据访问规则。
 

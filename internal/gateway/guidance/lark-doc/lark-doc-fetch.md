@@ -132,5 +132,5 @@ docs.+fetch {"doc": "Z1Fj...tnAc", "scope": "section", "start_block_id": "blkTit
 
 ## 参考
 
-- lark-doc-media-preview（主题 `lark-doc-media-preview`） — 预览素材
-- lark-doc-media-download（主题 `lark-doc-media-download`） — 下载素材或画板缩略图
+- 主题 `lark-doc-media-preview` — 预览素材
+- 主题 `lark-doc-media-download` — 下载素材或画板缩略图

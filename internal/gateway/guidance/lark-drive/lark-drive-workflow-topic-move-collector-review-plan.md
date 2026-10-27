@@ -16,7 +16,7 @@
 2. `content_verify_completed=true`。
 3. 每个资源都有内容证据、搜索证据复用说明或明确跳过原因。
 
-`ResourceItem` schema 和字段生成规则由 主题 `lark-drive-workflow-topic-move-collector-resolve-verify`（主题 `lark-drive-workflow-topic-move-collector-resolve-verify`） 负责。只要上述输入契约完整，本状态不得为重复读取 schema 而重新加载或执行前一阶段文档。
+`ResourceItem` schema 和字段生成规则由 主题 `lark-drive-workflow-topic-move-collector-resolve-verify` 负责。只要上述输入契约完整，本状态不得为重复读取 schema 而重新加载或执行前一阶段文档。
 
 如果输入字段缺失、资源需要重新解析或用户要求重新读取证据，废弃受影响的相关性和计划结果，返回 `RESOURCE_RESOLVE` 或 `CONTENT_VERIFY`，并加载资源解析与内容验证文档；不得在本状态补猜。
 
@@ -117,7 +117,7 @@
 2. 必须先输出“调整后相关性结果”，展示被调整项、各分组数量和高 / 中相关资源名称。
 3. 不得只回复“已调整”，也不得直接跳到 `CONFIRM_EXECUTION`。
 4. 必须基于新的 `relevance_groups` 重新执行 `PLAN_MOVE`。
-5. 不得把 `no_move_permission` 或 `move_permission_unknown` 资源直接提升到 `high` / `medium`；必须先回到 `RESOURCE_RESOLVE`，加载 主题 `lark-drive-workflow-topic-move-collector-resolve-verify`（主题 `lark-drive-workflow-topic-move-collector-resolve-verify`） 取得可移动证据。
+5. 不得把 `no_move_permission` 或 `move_permission_unknown` 资源直接提升到 `high` / `medium`；必须先回到 `RESOURCE_RESOLVE`，加载 主题 `lark-drive-workflow-topic-move-collector-resolve-verify` 取得可移动证据。
 
 ### 调整后结果 UI
 

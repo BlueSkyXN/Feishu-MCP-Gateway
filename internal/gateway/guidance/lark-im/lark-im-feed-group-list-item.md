@@ -1,10 +1,10 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+feed-group-list-item`（网关不提供：仅支持用户身份）
+# `im.+feed-group-list-item` (not available in the gateway: user identity only)
 
-> Shortcut for `im.+feed-group-list-item`（网关不提供：仅支持用户身份）. List the feed cards inside one feed group (tag), enriched with a readable `chat_name`.
+> Shortcut for `im.+feed-group-list-item` (not available in the gateway: user identity only). List the feed cards inside one feed group (tag), enriched with a readable `chat_name`.
 
-`im.+feed-group-list-item`（网关不提供：仅支持用户身份） is the only CLI surface for the `feed.groups.list_item` read API — there is no raw `feed.groups list_item` command. It resolves a human-readable `chat_name` for every feed card it returns: a v1 feed card's `feed_id` is always a chat ID (`oc_xxx`), so the shortcut issues a follow-up `POST /open-apis/im/v1/chats/batch_query` and injects `chat_name` into each entry of both `items[]` and `deleted_items[]`.
+`im.+feed-group-list-item` (not available in the gateway: user identity only) is the only CLI surface for the `feed.groups.list_item` read API — there is no raw `feed.groups list_item` command. It resolves a human-readable `chat_name` for every feed card it returns: a v1 feed card's `feed_id` is always a chat ID (`oc_xxx`), so the shortcut issues a follow-up `POST /open-apis/im/v1/chats/batch_query` and injects `chat_name` into each entry of both `items[]` and `deleted_items[]`.
 
 ## Scopes
 
@@ -13,7 +13,7 @@ Because chat-name resolution always runs, this shortcut needs **two** user scope
 - `im:feed_group_v1:read` — to read the items
 - `im:chat:read` — to resolve names
 
-`chat_name` resolution always runs, so there is no single-scope, un-enriched path. For the other raw `feed.groups.*` methods, see lark-im-feed-groups.md（主题 `lark-im-feed-groups`）.
+`chat_name` resolution always runs, so there is no single-scope, un-enriched path. For the other raw `feed.groups.*` methods, see topic `lark-im-feed-groups`.
 
 ## Usage
 
@@ -57,6 +57,6 @@ A feed card whose chat cannot be resolved (soft-deleted or no permission) simply
 
 ## See also
 
-- lark-im-feed-groups.md（主题 `lark-im-feed-groups`） — raw `feed.groups.*` APIs, enums, and rule guidance
-- lark-im-feed-group-list.md（主题 `lark-im-feed-group-list`） — list your feed groups
-- lark-im-feed-group-query-item.md（主题 `lark-im-feed-group-query-item`） — look up specific feed cards by ID
+- topic `lark-im-feed-groups` — raw `feed.groups.*` APIs, enums, and rule guidance
+- topic `lark-im-feed-group-list` — list your feed groups
+- topic `lark-im-feed-group-query-item` — look up specific feed cards by ID

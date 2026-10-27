@@ -16,7 +16,7 @@
 
 ### 1. 查询会议室（如需）
 
-若用户需要会议室，先调用 `calendar.+room-find`。详见 主题 `lark-calendar-room-find`（主题 `lark-calendar-room-find`）。
+若用户需要会议室，先调用 `calendar.+room-find`。详见 主题 `lark-calendar-room-find`。
 
 ```text
 calendar.+room-find {"slot": ["<start>~<end>"], "attendee_ids": "<ids>", "city": "<city>", "building": "<building>", "floor": "<F2>", "room_name": "<room_name>"}
@@ -26,7 +26,7 @@ calendar.+room-find {"slot": ["<start>~<end>"], "attendee_ids": "<ids>", "city":
 - **编辑流且不改时间，只新增会议室**：`slot` 必须来自已定位日程的当前 `start/end`
 - **编辑流且既改时间又加会议室**：`slot` 必须来自候选新时间，而不是旧时间
 
-详见 主题 `lark-calendar-room-find`（主题 `lark-calendar-room-find`）。
+详见 主题 `lark-calendar-room-find`。
 
 ### 2. 查询忙闲
 

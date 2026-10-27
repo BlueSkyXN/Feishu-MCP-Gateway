@@ -117,4 +117,4 @@ drive.+status {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx"}
 ## 参考
 
 - `drive` 领域指南 —— 云空间（云盘/云存储）全部命令
-- lark-drive-upload（主题 `lark-drive-upload`） / lark-drive-download（主题 `lark-drive-download`） —— 把 `drive.+status` 输出接到推/拉动作上
+- 主题 `lark-drive-upload` / 主题 `lark-drive-download` —— 把 `drive.+status` 输出接到推/拉动作上

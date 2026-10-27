@@ -81,7 +81,7 @@ npx -y @larksuite/whiteboard-cli@^0.2.13 -i <DSL 文件> --to openapi --format j
 
 ### 示例 5：使用 SVG 写入画板（从文件读取）
 
-适用于从零创建（直接写入 SVG）和编辑现有画板（编辑工作流详见 `../routes/svg-edit.md`（主题 `svg-edit`））。
+适用于从零创建（直接写入 SVG）和编辑现有画板（编辑工作流详见 主题 `svg-edit`）。
 
 ```bash
 # 编写或导出 SVG 文件

@@ -8,6 +8,9 @@
 
 ```text
 
+# 以 bot 身份申请编辑权限
+minutes.+apply-permission {"minute_token": "obcnxxxxxxxxxxxxxxxxxxxx", "perm": "edit"}
+
 # 预览 API 调用
 minutes.+apply-permission {"minute_token": "obcnxxxxxxxxxxxxxxxxxxxx", "perm": "view"}
 ```
@@ -18,7 +21,6 @@ minutes.+apply-permission {"minute_token": "obcnxxxxxxxxxxxxxxxxxxxx", "perm": "
 |------|------|------|
 | `--minute-token <token>` | 是 | 妙记 Token |
 | `--perm <view\|edit>` | 是 | 申请的权限：`view`（查看）或 `edit`（编辑） |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## user / bot 身份与权限语义
 

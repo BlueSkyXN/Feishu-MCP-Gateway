@@ -33,9 +33,6 @@ mail.+lint-html {"body_file": {"file_id": "<file_id>"}, "show_lint_details": tru
 |------|------|------|
 | `body=<html>` | 二选一 | 待检查的 HTML 内容 |
 | `show_lint_details` | 否 | 默认 `false`。`true` 时 envelope 同时返回 `warnings[]` / `errors[]` 完整 Finding 数组；默认仅返回 `cleaned_html`，避免复杂模板触发数十条装饰性 warning 把响应撑大几千 token |
-|  | 否 | `json`（默认）/ `pretty` / `table` / `csv` / `ndjson` |
-| jq（网关不提供） | 否 | 对返回 JSON 用 jq 表达式过滤 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 不执行 lint，仅返回 dry-run 描述 |
 
 ## 返回值
 

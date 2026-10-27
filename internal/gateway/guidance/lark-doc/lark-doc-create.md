@@ -4,7 +4,7 @@
 
 从 XML（默认）或 Markdown 内容创建一个新的飞书云文档；语义创作默认使用 XML，只有 Authoring 明确判定为 Markdown 例外时才使用 Markdown。
 
-写入前必须按 `doc_format` 读取对应格式参考：`xml` 读取 主题 `lark-doc-xml`（主题 `lark-doc-xml`），`markdown` 读取 主题 `lark-doc-md`（主题 `lark-doc-md`）；Markdown 中使用 XML 扩展标签时还须读取 主题 `lark-doc-xml`。
+写入前必须按 `doc_format` 读取对应格式参考：`xml` 读取 主题 `lark-doc-xml`，`markdown` 读取 主题 `lark-doc-md`；Markdown 中使用 XML 扩展标签时还须读取 主题 `lark-doc-xml`。
 
 ## 命令
 

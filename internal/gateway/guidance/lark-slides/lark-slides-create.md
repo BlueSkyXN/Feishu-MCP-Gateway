@@ -6,7 +6,7 @@
 
 提交源必须是直接生成的单页 `<slide>` XML。禁止从完整 `<presentation>` XML 解析、拆分、重序列化出 slide 数组再提交。
 
-本命令只从零创建演示文稿，没有导入本地 PPT 文件的参数。要把已有 PPTX 变成 Slides，用 `drive.+import`（file="<x.pptx>"，type="slides"），再在导入结果上编辑，流程见 template-editing.md（主题 `template-editing`）。
+本命令只从零创建演示文稿，没有导入本地 PPT 文件的参数。要把已有 PPTX 变成 Slides，用 `drive.+import`（file="<x.pptx>"，type="slides"），再在导入结果上编辑，流程见 主题 `template-editing`。
 
 ## 创建方式选择
 
@@ -27,6 +27,9 @@
 # 创建空白 PPT
 slides.+create {"title": "项目汇报"}
 
+# 以应用身份创建（自动授权当前用户）
+slides.+create {"title": "项目汇报"}
+
 # 预览（不执行）
 slides.+create {"title": "项目汇报", "slide": ["<内容>"]}
 ```
@@ -42,12 +45,14 @@ slides.+create {"title": "项目汇报", "slide": ["<内容>"]}
 - **`slide_ids`**（string[]，可选）：带页面创建时返回，成功添加的页面 ID 列表
 - **`slides_added`**（integer，可选）：带页面创建时返回，成功添加的页面数量
 - **`images_uploaded`**（integer，可选）：页面 XML 中含 `@<本地路径>` 占位符时返回，已上传的去重后图片数量
+- **`permission_grant`**（object，可选）：仅 应用身份 时返回，说明是否已自动为当前 CLI 用户授予可管理权限
 
 > [!IMPORTANT]
 > 不带页面参数时，`slides.+create` 只创建空白演示文稿。创建后用 `slides.+add-slide`（主题 `lark-slides-add-slide`） 逐页添加 slide 内容。
 >
 > 带了页面时，CLI 先创建空白演示文稿，再逐页添加页面。如果某一页添加失败，CLI 会停止并报错，已创建的演示文稿和已添加的页面会保留。
 >
+> 如果演示文稿是**以应用身份（bot）创建**的，如 `slides.+create`，CLI 会**尝试为当前 CLI 用户自动授予该演示文稿的 `full_access`（可管理权限）**。
 >
 > 以应用身份创建时，结果里会额外返回 `permission_grant` 字段，明确说明授权结果：
 > - `status = granted`：当前 CLI 用户已获得该演示文稿的可管理权限

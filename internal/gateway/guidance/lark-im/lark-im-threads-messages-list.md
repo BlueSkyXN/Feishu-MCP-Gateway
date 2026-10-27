@@ -4,7 +4,7 @@
 
 Fetch the reply message list inside a thread. When `im.+chat-messages-list` returns messages that include a `thread_id` field, use this command to inspect all replies in that thread.
 
-By default each reply also carries a `reactions` block (counts + details from `im.reactions.batch_query`) when the server has reactions for it, and `update_time` for messages that were actually edited. Pass `no_reactions` to skip the extra round-trip. Pass `download_resources` to additionally download message resources (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` and attach a `resources` block — off by default, no extra requests when omitted. See message enrichment（主题 `lark-im-message-enrichment`） for the full contract.
+By default each reply also carries a `reactions` block (counts + details from `im.reactions.batch_query`) when the server has reactions for it, and `update_time` for messages that were actually edited. Pass `no_reactions` to skip the extra round-trip. Pass `download_resources` to additionally download message resources (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` and attach a `resources` block — off by default, no extra requests when omitted. See message enrichment (topic `lark-im-message-enrichment`) for the full contract.
 
 This skill maps to the shortcut: `im.+threads-messages-list` (internally calls `GET /open-apis/im/v1/messages` with `container_id_type=thread` to fetch thread messages).
 
@@ -34,6 +34,9 @@ im.+threads-messages-list {"thread": "omt_xxx"}
 # Read thread context as compact Markdown
 im.+threads-messages-list {"thread": "omt_xxx", "concise": true}
 
+# View as a bot
+im.+threads-messages-list {"thread": "omt_xxx"}
+
 # Preview the request without executing it
 im.+threads-messages-list {"thread": "omt_xxx"}
 ```
@@ -50,9 +53,7 @@ im.+threads-messages-list {"thread": "omt_xxx"}
 | `page_token=<token>` | No | Starting cursor, normally returned by a previous response |
 | `page_all` | No | Automatically fetch and merge subsequent pages; capped by `page_limit` |
 | `page_limit=<n>` | No | Maximum pages fetched by `page_all` (default 10, range 1-1000) |
-|  | No | Output format: `json` (default) / `pretty` / `table` / `ndjson` / `csv` |
 | `concise` | No | Render compact Markdown for thread context |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it |
 
 ## Core Constraints
 
@@ -102,7 +103,7 @@ im.+threads-messages-list {"thread": "omt_xxx", "page_token": "<PAGE_TOKEN>"}
 
 Thread replies are rendered into human-readable text. Image messages appear as placeholders such as `!Image`; `folder` replies are expanded one level (children rendered inside a `<folder ...>` tag); by default resource binaries are **not** downloaded.
 
-Pass `download_resources` to download every eligible resource (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` in one pass and attach a `resources` block to each reply (see message enrichment（主题 `lark-im-message-enrichment`）). Otherwise download individual resources manually through `im.+messages-resources-download` (see lark-im-messages-resources-download（主题 `lark-im-messages-resources-download`）).
+Pass `download_resources` to download every eligible resource (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` in one pass and attach a `resources` block to each reply (see message enrichment (topic `lark-im-message-enrichment`)). Otherwise download individual resources manually through `im.+messages-resources-download` (see topic `lark-im-messages-resources-download`).
 
 ## Common Errors and Troubleshooting
 
@@ -114,5 +115,5 @@ Pass `download_resources` to download every eligible resource (image/file/audio/
 
 ## References
 
-- `im` 领域指南 - all message-related commands
-- lark-im-chat-messages-list（主题 `lark-im-chat-messages-list`） - fetch conversation messages (source of `thread_id`)
+- `im` domain指南 - all message-related commands
+- topic `lark-im-chat-messages-list` - fetch conversation messages (source of `thread_id`)

@@ -19,6 +19,9 @@ mail.+thread-modify {"thread_ids": ["<thread_id>"], "add_folder": "archive"}
 # 指定公共邮箱或共享邮箱
 mail.+thread-modify {"mailbox": "shared@example.com", "thread_ids": ["<thread_id>"], "add_folder": "folder_xxx"}
 
+# 使用 bot 身份时必须显式指定邮箱
+mail.+thread-modify {"mailbox": "user@example.com", "thread_ids": ["<thread_id>"], "add_folder": "archive"}
+
 # Dry Run：只预览请求，不执行
 mail.+thread-modify {"thread_ids": ["<thread_id>"], "add_label_ids": ["custom_label_id"]}
 ```
@@ -27,6 +30,7 @@ mail.+thread-modify {"thread_ids": ["<thread_id>"], "add_label_ids": ["custom_la
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
+| `mailbox=<email>` | 否 | 会话所属邮箱，默认 `me`；使用 应用身份 时必须显式传邮箱地址 |
 | `thread_ids=<ids>` | 是 | 会话 ID 列表，支持逗号分隔和重复传参；超过 20 个时自动分批提交 |
 | `add_label_ids=<ids>` | 否 | 要添加的标签 ID。系统标签可传 `unread` / `important` / `other` / `flagged`；自定义标签传标签 ID |
 | `remove_label_ids=<ids>` | 否 | 要移除的标签 ID。不能与 `add_label_ids` 传入重复标签 |

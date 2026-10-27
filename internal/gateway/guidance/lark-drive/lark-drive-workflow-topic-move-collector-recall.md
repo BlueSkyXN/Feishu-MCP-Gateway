@@ -12,7 +12,7 @@
 
 执行本文档规则前：
 
-2. 按 主题 `lark-drive-search`（主题 `lark-drive-search`） 处理 `drive.+search` 语法、过滤条件、单批最多 5 页和身份语义；本 workflow 的全量续批规则见下文。
+2. 按 主题 `lark-drive-search` 处理 `drive.+search` 语法、过滤条件、单批最多 5 页和身份语义；本 workflow 的全量续批规则见下文。
 
 ## 搜索原则
 
@@ -128,7 +128,7 @@
 
 1. 确认全部基础和增强 query 的 `status=complete` 且 `has_more=false`，再固化完整 `candidate_items`，包含去重结果、`source_queries`、`match_channels`、`snippets` 和 `dedupe_status`。
 2. 将 `current_state` 设置为 `RESOURCE_RESOLVE`。
-3. 加载 主题 `lark-drive-workflow-topic-move-collector-resolve-verify`（主题 `lark-drive-workflow-topic-move-collector-resolve-verify`）。
+3. 加载 主题 `lark-drive-workflow-topic-move-collector-resolve-verify`。
 4. 把完整 `candidate_items` 交给 `RESOURCE_RESOLVE`。
 5. 不得直接进入 `RELEVANCE_CLASSIFY`、`PLAN_MOVE` 或展示相关性结果。
 6. 不得用搜索标题、摘要或 query 命中直接生成高 / 中 / 低相关分组。

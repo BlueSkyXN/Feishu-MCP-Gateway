@@ -1,8 +1,8 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+message-modify`（网关不提供：仅支持用户身份）
+# `mail.+message-modify` (not available in the gateway: user identity only)
 
-`mail.+message-modify`（网关不提供：仅支持用户身份） is the preferred shortcut for changing labels, read-state labels, or folder placement on existing messages.
+`mail.+message-modify` (not available in the gateway: user identity only) is the preferred shortcut for changing labels, read-state labels, or folder placement on existing messages.
 
 Use it instead of raw `user_mailbox.messages batch_modify` when the operation targets concrete `message_id` values from `mail.+triage`, `mail.+message`, or `mail.+messages`.
 
@@ -26,7 +26,7 @@ mail.+message-modify  # 网关不提供：仅支持用户身份
 | `remove_label_ids` | No | Removes labels. Cannot overlap with `add_label_ids`. |
 | `add_folder` | No | Moves to one folder. `inbox`, `sent`, `spam`, `archive`, `archived` normalize to system folder IDs. |
 
-`TRASH` is intentionally rejected by this shortcut. Use `mail.+message-trash`（网关不提供：仅支持用户身份） for soft deletion.
+`TRASH` is intentionally rejected by this shortcut. Use `mail.+message-trash` (not available in the gateway: user identity only) for soft deletion.
 
 ## Behavior
 

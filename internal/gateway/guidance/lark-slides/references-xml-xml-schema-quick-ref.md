@@ -232,7 +232,7 @@ XSD 中的 `title`、`headline`、`sub-headline`、`body`、`caption` 主要出�
 
 `img` 使用 `topLeftX` / `topLeftY`，不是 `x` / `y`。
 
-`src` 只支持：`slides.+media-upload` 返回的 `file_token`，或 `@<本地路径>` 占位符（`slides.+create` 和 `slides.+add-slide` 会自动上传并替换）。**禁止使用 http(s) 外链 URL**——飞书 slides 渲染端不会代理外链图，外链 src 在 PPT 里通常不显示。本地图片详见 lark-slides-create.md（主题 `lark-slides-create`） / lark-slides-media-upload.md（主题 `lark-slides-media-upload`）。
+`src` 只支持：`slides.+media-upload` 返回的 `file_token`，或 `@<本地路径>` 占位符（`slides.+create` 和 `slides.+add-slide` 会自动上传并替换）。**禁止使用 http(s) 外链 URL**——飞书 slides 渲染端不会代理外链图，外链 src 在 PPT 里通常不显示。本地图片详见 主题 `lark-slides-create` / 主题 `lark-slides-media-upload`。
 
 本地图片的两种姿势：
 
@@ -253,7 +253,7 @@ XSD 中的 `title`、`headline`、`sub-headline`、`body`、`caption` 主要出�
 
 图标必须填充颜色并和背景有足够对比。
 
-禁止盲猜 iconType，必须先检索 IconPark，再写 `<icon iconType="...">`。检索方式和更多规则见 iconpark.md（主题 `references-xml-iconpark`）。
+禁止盲猜 iconType，必须先检索 IconPark，再写 `<icon iconType="...">`。检索方式和更多规则见 主题 `references-xml-iconpark`。
 
 ### table
 

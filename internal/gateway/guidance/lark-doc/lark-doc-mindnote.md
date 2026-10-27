@@ -7,7 +7,7 @@
 > [!IMPORTANT]
 > 当前这条链路只支持**读取已有思维笔记**，以及在**已有思维笔记**里读取节点、创建子节点。
 > `mindnotes.nodes.create` 是新增/更新节点命令，**不是**新建一个新的思维笔记。
-> 如果用户要**新建思维笔记**，不要走本链路，改走 lark-doc-whiteboard（主题 `lark-doc-whiteboard`）。
+> 如果用户要**新建思维笔记**，不要走本链路，改走 主题 `lark-doc-whiteboard`。
 
 ## 获取 `mindnote_id`
 
@@ -100,7 +100,7 @@ mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_toke
 ## 推荐工作流
 
 1. 先判断用户目标是不是“新建一个思维笔记”。
-2. 如果是新建思维笔记，切到 lark-doc-whiteboard（主题 `lark-doc-whiteboard`）。
+2. 如果是新建思维笔记，切到 主题 `lark-doc-whiteboard`。
 3. 如果是操作已有思维笔记，先按上方「获取 `mindnote_id`」确认已拿到 Mindnote 文档 token。
 4. 确认目标类型是 **Mindnote** 后，把真实 Mindnote token 作为 `--mindnote-id`。
 5. 先执行 `mindnotes.nodes.list`，确认目标 `parent_id`。
@@ -113,6 +113,6 @@ mindnotes.nodes.create {"mindnote_id": "<mindnote_token>", "data": {"client_toke
 
 ## 参考
 
-- lark-doc-fetch（主题 `lark-doc-fetch`） — 获取文档内容
-- lark-doc-whiteboard（主题 `lark-doc-whiteboard`） — 新建思维笔记走画板链路
+- 主题 `lark-doc-fetch` — 获取文档内容
+- 主题 `lark-doc-whiteboard` — 新建思维笔记走画板链路
 - `drive` 领域指南 — 解析 Mindnote / Wiki 等云空间资源

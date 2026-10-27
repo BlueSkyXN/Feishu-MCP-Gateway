@@ -22,8 +22,6 @@
 | `level`  | 是  | —      | 操作层级：`objective`（更新目标指标）\| `key-result`（更新 KR 指标） |
 | `id`     | 是  | —      | 目标 ID 或 KR ID（int64 类型）                                       |
 | `value`  | 是  | —      | 新的指标当前值（数字，范围：-99999999999 到 99999999999）              |
-| dry-run（网关不提供，改为先读取核对）| 否  | —      | 预览 API 调用而不实际执行                                            |
-|  | 否  | `json` | 输出格式                                                             |
 
 ## 工作流程
 
@@ -31,7 +29,7 @@
 2. 如需查看当前指标值，使用 `objective.indicators list` 或 `key_result.indicators list` 查询。
   若当前量化指标没有 start_value/current_value/target_value/unit 这些字段，代表当前量化指标为未设置的默认初始进度。
 3. 执行 `okr.+indicator-update` 指定层级、ID 和新值。
-  使用 `okr.+indicator-update` 为默认初始进度设置当前值会将该量化指标配置为默认的百分比模式。若用户不希望将指标设置为百分比，请使用原生 API 详细设置，参考 lark-okr-indicators.md（主题 `lark-okr-indicators`）
+  使用 `okr.+indicator-update` 为默认初始进度设置当前值会将该量化指标配置为默认的百分比模式。若用户不希望将指标设置为百分比，请使用原生 API 详细设置，参考 主题 `lark-okr-indicators`
 4. 命令自动查询指标 ID 并更新当前值。
 
 ## 输出
@@ -67,5 +65,5 @@
 ## 参考
 
 - [OKR 指标更新 API](https://open.feishu.cn/api-explorer?from=op_doc_tab&apiName=patch&project=okr&resource=okr.indicator&version=v2)
-- 主题 `lark-okr-progress-create`（主题 `lark-okr-progress-create`） — 创建进度记录
-- 主题 `lark-okr-cycle-detail`（主题 `lark-okr-cycle-detail`） — 查询周期详情获取 ID
+- 主题 `lark-okr-progress-create` — 创建进度记录
+- 主题 `lark-okr-cycle-detail` — 查询周期详情获取 ID

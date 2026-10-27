@@ -10,7 +10,7 @@
 - 妙记 URL 的路径最后一段是 `minute_token`；去掉 query 参数。
 - 没有 token 时，用标题/关键词、所有者、参与者或时间范围执行搜索：
 
-- “我参与的妙记”默认是“我拥有”与“我作为参与者”两次查询的并集，具体过滤语义见 `lark-minutes-search`（主题 `lark-minutes-search`）。
+- “我参与的妙记”默认是“我拥有”与“我作为参与者”两次查询的并集，具体过滤语义见 主题 `lark-minutes-search`。
 - 根据 `has_more` 和 `page_token` 翻页。用户未明确要求全量时，累计结果超过 50 条且仍有更多结果再确认是否继续；用户明确要求“全部、所有、统计、排序”时直接获取全部分页，并按结果中的 `token` 去重后再返回或统计。
 - 多个候选时展示标题、时间、所有者、URL 和 token，让用户选择，不擅自挑选。
 
@@ -31,13 +31,13 @@
 - 用户只要现成总结、待办或章节时，返回对应 AI 产物。
 - 用户要求提炼、重新总结、分析或复盘时，只读取 Transcript 并基于原始发言独立分析；禁止照搬 `--summary`。
 
-产物 flags、返回字段和本地输出见 `lark-minutes-detail`（主题 `lark-minutes-detail`）。
+产物 flags、返回字段和本地输出见 主题 `lark-minutes-detail`。
 
 ## 下载原始音视频
 
 用户需要原始媒体文件或下载链接时，使用 `minutes.+download`。同一妙记的下载产物统一归拢到 `./minutes/<minute_token>/`，除非用户指定其他安全相对路径。
 
-媒体类型、路径、链接有效期和权限见 `lark-minutes-download`（主题 `lark-minutes-download`）。
+媒体类型、路径、链接有效期和权限见 主题 `lark-minutes-download`。
 
 ## 获取关联的智能纪要
 
@@ -49,4 +49,4 @@
 
 ## 处理无权限结果
 
-没有查看权限时，说明需要妙记所有者授权；不要自动执行 `minutes.+apply-permission`。只有用户明确要求申请查看或编辑权限时，才进入编辑妙记场景发起申请，并沿用触发无权错误时的身份。详见 `lark-minutes-apply-permission`（主题 `lark-minutes-apply-permission`）。
+没有查看权限时，说明需要妙记所有者授权；不要自动执行 `minutes.+apply-permission`。只有用户明确要求申请查看或编辑权限时，才进入编辑妙记场景发起申请，并沿用触发无权错误时的身份。详见 主题 `lark-minutes-apply-permission`。

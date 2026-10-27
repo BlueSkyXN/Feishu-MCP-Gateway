@@ -37,8 +37,6 @@ okr.+weight {"cycle_id": "7000000000000000001", "level": "key-result", "objectiv
 | `cycle_id`     | 是  | —      | OKR 周期 ID（int64 类型）                                                 |
 | `objective_id` | 条件 | —      | 目标 ID。当 `level=key-result` 时**必填**，用于定位父目标。                       |
 | `weights`      | 是  | —      | JSON 数组格式的权重分配。支持 `@文件路径` 或 `@-` 从 stdin 读取。权重保留三位小数，分配的所有权重和不能大于 1 |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —      | 预览 API 调用而不实际执行                                                     |
-|        | 否  | `json` | 输出格式                                                                |
 
 ## 工作流程
 

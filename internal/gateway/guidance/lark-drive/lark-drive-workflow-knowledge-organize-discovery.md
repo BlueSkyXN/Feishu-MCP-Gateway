@@ -10,10 +10,10 @@ This file owns target parsing, scope clarification, resource inventory, Resource
 
 Before executing rules in this file:
 
-2. For Wiki / personal library targets, follow `../../lark-wiki/SKILL.md`（`wiki` 领域指南）.
-3. For Drive folder inventory, follow 主题 `lark-drive-files-list`（主题 `lark-drive-files-list`）.
-4. For Drive search targets, follow 主题 `lark-drive-search`（主题 `lark-drive-search`）.
-5. For URL / token inspection, follow 主题 `lark-drive-inspect`（主题 `lark-drive-inspect`） and `../../lark-wiki/references/lark-wiki-node-get.md`（主题 `lark-wiki-node-get`）.
+2. For Wiki / personal library targets, follow `../../lark-wiki/SKILL.md` (`wiki` domain指南).
+3. For Drive folder inventory, follow topic `lark-drive-files-list`.
+4. For Drive search targets, follow topic `lark-drive-search`.
+5. For URL / token inspection, follow topic `lark-drive-inspect` and topic `lark-wiki-node-get`.
 
 ## State: PARSE_SCOPE
 
@@ -37,7 +37,7 @@ Exit: user confirms target scope.
 | Input has Personal Library Intent | Treat as Wiki personal library / `my_library`; resolve real `space_id` before root write; do not treat it as Drive root or owned Drive document search | Personal doc library | `INVENTORY` after user confirms scope |
 | Input is `/drive/folder/<token>` URL | Extract `folder_token` | Drive folder | `INVENTORY` after user confirms scope |
 | Input has Drive Folder Intent but no concrete folder URL, token, or unique folder name | Ask for folder URL / token / name; if a concrete folder name exists, search folder candidates and wait for user selection when 0 or multiple matches exist | Unknown or Drive folder candidate | Stay in `PARSE_SCOPE` until scope is confirmed |
-| Input has Broad Cloud Drive Intent without explicit owned-document search request | Ask the user to choose concrete scope: Drive folder URL / token, Drive root, owned Drive document search, or another explicit search filter; do not default to `drive.+search`（mine=true） | Unknown | Stay in `PARSE_SCOPE` until scope is confirmed |
+| Input has Broad Cloud Drive Intent without explicit owned-document search request | Ask the user to choose concrete scope: Drive folder URL / token, Drive root, owned Drive document search, or another explicit search filter; do not default to `drive.+search` (mine=true) | Unknown | Stay in `PARSE_SCOPE` until scope is confirmed |
 | Input is single cloud resource URL | Resolve the resource type; if not folder / Wiki scope, do not expand automatically | Single resource | Ask whether scope is this resource, parent folder, owning Wiki, or related search results |
 | Input is real keyword / name | Search with the real keyword according to `lark-drive-search` | Search scope | `INVENTORY` after user confirms scope |
 | Input is range browsing / statistical description with no real keyword | Search by filters / empty-query browsing according to `lark-drive-search` | Search scope | `INVENTORY` after user confirms scope |
@@ -45,11 +45,11 @@ Exit: user confirms target scope.
 
 Personal Library Intent means the user is referring to the current user's own Feishu document library / personal document library / personal knowledge library, such as `个人文档库`, `飞书个人文档库`, `我的文档库`, `个人知识库`, `我的知识库`, `My Document Library`, or `my_library`.
 
-When this intent is detected, use Wiki personal library semantics. Do not use Drive root, `drive.+search`（mine=true）, or broad owned-document search unless the user explicitly asks to search owned Drive documents.
+When this intent is detected, use Wiki personal library semantics. Do not use Drive root, `drive.+search` (mine=true), or broad owned-document search unless the user explicitly asks to search owned Drive documents.
 
 Drive Folder Intent means the user wants to organize a specific Drive folder or Drive folder tree. A Drive folder scope requires a concrete folder URL, folder token, or user-selected folder candidate.
 
-When this intent is detected without a concrete folder identity, stop in `PARSE_SCOPE` and ask for clarification. Do not use Drive root, `drive.+search`（mine=true）, or broad owned-document search unless the user explicitly asks for Drive root or owned-document search.
+When this intent is detected without a concrete folder identity, stop in `PARSE_SCOPE` and ask for clarification. Do not use Drive root, `drive.+search` (mine=true), or broad owned-document search unless the user explicitly asks for Drive root or owned-document search.
 
 Broad Cloud Drive Intent means the user refers to a broad cloud-drive-level scope such as `我的飞书云盘`, `我的云盘`, `我的云空间`, `我的空间`, or `整理云盘`, without a concrete folder URL / token / unique folder name.
 
@@ -156,14 +156,14 @@ Example:
 
 ### Wiki Inventory Rules
 
-1. Follow `../../lark-wiki/references/lark-wiki-node-list.md`（主题 `lark-wiki-node-list`） traversal semantics.
+1. Follow topic `lark-wiki-node-list` traversal semantics.
 2. Generate stable paths from parent-child traversal.
 3. Preserve Wiki node identity fields needed by `ResourceItem`.
 4. Treat `my_library` as Wiki personal library, not Drive root.
 
 ### Drive Inventory Rules
 
-1. Use `drive.files.list` according to 主题 `lark-drive-files-list`（主题 `lark-drive-files-list`）; its schema path is `drive.files.list`.
+1. Use `drive.files.list` according to topic `lark-drive-files-list`; its schema path is `drive.files.list`.
 2. Use the same Drive folder-tree traversal for Drive root and ordinary folders after the first request. Drive root differs only for the first-level request: it uses omitted or empty `folder_token`, does not support pagination, and does not return root-level shortcuts according to schema; returned child folders MUST still be listed by their own folder tokens like ordinary folders, and those ordinary folder lists may return `type=shortcut` entries. For a Drive root target, record this root-level shortcut coverage caveat, set `partial=true` only if the user requested full root-level shortcut coverage or root pagination cannot continue, and do not claim root-level shortcut coverage as complete.
 3. Recurse only into `folder` items within the confirmed scope.
 4. For each directory, continue pages manually by feeding the returned `next_page_token` into request param `page_token`. Do not rely on `--page-all` for inventory.

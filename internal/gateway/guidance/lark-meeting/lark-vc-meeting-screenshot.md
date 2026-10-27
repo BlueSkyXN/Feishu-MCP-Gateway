@@ -8,6 +8,10 @@
 
 使用机器人身份截图，并指定输出路径：
 
+```text
+vc.+meeting-screenshot {"meeting_id": "<long_meeting_id>", "output": "./meeting-screenshots/current.jpg"}
+```
+
 ## 参数
 
 | Flag | 含义与用法 |

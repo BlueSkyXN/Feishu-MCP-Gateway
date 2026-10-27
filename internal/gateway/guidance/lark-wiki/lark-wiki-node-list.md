@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `wiki` 领域 `wiki.+node-list`
+# `wiki` domain `wiki.+node-list`
 
 List wiki nodes in a space or under a specific parent node. **Default fetches a single page** (large knowledge bases can have thousands of nodes — opt into `page_all` explicitly with an eye on `page_limit`).
 
@@ -39,7 +39,6 @@ wiki.+node-list {"space_id": "<SPACE_ID>"}
 | `page_token` | string | No | — | Page cursor; implies single-page fetch (no auto-pagination) |
 | `page_all` | bool | No | `false` | Automatically paginate through all pages (capped by `page_limit`) |
 | `page_limit` | int | No | 10 | Max pages with `page_all` (0 = unlimited) |
-|  | enum | No | `json` | `json` / `pretty` / `table` / `csv` / `ndjson` |
 
 ## Output
 
@@ -82,7 +81,7 @@ wiki.+node-list {"space_id": "6946843325487912356", "parent_node_token": "wikcn_
 
 ## Notes
 
-- `parent_node_token` must resolve to a wiki node token. If you have a docx/sheet/base/file URL, first run `wiki.+node-get`（node_token="<url>"） and use the returned `node_token`.
+- `parent_node_token` must resolve to a wiki node token. If you have a docx/sheet/base/file URL, first run `wiki.+node-get` (node_token="<url>") and use the returned `node_token`.
 - Treat `invalid_parameters` (`space_id is not int`, `invalid page_token`), `not_found` (`node not found by parent node token`), and `permission_denied` as terminal for the current arguments. For `131006 permission_denied`, the user or app/bot identity lacks access to the target space or parent node; this is resource access, not app scope authorization. Do not retry the same request, reauthorize, or switch identity as trial and error. Ask the resource owner or wiki administrator to grant read access, or use an accessible resource.
 - For `rate_limit`, stop immediate retries and retry later with exponential backoff or a smaller `page_limit`.
 

@@ -12,15 +12,15 @@
 
 执行本文档规则前：
 
-2. 按 主题 `lark-drive-create-folder`（主题 `lark-drive-create-folder`） 创建 Drive 文件夹。
-3. 按 主题 `lark-drive-move`（主题 `lark-drive-move`） 执行 Drive 移动。
-4. 按 `../../lark-wiki/references/lark-wiki-node-create.md`（主题 `lark-wiki-node-create`） 创建 Wiki 节点。
-5. 按 `../../lark-wiki/references/lark-wiki-move.md`（主题 `lark-wiki-move`） 执行 Wiki 移动和 Drive 文档移动到 Wiki。
-6. 按 `../../lark-wiki/references/lark-wiki-move-to-drive.md`（主题 `lark-wiki-move-to-drive`） 将 Wiki 节点移出到 Drive 文件夹。
-7. 按 主题 `lark-drive-delete`（主题 `lark-drive-delete`） 删除本次 workflow 新建的 Drive 文件夹。
-8. 按 `../../lark-wiki/references/lark-wiki-node-delete.md`（主题 `lark-wiki-node-delete`） 删除本次 workflow 新建的 Wiki 节点。
-9. 需要轮询异步任务时，按 主题 `lark-drive-task-result`（主题 `lark-drive-task-result`） 执行。
-10. `MovePlanItem` schema 由 主题 `lark-drive-workflow-topic-move-collector-review-plan`（主题 `lark-drive-workflow-topic-move-collector-review-plan`） 定义，本文件只消费已确认计划。
+2. 按 主题 `lark-drive-create-folder` 创建 Drive 文件夹。
+3. 按 主题 `lark-drive-move` 执行 Drive 移动。
+4. 按 主题 `lark-wiki-node-create` 创建 Wiki 节点。
+5. 按 主题 `lark-wiki-move` 执行 Wiki 移动和 Drive 文档移动到 Wiki。
+6. 按 主题 `lark-wiki-move-to-drive` 将 Wiki 节点移出到 Drive 文件夹。
+7. 按 主题 `lark-drive-delete` 删除本次 workflow 新建的 Drive 文件夹。
+8. 按 主题 `lark-wiki-node-delete` 删除本次 workflow 新建的 Wiki 节点。
+9. 需要轮询异步任务时，按 主题 `lark-drive-task-result` 执行。
+10. `MovePlanItem` schema 由 主题 `lark-drive-workflow-topic-move-collector-review-plan` 定义，本文件只消费已确认计划。
 
 ## 状态：`CONFIRM_EXECUTION`
 

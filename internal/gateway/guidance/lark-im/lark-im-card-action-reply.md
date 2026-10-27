@@ -2,7 +2,7 @@
 
 # card.action.trigger
 
-> **Prerequisite:** Read `../../lark-event/SKILL.md`（`events` 领域指南） first for `events.read`（网关用有界读取替代 CLI 事件订阅） essentials.
+> **Prerequisite:** Read `../../lark-event/SKILL.md` (`events` domain指南) first for `events.read` (网关用有界读取替代 CLI 事件订阅) essentials.
 
 Fires when a user interacts with an interactive card — button click, form submit, dropdown select,
 checkbox toggle, date/time pick, etc.
@@ -127,6 +127,10 @@ When a `card.action.trigger` event arrives (**each stdout JSON line is one event
 
 ## Updating the card
 
+```text
+# POST /open-apis/interactive/v1/card/update（CLI 通用 API 调用，网关不提供）
+```
+
 `data` parameters:
 
 | Field | Required | Description |
@@ -137,9 +141,9 @@ When a `card.action.trigger` event arrives (**each stdout JSON line is one event
 
 ## Examples
 
-```bash
+```text
 
-# Filter to one chat
+# events.read（网关用有界读取替代 CLI 事件订阅）
 ```
 
 ## Gotchas

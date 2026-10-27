@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-sheets` 参考文档转换；调用约定见 `sheets` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# Lark Sheet Formula Verify（`sheets.+formula-verify`）
+# Lark Sheet Formula Verify (`sheets.+formula-verify`)
 
 > **本文定位**：飞书表格"公式写入后是否真的零错误"的诊断入口。公式的书写规则与 Excel→飞书迁移的语义规则一律以 主题 `lark-sheets-formula-translation` 为唯一权威，本文不重复；本文聚焦"写完之后如何用一次调用发现公式错误"与 AI 公式的全区间一次异步状态检查交付。
 >

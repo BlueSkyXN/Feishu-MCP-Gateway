@@ -13,6 +13,8 @@ Messages sent by this tool are visible to other people. Before calling it, you *
 
 **Do not** send messages without explicit user approval.
 
+When using app identity, the message is sent in the app's name, so make sure the app has already been added to the target chat.
+
 ## Choose The Right Content Flag
 
 ### Default Selection Rule For Agents
@@ -177,7 +179,6 @@ im.+messages-send {"chat_id": "oc_xxx", "msg_type": "interactive", "content": "<
 | `attachment=<key>` | One content option | Repeatable bare file/folder key (`file_xxx`); merges into the post message's attachment zone. Requires a post message (`markdown` or `msg_type=post`). Name/size/mime/is_folder are filled by the server from file service metadata, not taken from the client. Use this instead of `file` when the file should render inside a rich-text message's attachment area |
 | `msg_type=<type>` | No | Message type (default `text`). If you use `text` / `markdown` / media flags, the effective type is inferred automatically. Explicitly setting a conflicting `msg_type` fails validation |
 | `idempotency_key=<key>` | No | Idempotency key, max 50 characters; the same key sends only one message within 1 hour                                                                                                        |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it                                                                                                                                                     |
 
 > **Mutual exclusivity rule:** `text`, `markdown`, `content`, and `image`/`file`/`video`/`audio` cannot be used together. Media flags are also mutually exclusive with each other. `attachment` cannot be combined with a `content` that already contains a `files` array (the attachment zone is declared either via `content` or via `attachment`, not both).
 >
@@ -208,11 +209,11 @@ im.+messages-send {"chat_id": "oc_xxx", "msg_type": "interactive", "content": "<
 | `media` | `{"file_key":"file_xxx","image_key":"img_xxx"}` (video; `image_key` is the cover from `video_cover` — **required**) |
 | `share_chat` | `{"chat_id":"oc_xxx"}` |
 | `share_user` | `{"user_id":"ou_xxx"}` |
-| `interactive` | Card JSON — **MUST** be produced by the `card/lark-im-card-create.md`（主题 `lark-im-card-create`） workflow. Read it before writing any card; never hand-craft the JSON here |
+| `interactive` | Card JSON — **MUST** be produced by the topic `lark-im-card-create` workflow. Read it before writing any card; never hand-craft the JSON here |
 
 > **`post` vs `interactive`:** `post` is a static rich-text message (title, paragraphs, @mentions, links, inline images) — content is fixed once sent. `interactive` is a card with structured layout and UI components (buttons, forms, selects, date pickers, charts) — content can be updated after sending and supports user-action callbacks. Use `post` for read-only content; use `interactive` when the message needs user interaction or dynamic updates.
 
-`interactive` cards support callback events (`card.action.trigger`) — see 主题 `lark-im-card-action-reply`（主题 `lark-im-card-action-reply`）.
+`interactive` cards support callback events (`card.action.trigger`) — see topic `lark-im-card-action-reply`.
 
 ## Return Value
 
@@ -255,8 +256,9 @@ Card content is **not** normalized — use the card-native `<at>` syntax inside 
 - `markdown` always sends `msg_type=post`, even if you do not explicitly set `msg_type=post`
 - If you explicitly set `msg_type` and it conflicts with the chosen content flag, validation fails
 - When using `video`, `video_cover` is required as the video cover
-- dry-run（网关不提供，改为先读取核对） uses placeholder image keys for remote Markdown images and placeholder media keys for local uploads
+- dry-run (not available in the gateway; read and verify first) uses placeholder image keys for remote Markdown images and placeholder media keys for local uploads
 - Failures return an error code and message
+- app identity uses a tenant access token (TAT) and requires the `im:message:send_as_bot` scope
 - When sending as a bot, the app must already be in the target group or already have a direct-message relationship with the target user
 - When using `markdown` with images, pre-uploading via `images.create` to obtain an `image_key` is recommended for reliability; remote URLs may be auto-resolved at runtime, but if download/upload fails the image is removed with a warning; local paths are not supported
-- **Interactive cards are gated:** you MUST read and follow the `card/lark-im-card-create.md`（主题 `lark-im-card-create`） workflow to produce the card JSON *before* sending. Do not hand-write or copy a card payload — the JSON given to `msg_type interactive content` must be the workflow's output. This applies every time, with no exception
+- **Interactive cards are gated:** you MUST read and follow the topic `lark-im-card-create` workflow to produce the card JSON *before* sending. Do not hand-write or copy a card payload — the JSON given to `msg_type interactive content` must be the workflow's output. This applies every time, with no exception

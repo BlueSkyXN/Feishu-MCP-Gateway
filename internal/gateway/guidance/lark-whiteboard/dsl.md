@@ -77,8 +77,8 @@ Step 3: 渲染 & 审查 → 交付
 
 | 当前内容包含 | 必读指南 |
 |---|---|
-| @用户提及 | `../scenes/mention.md`（主题 `mention`） |
-| 图片 / 配图 | `../scenes/photo-showcase.md`（主题 `photo-showcase`） |
+| @用户提及 | 主题 `mention` |
+| 图片 / 配图 | 主题 `photo-showcase` |
 
 ## 渲染前自查
 

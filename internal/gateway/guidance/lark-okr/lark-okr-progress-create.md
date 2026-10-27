@@ -30,8 +30,6 @@ okr.+progress-create {"content": {"file_id": "<file_id>"}, "target_id": "1234567
 | `source_title`     | 否  | `created by lark-cli` | 来源标题，用于在 OKR 界面中显示进展来源                                                                                                               |
 | `source_url`       | 否  | 根据品牌自动生成              | 来源 URL，用于在 OKR 界面中显示进展来源链接，通常可以填写 OKR 编写信息来源的文档链接等。飞书品牌默认为 `https://open.feishu.cn/app`, Lark 品牌默认为 `https://open.larksuite.com/app` |
 | `user_id_type`     | 否  | `open_id`             | 用户 ID 类型：`open_id` \| `union_id` \| `user_id`                                                                                        |
-| dry-run（网关不提供，改为先读取核对）          | 否  | —                     | 预览 API 调用而不实际执行。                                                                                                                     |
-|            | 否  | `json`                | 输出格式。                                                                                                                                |
 
 ## 工作流程
 
@@ -63,7 +61,7 @@ okr.+progress-create {"content": {"file_id": "<file_id>"}, "target_id": "1234567
 其中：
 
 - `content` 字段是 JSON 字符串，为 OKR ContentBlock
-  富文本格式。请参考 lark-okr-contentblock.md（主题 `lark-okr-contentblock`） 了解详细信息。
+  富文本格式。请参考 主题 `lark-okr-contentblock` 了解详细信息。
 - `progress_rate.status` 返回可读字符串：`normal`（正常）、`overdue`（逾期）、`done`（已完成）。
 
 ## 参考

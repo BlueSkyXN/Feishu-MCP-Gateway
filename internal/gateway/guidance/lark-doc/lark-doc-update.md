@@ -4,7 +4,7 @@
 
 使用文本或 block 指令精确更新飞书云文档。默认使用 XML；仅在用户明确要求或必须保真 Markdown 时使用 Markdown。
 
-写入前必须按 `doc_format` 读取对应格式参考：`xml` 读取 主题 `lark-doc-xml`（主题 `lark-doc-xml`），`markdown` 读取 主题 `lark-doc-md`（主题 `lark-doc-md`）；
+写入前必须按 `doc_format` 读取对应格式参考：`xml` 读取 主题 `lark-doc-xml`，`markdown` 读取 主题 `lark-doc-md`；
 
 ## 常用示例
 

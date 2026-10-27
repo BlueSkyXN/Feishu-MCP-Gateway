@@ -915,15 +915,15 @@ HTTPClientAction 的输出取决于 `response_type`：
 | 字段类型 | 属性名称 | 属性 pathId | 属性 pathType | 说明 |
 |----------|---------|-------------|--------------|------|
 | **所有字段（基础）** | 字段 ID | `fieldId` | `string` | 字段的唯一标识 |
-| | 字段名称 | `fieldName` | `string` | 字段的显示名称 |
+| 同上 | 字段名称 | `fieldName` | `string` | 字段的显示名称 |
 | **人员字段**（`user` / `created_by` / `updated_by`） | 姓名 | `name` | `string` | 用户姓名 |
 | **日期字段**（`datetime` / `created_at` / `updated_at`） | 时间戳 | `timestamp` | `number` | 时间戳数值 |
 | **附件字段**（`attachment`） | 文件名 | `fileName` | `string` | 附件文件名 |
-| | 文件类型 | `fileType` | `string` | MIME 类型 |
-| | 文件大小 | `size` | `number` | 文件字节数 |
-| | 文件 Token | `fileToken` | `string` | 附件 token |
+| 同上 | 文件类型 | `fileType` | `string` | MIME 类型 |
+| 同上 | 文件大小 | `size` | `number` | 文件字节数 |
+| 同上 | 文件 Token | `fileToken` | `string` | 附件 token |
 | **超链接文本字段**（`text` 且 `style.type=url`） | 文本 | `text` | `string` | 链接文本部分 |
-| | 链接 | `link` | `string` | 链接 URL 部分 |
+| 同上 | 链接 | `link` | `string` | 链接 URL 部分 |
 | **自动编号字段**（`auto_number`） | 序号 | `sequence` | `number` | 编号的纯数字序号 |
 | **关联字段**（`link`） | 字段下钻 | `{fieldId}` | - | 可下钻到关联表的字段 |
 

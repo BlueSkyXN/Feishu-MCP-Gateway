@@ -4,4 +4,4 @@
 
 对指定页面的已知块做替换或插入。先用 `slides.+xml-get` 获取最新 `block_id`，再用 `slides.+replace-slide` 写入；该操作不改变页面顺序。
 
-`block_replace` 使用 `block_id` 和 `replacement`；追加元素使用 `block_insert` 和 `insertion`。完整 parts 结构、验证和限制见 lark-slides-replace-slide.md（主题 `lark-slides-replace-slide`）。
+`block_replace` 使用 `block_id` 和 `replacement`；追加元素使用 `block_insert` 和 `insertion`。完整 parts 结构、验证和限制见 主题 `lark-slides-replace-slide`。

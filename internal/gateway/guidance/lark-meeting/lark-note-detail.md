@@ -6,6 +6,7 @@
 
 ```text
 note.+detail {"note_id": "<note_id>"}
+note.+detail {"note_id": "<note_id>"}
 ```
 
 ## 相关场景

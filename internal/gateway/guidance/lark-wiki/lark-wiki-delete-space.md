@@ -24,7 +24,6 @@ wiki.+delete-space {"space_id": "<SPACE_ID>"}
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `space_id` | 是 | 要删除的知识空间 ID |
-| 管理员预授权（high_risk_operations） | 是（真删时） | 高风险写操作确认。不传则 CLI 直接返回 `unsafe_operation_blocked` 错误 |
 
 ## 行为说明
 
@@ -78,7 +77,7 @@ wiki.+delete-space {"space_id": "<SPACE_ID>"}
   "status": "processing",
   "status_msg": "processing",
   "timed_out": true,
-  "next_command": "lark-cli drive +task_result --scenario wiki_delete_space --task-id 7631425120875056669-965458aec67417f5982250806c97950697ccb82f --as user"
+  "next_command": "lark-cli drive +task_result --scenario wiki_delete_space --task-id 7631425120875056669-965458aec67417f5982250806c97950697ccb82f"
 }
 ```
 
@@ -110,6 +109,8 @@ dry-run 会展示两步调用链：
 直接用，无需解析。
 
 ### 2. 只有知识库 URL（`.../wiki/<token>`）
+
+先确定后续 `wiki.+delete-space` 使用的身份：默认使用 `user`；用户明确要求应用 / bot 视角时使用 `bot`。下面展示默认 user 身份；下游使用 bot 时将两步都改为 应用身份。节点解析和删除必须使用相同身份。
 
 读取 `data.space_id`。
 

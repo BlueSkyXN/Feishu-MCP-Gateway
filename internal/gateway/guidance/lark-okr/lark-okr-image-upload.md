@@ -21,7 +21,6 @@ okr.+upload-image {"file": {"file_id": "<file_id>"}, "target_id": "9876543210987
 | `file`        | 是  | —   | 本地图片路径。**必须使用相对路径**（如 `./photo.png`）。 |
 | `target_id`   | 是  | —   | 目标 ID 或关键结果 ID（int64 类型，正整数）          |
 | `target_type` | 是  | —   | 目标类型：`objective` \| `key_result`      |
-| dry-run（网关不提供，改为先读取核对）     | 否  | —   | 预览 API 调用而不实际执行。                      |
 
 ## 工作流程
 
@@ -102,5 +101,5 @@ okr.+progress-create {"content": {"file_id": "<file_id>"}, "target_id": "1234567
 
 - `okr` 领域指南 -- 所有 OKR 命令(shortcut 和 API 接口)
 - ContentBlock 格式（主题 `lark-okr-contentblock`） -- 进展内容使用的富文本格式，包含图片块的使用说明
-- lark-okr-progress-create（主题 `lark-okr-progress-create`） -- 创建进展记录
-- lark-okr-progress-update（主题 `lark-okr-progress-update`） -- 更新进展记录
+- 主题 `lark-okr-progress-create` -- 创建进展记录
+- 主题 `lark-okr-progress-update` -- 更新进展记录

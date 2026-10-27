@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `wiki` 领域 `wiki.+node-get`
+# `wiki` domain `wiki.+node-get`
 
 Get a wiki node's details by `node_token`, `obj_token`, or a Lark URL. Use this as the "what am I about to touch?" step before `wiki.+move` / `wiki.+node-copy` / `wiki.+node-delete`.
 
@@ -11,7 +11,6 @@ Get a wiki node's details by `node_token`, `obj_token`, or a Lark URL. Use this 
 | `node_token` | string | **Yes** | — | `node_token`, cloud-doc `obj_token`, or a Lark URL embedding one (e.g. `https://feishu.cn/wiki/<token>` or `https://feishu.cn/docx/<token>`). Matches the `node_token` naming used by sibling `wiki.+node-delete` / `wiki.+node-copy` / `wiki.+move`. |
 | `token` | string | — (deprecated) | — | Deprecated original name; still accepted for backward compatibility but emits a `Flag token has been deprecated, use node_token instead` warning on stderr. New scripts should use `node_token`. |
 | `space_id` | string | No | — | Optional cross-check: fail if the resolved node does not live in this space |
-|  | enum | No | `json` | `json` / `pretty` / `table` / `csv` / `ndjson` |
 
 ## Output
 

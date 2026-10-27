@@ -30,7 +30,7 @@ drive.+list-comments {"url": "<DOCUMENT_URL>", "solved_status": "all"}
 | `solved_status` | 否 | `false` / `true` / `all`，默认 `false`。`false` 查未解决评论；`true` 查已解决评论；`all` 查全部评论。 |
 | `comment_scope` | 否 | `all` / `whole` / `partial`，默认 `all`。`all` 查全部范围；`whole` 查全文评论；`partial` 查局部评论。 |
 | `need_reaction` | 否 | 是否返回评论卡片上的 reaction 数据；只有用户明确需要 reaction 时才带。 |
-| `need_relation` | 否 | docx 评论定位关系字段；仅 docx 生效，非 docx 静默忽略。需要定位正文时先读 主题 `lark-drive-comment-location`（主题 `lark-drive-comment-location`）。 |
+| `need_relation` | 否 | docx 评论定位关系字段；仅 docx 生效，非 docx 静默忽略。需要定位正文时先读 主题 `lark-drive-comment-location`。 |
 | `page_size` | 否 | 默认 50，最大 100。 |
 | `page_token` | 否 | 分页游标；本 shortcut 不自动翻页，按返回的 `page_token` 继续请求下一页。 |
 
@@ -45,7 +45,7 @@ drive.+list-comments {"url": "<DOCUMENT_URL>", "solved_status": "all"}
 ## 评论卡片模型
 
 - 返回的 `items` 是评论卡片列表，每个 `item` 对应用户界面中的一张评论卡片，不是平铺的互动消息列表。
-- 创建评论时会同时创建该卡片里的第一条 reply；真正承载正文的是 `item.reply_list.replies`，其中第一条 reply（根回复）在用户视角下就是这张卡片里的“评论本身”。更新根回复即改写评论正文（见 主题 `lark-drive-update-reply`（主题 `lark-drive-update-reply`））；删除按 reply 逐条生效，卡片在最后一条回复被删时才消失（见 主题 `lark-drive-delete-reply`（主题 `lark-drive-delete-reply`））。
+- 创建评论时会同时创建该卡片里的第一条 reply；真正承载正文的是 `item.reply_list.replies`，其中第一条 reply（根回复）在用户视角下就是这张卡片里的“评论本身”。更新根回复即改写评论正文（见 主题 `lark-drive-update-reply`）；删除按 reply 逐条生效，卡片在最后一条回复被删时才消失（见 主题 `lark-drive-delete-reply`）。
 - `item.has_more=true` 表示该评论卡片下还有回复未包含在本次返回中；这与外层 `has_more`（是否还有下一页评论卡片）是两个不同字段。需要完整回复时继续用 `drive.+list-replies`（comment_id="<id>"） 分页拉全。
 
 ## 统计口径
@@ -78,5 +78,5 @@ drive.+list-comments {"url": "<DOCUMENT_URL>", "solved_status": "all"}
 ## 参考
 
 - `drive` 领域指南 -- 云空间（云盘/云存储）全部命令
-- lark-drive-list-replies（主题 `lark-drive-list-replies`） -- 拉全某张卡片下的回复（统计与 `item.has_more` 补全）
-- lark-drive-comment-location（主题 `lark-drive-comment-location`） -- 使用 `need_relation` 定位 docx 正文
+- 主题 `lark-drive-list-replies` -- 拉全某张卡片下的回复（统计与 `item.has_more` 补全）
+- 主题 `lark-drive-comment-location` -- 使用 `need_relation` 定位 docx 正文

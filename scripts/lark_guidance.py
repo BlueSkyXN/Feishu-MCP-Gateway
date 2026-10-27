@@ -27,9 +27,31 @@ CLI_ONLY = {'as', 'profile', 'yes', 'dry-run', 'format', 'print-schema', 'flag-n
 VALUE_FLAGS = {'as', 'profile', 'format', 'flag-name', 'api-version', 'jq'}
 REASONS = {'user_only': '仅支持用户身份'}
 # 只适用于用户身份、CLI 登录、本机路径或本机 CLI 管理的内容，整行或整条删除。
-DROP = re.compile(r'--as\b|\bauth\s+(?:login|logout|status|scopes|check)\b|lark-cli\s+(?:auth|skills|update|config|profile|doctor)\b'
+DROP = re.compile(r'--as[ =]user\b|--as\b(?![ =]bot\b)|\bauth\s+(?:login|logout|status|scopes|check)\b|lark-cli\s+(?:auth|skills|update|config|profile|doctor)\b'
                   r'|lark-shared|\bUAT\b|user_access_token|user identity|用户身份|个人身份|登录态|\bCWD\b'
-                  r'|\buser or bot\b|\bbot or user\b|both are supported', re.I)
+                  r'|\buser or bot\b|\bbot or user\b|both are supported|history expansion|set \+H|bool flag 语法', re.I)
+# 网关固定以应用身份执行：只提到 `--as bot` 的内容保留，命令中的 --as bot 去掉，说明文字改为“应用身份”。
+AS_BOT = re.compile(r'--as[ =]bot\b')
+AS_IN_COMMAND = re.compile(r'(?:^|\s+)--as[ =](?:bot|user)\b')
+# 描述 CLI 全局 flag 的表格行整行删除；按 shell 区分写法的表格整表删除。
+CLI_ONLY_ROW = re.compile(r'^\s*\|\s*`?--(?:' + '|'.join(re.escape(f) for f in sorted(CLI_ONLY, key=len, reverse=True)) + r')\b')
+SHELL_TABLE = re.compile(r'\b(?:bash|zsh|PowerShell|cmd\.exe)\b')
+TABLE_RULE = re.compile(r'\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*')
+HAN = re.compile(r'[\u4e00-\u9fff]')
+# 英文条目（affordance、Go tips）中的网关说明改用英文。
+ENGLISH_NOTES = [
+    ('（网关不提供：仅支持用户身份）', ' (not available in the gateway: user identity only)'),
+    ('（网关不提供：已由网关原生能力替代）', ' (replaced by a gateway tool)'),
+    ('管理员预授权（high_risk_operations）', 'administrator pre-authorization (high_risk_operations)'),
+    ('dry-run（网关不提供，改为先读取核对）', 'dry-run (not available in the gateway; read and verify first)'),
+    ('jq（网关不提供）', 'jq (not available in the gateway)'),
+    ('应用身份', 'app identity'),
+    ('` 领域', '` domain'),
+    ('主题 `', 'topic `'),
+    ('（', ' ('),
+    ('）', ')'),
+    ('，', ', '),
+]
 CODE_SPAN = re.compile(r'`([^`\n]+)`')
 WIKI_LINK = re.compile(r'\[\[(.+?)\]\]')
 MD_LINK = re.compile(r'\[([^\]\n]+)\]\(([^)\s]+)\)')
@@ -46,7 +68,28 @@ REPHRASE = [
     (re.compile(r'prefer `@file` or `-` \(stdin\)'), 'pass a JSON string or `{"file_id": …}`'),
     (re.compile(r'`@file`|`@\./[^`]*`|`@绝对路径`|`@相对路径`'), '`{"file_id": …}`'),
     (re.compile(r'`-` \(stdin\)'), '`{"file_id": …}`'),
+    (re.compile(r'（exit 10 强确认门禁）'), '（需管理员预授权）'),
+    (re.compile(r'pass --yes to confirm \(exit 10 without it\), or preview with --dry-run first'),
+     'needs administrator pre-authorization (high_risk_operations); read the target range first'),
 ]
+# 说明 CLI 语法的模板（占位符无法逐项解析）改为 operation_id 写法。
+CLI_TEMPLATES = [
+    (re.compile(r'lark-cli ([a-z]+) \+<verb> \[flags\]'), r'\1.+<verb> {参数}'),
+    (re.compile(r"lark-cli ([a-z]+) <resource> <method> --params '\{\.\.\.\}' \[--data '\{\.\.\.\}'\]"), r'\1.<resource>.<method> {"params": {…}, "data": {…}}'),
+    (re.compile(r'lark-cli ([a-z]+) <resource> <method>(?: \[flags\]| \.\.\.)?'), r'\1.<resource>.<method> {参数}'),
+    (re.compile(r'lark-cli ([a-z]+) \+\.\.\.'), r'\1.+…'),
+]
+REPHRASE.extend(CLI_TEMPLATES)
+SCHEMA_CALL = re.compile(r'lark-cli schema ([a-z_]+(?:\.(?:[a-z_]+|<[a-z_]+>))+)')
+
+
+def schema_text(index, op_id):
+    """`lark-cli schema x.y.z` 改为 feishu_tools_describe；网关未提供的操作附说明。"""
+    if '<' in op_id or op_id in index.ops:
+        note = ''
+    else:
+        note = '（' + (index.note(op_id) if index.known(op_id) else '网关目录中没有此操作') + '）'
+    return 'feishu_tools_describe（operation_id="' + op_id + '"）' + note
 
 
 class Index:
@@ -285,6 +328,9 @@ def skill_text(name):
 def translate_span(ctx, content):
     """翻译一个行内代码片段，返回替换文本。"""
     index = ctx.index
+    if AS_BOT.fullmatch(content.strip()):
+        return '应用身份'
+    content = AS_IN_COMMAND.sub('', content).strip()
     if content in ctx.topics:
         return '主题 `' + ctx.topics[content] + '`'
     if SKILL_NAME.fullmatch(content) and skill_text(content):
@@ -344,6 +390,7 @@ def translate_plain(ctx, text):
     def skill(m):
         return skill_text(m.group(1)) or m.group(0)
 
+    text = AS_BOT.sub('应用身份', text)
     text = WIKI_LINK.sub(wiki, text)
     text = CLI_CALL.sub(cli, text)
     text = SPACED.sub(spaced, text)
@@ -353,10 +400,14 @@ def translate_plain(ctx, text):
     return SKILL_NAME.sub(skill, text)
 
 
-def translate_text(ctx, text, layout=False):
-    """翻译一段文本：代码片段与普通文本分别处理。layout=True 时保留缩进与空白（用于文档行）。"""
+def translate_text(ctx, text, layout=False, english=None):
+    """翻译一段文本：代码片段与普通文本分别处理。layout=True 时保留缩进与空白（用于文档行）。
+    english 按上游原文判断；英文条目中插入的网关说明改用英文。"""
+    if english is None:
+        english = not HAN.search(text)
     for pattern, repl in REPHRASE:
         text = pattern.sub(repl, text)
+    text = SCHEMA_CALL.sub(lambda m: schema_text(ctx.index, m.group(1)), text)
     out, last = [], 0
     for m in CODE_SPAN.finditer(text):
         out.append(translate_plain(ctx, text[last:m.start()]))
@@ -364,6 +415,9 @@ def translate_text(ctx, text, layout=False):
         last = m.end()
     out.append(translate_plain(ctx, text[last:]))
     result = ''.join(out)
+    if english:
+        for zh, en in ENGLISH_NOTES:
+            result = result.replace(zh, en)
     return result if layout else re.sub(r'[ \t]{2,}', ' ', result).strip()
 
 
@@ -374,7 +428,7 @@ def _capital(m):
 IDENTITY_PATTERNS = [
     (re.compile(r'Identity:\s*supports\s*`user`\s*and\s*`bot`\s*(?:[;.]\s*)?([a-z])?'), _capital),
     (re.compile(r'Identity:\s*`bot`\s*only\s*\(`tenant_access_token`\)\s*(?:[;.]\s*)?([a-z])?'), _capital),
-    (re.compile(r'(?:;\s*)?user identity requires `[^`]+` scope on the UAT\.?'), ''),
+    (re.compile(r'(?:[;.]\s*)?user identity requires `[^`]+` scope on the UAT\.?', re.I), ''),
     (re.compile(r';\s*user/bot(?=\s*;|\s*$)'), ''),
     (re.compile(r'\buser/bot\b'), 'bot'),
     (re.compile(r'\s*\((?:user-only|user identity only)\)'), '（仅用户身份，网关不可用）'),
@@ -592,7 +646,11 @@ def rewrite_links(line, file_path, topic_files):
             return m.group(0)
         path = _normalize(PurePosixPath(file_path).parent / target.split('#')[0])
         if path in topic_files:
-            return text + '（主题 `' + topic_files[path] + '`）'
+            topic = topic_files[path]
+            # 链接文字就是文件名或主题 ID 时只写一次。
+            if text.strip().strip('`') in (topic, target, PurePosixPath(path).name, PurePosixPath(path).stem):
+                return '主题 `' + topic + '`'
+            return text + '（主题 `' + topic + '`）'
         parts = path.split('/')
         if len(parts) == 2 and parts[1] == 'SKILL.md':
             domain = SKILLS.get(parts[0]) or SKILL_ALIASES.get(parts[0])
@@ -607,9 +665,13 @@ def translate_block(index, lines, lang, domain):
     shell = lang in ('', 'bash', 'sh', 'shell', 'console', 'zsh')
     out, converted, other = [], 0, 0
     for line in (logical_lines(lines) if shell else lines):
-        t = line.strip()
         if shell and DROP.search(line):
             continue
+        line = AS_IN_COMMAND.sub('', line)
+        for pattern, repl in CLI_TEMPLATES:
+            line = pattern.sub(repl, line)
+        line = SCHEMA_CALL.sub(lambda m: schema_text(index, m.group(1)), line)
+        t = line.strip()
         indent = line[:len(line) - len(line.lstrip())]
         if shell and t.startswith('lark-cli '):
             words = split_words(t)
@@ -631,6 +693,35 @@ def translate_block(index, lines, lang, domain):
     if not any(x.strip() for x in out):
         return []
     return ['```' + ('text' if shell and converted and not other else lang), *out, '```']
+
+
+def tidy_tables(lines):
+    """整理表格：删除按 shell 区分写法的表格与只剩表头的表格；首格为空的续行写“同上”。代码块原样保留。"""
+    out, i, fence = [], 0, False
+    while i < len(lines):
+        if lines[i].lstrip().startswith('```'):
+            fence = not fence
+        if fence or lines[i].lstrip().startswith('```') or not lines[i].lstrip().startswith('|'):
+            out.append(lines[i])
+            i += 1
+            continue
+        j = i
+        while j < len(lines) and lines[j].lstrip().startswith('|'):
+            j += 1
+        table, i = lines[i:j], j
+        if len(table) < 2 or not TABLE_RULE.fullmatch(table[1]):
+            out.extend(table)
+            continue
+        if SHELL_TABLE.search(table[0]) or len(table) == 2:
+            continue
+        out.extend(table[:2])
+        for n, row in enumerate(table[2:]):
+            cells = row.split('|')
+            if n > 0 and len(cells) > 2 and not cells[1].strip():
+                cells[1] = ' 同上 '
+                row = '|'.join(cells)
+            out.append(row)
+    return out
 
 
 def drop_empty_sections(lines):
@@ -668,12 +759,12 @@ def translate_document(index, md, domain, file_path, topic_files):
         if in_fence:
             fence.append(line)
             continue
-        if DROP.search(line):
+        if DROP.search(line) or CLI_ONLY_ROW.match(line):
             continue
-        out.append(translate_text(ctx, rewrite_links(line, file_path, topic_files), layout=True).rstrip())
+        out.append(translate_text(ctx, rewrite_links(line, file_path, topic_files), layout=True, english=not HAN.search(line)).rstrip())
     if in_fence:
         out.extend(translate_block(index, fence, lang, domain))
-    return re.sub(r'\n{3,}', '\n\n', '\n'.join(drop_empty_sections(out))).strip() + '\n'
+    return re.sub(r'\n{3,}', '\n\n', '\n'.join(drop_empty_sections(tidy_tables(out)))).strip() + '\n'
 
 
 def topic_title(md, fallback):
@@ -690,6 +781,7 @@ GUIDE_PREFACE = '''> 由 Feishu-MCP-Gateway 从 lark-cli `{commit}` 的 `{skill}
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{{"file_id": "…"}}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 '''
 TOPIC_PREFACE = '> 由 lark-cli `{commit}` 的 `{skill}` 参考文档转换；调用约定见 `{domain}` 领域指南（`feishu_guide` 的 domain 参数）。\n\n'

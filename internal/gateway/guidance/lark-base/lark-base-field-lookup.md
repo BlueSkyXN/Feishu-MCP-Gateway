@@ -8,7 +8,7 @@ When creating or updating a lookup field with `lark-cli base +field-create/+fiel
 
 Do **not** proactively add `i_have_read_guide` before reading this guide. Without it, the CLI will fail fast and direct you back to this guide.
 
-When using `base.+field-update`, also pass 管理员预授权（high_risk_operations）: field update is a high-risk `PUT` operation because changing a field definition can affect the whole column.
+When using `base.+field-update`, also pass administrator pre-authorization (high_risk_operations): field update is a high-risk `PUT` operation because changing a field definition can affect the whole column.
 
 ## Default strategy
 
@@ -18,8 +18,8 @@ When using `base.+field-update`, also pass 管理员预授权（high_risk_operat
 
 When creating a lookup field, the Agent should:
 
-1. Get all table names: `base.+table-list`（base_token="<base>"） — returns `items[].table_name`
-2. Get table structure: `base.+table-get`（base_token="<base>"，table_id="<table>"） — returns `fields[]`
+1. Get all table names: `base.+table-list` (base_token="<base>") — returns `items[].table_name`
+2. Get table structure: `base.+table-get` (base_token="<base>", table_id="<table>") — returns `fields[]`
 3. If the lookup references other tables, also get those tables' structures
 4. Determine the four elements: from (source table), select (source field), where (filter), aggregate (aggregation)
 5. Construct the Lookup field JSON and submit it to create or update the field

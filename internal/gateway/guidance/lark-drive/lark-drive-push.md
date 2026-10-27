@@ -60,7 +60,6 @@ drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists
 | `if_exists` | 否 | enum | 远端文件已存在时的策略：`skip`（**默认**，安全）/ `smart`（用于重复增量同步；当远端 `modified_time` 已匹配或更新时跳过上传，否则继续走覆盖路径）/ `overwrite`（依赖灰度后端协议，详见"覆盖语义"） |
 | `on_duplicate_remote` | 否 | enum | 云端多个条目映射到同一个 `rel_path` 时的策略：`fail`（默认）；如果冲突全是 `type=file`，还可选 `newest` / `oldest` |
 | `delete_remote` | 否 | bool | 删除云端本地不存在的文件（文件级镜像；**不会**清理远端只有的目录）；**必须配合 管理员预授权（high_risk_operations）**，且 Validate 阶段会动态检查 `space:document:delete` scope |
-| 管理员预授权（high_risk_operations） | 否 | bool | 确认 `delete_remote`；不传时该破坏性操作在 Validate 阶段被拒绝 |
 
 ## 上传与目录复刻范围
 
@@ -169,6 +168,6 @@ drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists
 ## 参考
 
 - `drive` 领域指南 —— 云空间（云盘/云存储）全部命令
-- lark-drive-status（主题 `lark-drive-status`） —— 上传前先看差异（避免全量回写）
-- lark-drive-pull（主题 `lark-drive-pull`） —— Drive → 本地的对称命令
-- lark-drive-upload（主题 `lark-drive-upload`） —— 单文件按需上传
+- 主题 `lark-drive-status` —— 上传前先看差异（避免全量回写）
+- 主题 `lark-drive-pull` —— Drive → 本地的对称命令
+- 主题 `lark-drive-upload` —— 单文件按需上传

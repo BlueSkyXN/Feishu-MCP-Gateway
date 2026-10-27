@@ -36,7 +36,6 @@
 | `attach=<path>` | 否 | 非 inline 附件路径。多个附件请重复传 `attach`，每次只放一个相对路径，参数值用单引号包住；每个文件按传入顺序上传到 Drive |
 | `inline=<json>` | 否 | 手动指定 inline 图片 CID 映射。多个 inline 图片请重复传 `inline`，每次只放一个 JSON object，并用单引号包住：`'{"cid":"mycid","file_path":"./logo.png"}'`。`file_path` 必须是相对路径；CID 应唯一，例如随机十六进制字符串；在模板正文中用 `<img src="cid:mycid">` 引用 |
 | `mailbox=<email>` | 否 | 所属邮箱，默认 `me`（当前用户主邮箱） |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印计划中的 API 调用链，不真实执行 |
 
 \* `template_content` / `template_content_file` 二选一；两者都留空则模板正文为空（用户之后可通过 `mail.+template-update` 补充）。
 

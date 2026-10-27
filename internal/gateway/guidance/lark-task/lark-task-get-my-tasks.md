@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-task` 参考文档转换；调用约定见 `task` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `task.+get-my-tasks`（网关不提供：仅支持用户身份）
+# `task.+get-my-tasks` (not available in the gateway: user identity only)
 
 If the user query only specifies a task name (e.g., "Complete task Lobster No. 1"), use this command to list and search for the task by its summary.
 

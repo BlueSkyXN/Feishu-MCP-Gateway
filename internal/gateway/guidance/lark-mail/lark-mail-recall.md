@@ -34,8 +34,8 @@
 
 具体字段和枚举以 schema 为准：
 
-```text
-# feishu_tools_describe（operation_id="mail.user_mailbox.sent_messages.get_recall_detail"）
+```bash
+feishu_tools_describe（operation_id="mail.user_mailbox.sent_messages.get_recall_detail"）
 ```
 
 ## 典型流程
