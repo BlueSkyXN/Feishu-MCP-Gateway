@@ -1,5 +1,5 @@
 # 手动发布：验证后构建发布包，用源码包离线重建核对，生成构建证明并创建草稿版本。
-# 草稿由维护者核对后手动发布。修改发布脚本的 PR 只运行构建与核对，不创建版本。
+# 草稿由维护者核对后手动发布。修改发布脚本的 PR 只运行密钥扫描、构建与核对，不创建版本。
 name: Release
 
 on:
@@ -33,6 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -40,6 +41,12 @@ jobs:
           go-version: stable
           check-latest: true
           cache: false
+
+      # 与 CI 相同的历史扫描，PR 上也运行。
+      - name: Secret scan
+        run: |
+          go install github.com/zricethezav/gitleaks/v8@v8.30.1
+          "$(go env GOPATH)/bin/gitleaks" git --no-banner --redact --config .gitleaks.toml --log-opts=--all .
 
       - name: Resolve version
         id: tag

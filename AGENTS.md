@@ -10,4 +10,5 @@
 - 使用 Go 标准库及已锁定依赖；配置示例只包含占位值。秘密和开发材料放入忽略的 local/。
 - 默认测试使用本地模拟执行器，不调用真实飞书，不读取开发者个人配置。
 - 验证：go test ./...、go test -race ./...、go vet ./...、go build ./cmd/gateway。
+- 推送前运行 gitleaks git --config .gitleaks.toml --redact；提交、PR 说明和文档中不写本机路径与个人信息。
 - 发布、部署、真实飞书写入另需明确授权。
