@@ -339,29 +339,40 @@ func visible(c Client, op Operation) bool {
 	}
 	return (slices.Contains(c.Packs, op.Pack) || slices.Contains(c.Operations, op.ID)) && (c.ResourceMode != "resource_scoped" || len(op.ResourceBindings) > 0)
 }
+
+// operationAllowed 是接入与提问者对操作本身的授权判断，不含具体资源检查。
+// 执行授权和发现入口（搜索、describe、指南、context）都使用它；发现阶段可以没有提问者。
+func operationAllowed(c Client, p Principal, op Operation) error {
+	if !visible(c, op) {
+		return fault("operation_denied", "该接入未开放此操作")
+	}
+	if p.Actor == "" {
+		return nil
+	}
+	ap := c.Actors[p.Actor]
+	if len(ap.Operations) > 0 && !slices.Contains(ap.Operations, op.ID) {
+		return fault("operation_denied", "提问者未获准执行此操作")
+	}
+	if len(ap.Resources) > 0 && len(op.ResourceBindings) == 0 {
+		return fault("resource_scope_unsupported", "此操作不能验证提问者资源范围")
+	}
+	return nil
+}
+
 func authorize(c Config, p Principal, op Operation, args map[string]any) (App, error) {
 	v, a, err := c.checkPrincipal(p, true)
 	if err != nil {
 		return a, err
 	}
-	if !visible(v, op) {
-		return a, fault("operation_denied", "该接入未开放此操作")
+	if err = operationAllowed(v, p, op); err != nil {
+		return a, err
 	}
 	rules := []map[string][]string{}
 	if v.ResourceMode == "resource_scoped" {
 		rules = append(rules, v.Resources)
 	}
-	if p.Actor != "" {
-		ap := v.Actors[p.Actor]
-		if len(ap.Operations) > 0 && !slices.Contains(ap.Operations, op.ID) {
-			return a, fault("operation_denied", "提问者未获准执行此操作")
-		}
-		if len(ap.Resources) > 0 {
-			if len(op.ResourceBindings) == 0 {
-				return a, fault("resource_scope_unsupported", "此操作不能验证提问者资源范围")
-			}
-			rules = append(rules, ap.Resources)
-		}
+	if p.Actor != "" && len(v.Actors[p.Actor].Resources) > 0 {
+		rules = append(rules, v.Actors[p.Actor].Resources)
 	}
 	for _, rule := range rules {
 		for field, kind := range op.ResourceBindings {

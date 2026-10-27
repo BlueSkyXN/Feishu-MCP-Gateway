@@ -4,26 +4,14 @@
 package gateway
 
 import (
-	"slices"
 	"sort"
 	"strings"
 	"unicode"
 )
 
-// discoverable 判断操作对当前请求是否可发现：接入开放，且已知 actor 的策略允许执行。
-// 发现阶段可以没有 actor；带 actor 时按其操作清单和资源检查能力收窄，与 authorize 的判断一致。
+// discoverable 判断操作对当前请求是否可发现，与执行授权共用 operationAllowed。
 func discoverable(c Client, p Principal, op Operation) bool {
-	if !visible(c, op) {
-		return false
-	}
-	if p.Actor == "" {
-		return true
-	}
-	ap := c.Actors[p.Actor]
-	if len(ap.Operations) > 0 && !slices.Contains(ap.Operations, op.ID) {
-		return false
-	}
-	return len(ap.Resources) == 0 || len(op.ResourceBindings) > 0
+	return operationAllowed(c, p, op) == nil
 }
 
 type domainView struct {
