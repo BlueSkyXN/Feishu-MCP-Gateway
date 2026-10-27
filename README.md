@@ -175,7 +175,7 @@ python3 scripts/transfer_file.py --endpoint https://gateway.example --file ./rep
 
 ## 可选 Skill 与运行边界
 
-[feishu-gateway Skill](skills/feishu-gateway/SKILL.md) 提供领域路由表、调用约定、写入回执、文件复用、分页和错误处理方法，可以按宿主的 Skill 安装方式使用。`python3 scripts/package_skill.py local/skill --zip` 生成带离线指南的 Skill 目录与 ZIP，可上传到 Wake；发布包中的 Skill 已包含这些指南。工具自身包含 schema 和必要说明，权限全部由 Gateway 检查。
+[feishu-gateway Skill](skills/feishu-gateway/SKILL.md) 提供领域路由表、调用约定、写入回执、文件复用、分页和错误处理方法，可以按宿主的 Skill 安装方式使用。`python3 scripts/package_skill.py local/skill --zip` 生成带离线指南的 Skill 目录与 ZIP，可按 Wake 的 Skill 压缩包方式上传；发布包中的 Skill 已包含这些指南。工具自身包含 schema 和必要说明，权限全部由 Gateway 检查。
 
 Gateway 与固定 wrapper 属于受信任服务。文件访问使用 rooted FileIO，外部 URL 请求经代理检查，真实应用凭据不进入 wrapper。此结构不构成对同一 OS 用户的进程隔离；有隔离要求时，使用独立服务身份和受控数据目录。
 

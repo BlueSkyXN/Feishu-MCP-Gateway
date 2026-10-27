@@ -1,6 +1,6 @@
 # 0.3.0-dev 开发验收
 
-验证日期：2026-10-26。开发环境为 macOS arm64、Go 1.27.2；模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
+验证日期：2026-10-27。开发环境为 macOS arm64、Go 1.27.2；模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
 
 ## 操作覆盖与验证强度
 
@@ -12,7 +12,7 @@
 - 599 个 Operation 均通过 schema 编译；包含 source 已公开的复杂 JSON 参数 schema。
 - Wiki 查询、Drive 文件列表和创建目录的 3 个 dry-run 通过。
 
-0.3.0-dev 重新导入后，目录的参数、风险、执行映射和资源绑定与 0.2.0-dev 逐项一致；变化只在 63 个操作描述和 700 个参数描述（删除用户身份说明、CLI flag 改为参数名）。`catalog_revision` 因此改变。
+0.3.0-dev 重新导入后，目录的参数、风险、执行映射和资源绑定与 0.2.0-dev 逐项一致；变化只在 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文）。`catalog_revision` 因此改变。
 
 以上是目录与适配合同检查，不能当作 598 项真实飞书逐项实测。端到端测试使用实际构建的 wrapper，运行以下 11 项：
 
@@ -29,9 +29,9 @@
 ## 用法知识与发现
 
 - 导入脚本从同一来源生成 228 个操作级指南、15 个领域指南与 412 个主题；对同一来源重复导入，生成文件逐字节一致。
-- 指南加载时与目录交叉校验：引用的操作、示例、主题、领域入口操作都必须存在。23 个示例的参数通过对应操作的 schema 校验。操作级指南中没有 CLI 登录、`--as` 身份切换或 `lark-cli` 命令残留。
-- 搜索按任务说法排序：“读取文档”“read document”“send file”“发送文件”“上传文件”“spreadsheet read”“读取表格”“bitable record”“多维表格 记录”“知识库节点”“创建日程”的目标操作出现在前 3 或前 5 名；精确 ID 只返回该操作；分页不重复。
-- 搜索、describe、指南总览与 `feishu_context` 按提问者的操作策略收窄；无提问者的发现按接入范围展示。
+- 指南加载时与目录交叉校验：引用的操作、示例、主题、领域入口操作都必须存在。23 个示例的参数通过对应操作的 schema 校验。操作级指南中没有 CLI 登录、`--as` 身份切换或 `lark-cli` 命令残留；全部指南文件中没有 `--as` 参数、首格残缺的表格行和按 shell 区分写法的表格，`lark-cli` 原文残留 32 行，测试检查不超过此数。
+- 搜索按任务说法排序：17 条中英文说法的目标操作出现在前 3 或前 5 名，包括“读取文档”“send file”“多维表格 记录”“创建日程”“新建电子表格”“往表格追加一行”“append rows to sheet”“在知识库里找文档”“查看我明天的日程”；精确 ID 只返回该操作；分页不重复。
+- 搜索、describe、指南总览与 `feishu_context` 按提问者的操作策略收窄，与执行授权使用同一个判断函数；无提问者的发现按接入范围展示。
 - `feishu_guide` 只开放当前请求可见领域的指南与主题，分页边界正确；关闭领域的指南与主题返回 `domain_unavailable`。
 - `instructions` 按接入列出领域与调用约定；具名工具描述带适用场景。
 - 仓库中的 SKILL.md 与 `--render-skill` 输出一致，其中引用的 operation_id 均存在；`scripts/package_skill.py` 生成含 427 个指南文件的 Skill 目录与 ZIP。
@@ -51,12 +51,14 @@
 - wrapper 的原子保存、失败覆盖保护、单文件/工作区限制、路径越界及符号链接拒绝、外部请求经过代理。
 - data、meta 和文件清单组成的超限回执保存在 result.json，保留原始内容。
 - `/admin/status` 返回版本、指南摘要与各接入的视图和开放范围。
+- 超大分页参数（搜索 `after` 接近 int64 上限、指南 `offset` 超出 int 范围）返回空页。工具与资源处理函数中的 panic 转为 `internal` 错误；执行中的 panic 写入回执（写入为 unknown，读取为 failed），同键重试返回原回执，服务继续处理请求。
 
 ## 执行结果
 
-测试原始结果保存在忽略的 `local/evidence/`：`test-0.3.jsonl`、`race-0.3.jsonl`、`backend-validation.json` 和 `process-smoke.json`。
+测试原始结果保存在忽略的 `local/evidence/`：`test-0.3-review.jsonl`、`race-0.3-review.jsonl`、`test-0.3-review-amd64.jsonl`、`backend-validation.json` 和 `process-smoke-review.json`。
 
-- Go 常规测试与 race 回归：35 个顶层测试、41 个测试通过事件，无测试跳过，无数据竞争；vet 通过。
+- Go 常规测试与 race 回归：39 个顶层测试、45 个测试通过事件，无测试跳过，无数据竞争；vet 通过。
+- darwin/amd64（Rosetta 2）运行同一测试集：39 个顶层测试通过。超大 `offset` 的回归测试在修复前的代码上只在 amd64 失败，arm64 上通过。
 - wrapper 的 race 测试、vet 与构建：通过。
 - `scripts/verify_backend.py`：598 项定义核对无差异，3 个 dry-run 通过，无真实请求。
 - 独立 Gateway 进程：配置检查、健康检查、旧版 MCP 初始化与 instructions、工具发现、应用身份上下文与可见领域、领域指南分页、文件创建、Resources 读取、认证下载、无认证拒绝及正常退出通过。
