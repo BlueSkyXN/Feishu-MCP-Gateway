@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 BlueSkyXN
 # SPDX-License-Identifier: GPL-3.0-only
-"""从已固定的 lark-cli 源码快照生成目录；不执行 CLI，不请求飞书。"""
+"""从已固定的 lark-cli 源码快照生成目录和用法指南；不执行 CLI，不请求飞书。"""
 import argparse
 import json
 import re
 import subprocess
 from collections import Counter
 from pathlib import Path
+
+import lark_guidance
 
 
 def field_schema(field):
@@ -35,11 +37,42 @@ def field_schema(field):
             result.update(child)
     elif kind == 'array':
         result['items'] = {}
+    if kind == 'array' and 'enum' in result:
+        result['items']['enum'] = result.pop('enum')
     return result
 
 
 def file_ref():
     return {'type':'object','properties':{'file_id':{'type':'string','minLength':1}},'required':['file_id'],'additionalProperties':False}
+
+
+def partial_schema(schema):
+    """去掉对象的 required，递归到属性与组合子 schema；数组元素整体替换，保持严格。与 lark-cli 的 recursivePartialJSONSchema 一致。"""
+    if isinstance(schema, list):
+        for item in schema:
+            partial_schema(item)
+    elif isinstance(schema, dict):
+        schema.pop('required', None)
+        for key in ('properties', 'patternProperties', 'dependentSchemas', 'definitions', '$defs'):
+            for child in (schema.get(key) or {}).values():
+                partial_schema(child)
+        for key in ('additionalProperties', 'not', 'if', 'then', 'else', 'propertyNames', 'allOf', 'anyOf', 'oneOf'):
+            partial_schema(schema.get(key))
+
+
+def flag_input_schemas(name, schema):
+    """把 CLI 导出的 flag schema 换成用户输入的形状，与 lark-cli 的解析一致。
+
+    properties 的 schema 描述合并平铺 flag（如 --rule-type、--range）之后的最终属性，用户只传其中一部分，
+    lark-cli 在合并后才校验，因此这里递归去掉 required。sheets、styles 的文档写法是 {"sheets": [...]} 外层对象，
+    CLI 也接受数组本身；完整结构只放在外层写法里，避免工具定义重复。"""
+    if name == 'properties':
+        schema = json.loads(json.dumps(schema))
+        partial_schema(schema)
+        return [schema]
+    if name in ('sheets', 'styles') and schema.get('type') == 'array':
+        return [{'type':'object','properties':{name:schema},'required':[name]}, {'type':'array','description':'不带外层对象的写法，元素结构同上。'}]
+    return [schema]
 
 
 def controls(props, required, risk):
@@ -62,7 +95,10 @@ def shortcut_operation(row, source):
         kind={'string':'string','bool':'boolean','int':'integer','float64':'number','string_array':'array','string_slice':'array','int_array':'array'}[typ]
         schema={'type':kind,'description':field['Desc']}
         if kind=='array': schema['items']={'type':'integer' if typ=='int_array' else 'string'}
-        if field['Enum']: schema['enum']=field['Enum']
+        if field['Enum']:
+            # 导出的枚举是文本：数值参数转成数值，数组参数的枚举约束元素。
+            values=[int(x) for x in field['Enum']] if typ in ('int','int_array') else [float(x) for x in field['Enum']] if typ=='float64' else field['Enum']
+            (schema['items'] if kind=='array' else schema)['enum']=values
         input_sources=field['Input'] or []
         is_file=name in ('file','image','audio','video') or name.endswith('-file')
         is_output=name in ('output','output-path','output-dir','local-dir')
@@ -73,7 +109,7 @@ def shortcut_operation(row, source):
         json_value=typ=='string' and (json_schema is not None or name=='json' or name.endswith('-json'))
         if json_value:
             variants=[{'type':'string'}]
-            if json_schema: variants.append(json_schema)
+            if json_schema: variants.extend(flag_input_schemas(name, json_schema))
             else: variants.extend([{'type':'object'},{'type':'array'}])
             if is_file or 'file' in input_sources:variants.append(file_ref())
             schema={'anyOf':variants,'description':field['Desc']+'；可直接传 JSON 对象或数组。'}
@@ -133,8 +169,11 @@ def main():
     parser.add_argument('--output', type=Path, default=Path('internal/gateway/catalog.json'))
     parser.add_argument('--coverage', type=Path, default=Path('docs/coverage.json'))
     parser.add_argument('--shortcuts', type=Path)
+    parser.add_argument('--guidance', type=Path, default=Path('internal/gateway/guidance'), help='用法指南输出目录；需要 --shortcuts')
     args = parser.parse_args()
     commit = subprocess.check_output(['git', '-C', str(args.source), 'rev-parse', 'HEAD'], text=True).strip()
+    if subprocess.check_output(['git', '-C', str(args.source), 'status', '--porcelain'], text=True).strip():
+        raise SystemExit('来源工作区有未提交修改，不能声称导入固定源码版本')
     operations, coverage = [], []
     for source in sorted((args.source / 'internal/registry/catalog/services').glob('*.json')):
         service = json.loads(source.read_text())
@@ -187,8 +226,10 @@ def main():
                 props['params']['properties']['page_token']['description'] = '使用 Gateway 上次返回的分页标识；不要填入原始飞书 token。'
             operations.append({'id': op_id, 'tool': 'feishu_' + op_id.replace('.', '_'), 'kind':'api','method':method['httpMethod'],'path':service['servicePath'].rstrip('/')+'/'+method['path'].lstrip('/'),'file_fields':list(file_fields),'query_fields':[k for k,v in method.get('parameters',{}).items() if v.get('location')=='query'],'parameter_defaults':{k:v['default'] for k,v in method.get('parameters',{}).items() if 'default' in v},'description': method['description'], 'pack': service['name'] + ('.read' if method['risk'] == 'read' else '.write'), 'risk': method['risk'], 'command': [service['name'], *path], 'input_schema': schema, 'data_schema': output, 'app_scopes': method.get('scopes', []), 'resource_bindings': RESOURCE_BINDINGS.get(op_id, {}), 'doc_url': method.get('docUrl', '')})
             item.update(status='adapter_ready', reason='generic_json; live_unverified')
+    rows = []
     if args.shortcuts:
         exported=json.loads(args.shortcuts.read_text())
+        rows = exported['shortcuts']
         if exported['source_commit']!=commit: raise SystemExit('shortcut/source commit mismatch')
         for row in exported['shortcuts']:
             item={'id':row['service']+'.'+row['command'],'source_commit':commit,'status':'excluded','reason':''};coverage.append(item)
@@ -197,11 +238,18 @@ def main():
             try:op=shortcut_operation(row,args.source)
             except (ValueError,KeyError) as exc:item['reason']='schema_review_required: '+str(exc);continue
             operations.append(op);item.update(status='adapter_ready',reason='shortcut; live_unverified')
+    # 描述来自 CLI 帮助：去掉用户身份说明，flag 写法改为本操作的 JSON 参数名。
+    index = lark_guidance.Index(operations, coverage)
+    for op in operations:
+        lark_guidance.clean_operation(index, op)
     envelope = {'source_commit': commit, 'operations': operations}
     for target, data in [(args.output, envelope), (args.coverage, coverage)]:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({'methods': len(coverage), 'enabled_adapters': len(operations), 'coverage': dict(Counter(x['reason'] for x in coverage))}, ensure_ascii=False))
+    summary = {'methods': len(coverage), 'enabled_adapters': len(operations), 'coverage': dict(Counter(x['reason'] for x in coverage))}
+    if args.shortcuts:
+        summary['guidance'] = lark_guidance.build(args.source, commit, operations, coverage, rows, args.guidance)
+    print(json.dumps(summary, ensure_ascii=False))
 
 
 if __name__ == '__main__':

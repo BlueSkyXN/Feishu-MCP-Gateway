@@ -31,9 +31,19 @@ func run() error {
 	check := flag.Bool("check", false, "验证配置、目录及固定 CLI 文件后退出")
 	catalogFlag := flag.Bool("catalog-revision", false, "输出当前操作目录摘要")
 	keygen := flag.Bool("generate-key", false, "仅向 stdout 输出新接入 key 和校验摘要，不写文件")
+	version := flag.Bool("version", false, "输出版本、目录摘要与指南摘要")
+	renderSkill := flag.Bool("render-skill", false, "输出随仓库发布的 feishu-gateway SKILL.md")
 	flag.Parse()
 	if *catalogFlag {
 		fmt.Println(gateway.CatalogRevision())
+		return nil
+	}
+	if *version {
+		fmt.Printf("version=%s\ncatalog_revision=%s\nguidance_revision=%s\n", gateway.Version, gateway.CatalogRevision(), gateway.GuidanceRevision())
+		return nil
+	}
+	if *renderSkill {
+		fmt.Print(gateway.RenderSkill())
 		return nil
 	}
 	if *keygen {
@@ -55,7 +65,11 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("configuration valid; operations=%d; source=%s\n", len(cat.Operations), cat.SourceCommit)
+		guidance, err := gateway.LoadGuidance(cat)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("configuration valid; operations=%d; guided_operations=%d; guides=%d; source=%s\n", len(cat.Operations), len(guidance.Operations), len(guidance.Skills), cat.SourceCommit)
 		return nil
 	}
 	service, err := gateway.NewService(c, executor)

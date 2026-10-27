@@ -8,7 +8,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
+	"runtime/debug"
 	"sync"
 	"time"
 )
@@ -26,13 +28,17 @@ type Service struct {
 	ConfigPath  string
 	config      Config
 	Catalog     *Catalog
-	Store       *Store
-	executor    Executor
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	activeMu    sync.Mutex
-	active      map[string]context.CancelFunc
+	Guidance    *Guidance
+	search      *searchIndex
+	// 目录摘要计算一次即可：目录随二进制固定。
+	catalogRevision string
+	Store           *Store
+	executor        Executor
+	ctx             context.Context
+	cancel          context.CancelFunc
+	wg              sync.WaitGroup
+	activeMu        sync.Mutex
+	active          map[string]context.CancelFunc
 }
 
 func NewService(c Config, executor Executor) (*Service, error) {
@@ -47,12 +53,16 @@ func NewService(c Config, executor Executor) (*Service, error) {
 	if err = validateCatalogConfig(c, catalog); err != nil {
 		return nil, err
 	}
+	guidance, err := LoadGuidance(catalog)
+	if err != nil {
+		return nil, err
+	}
 	store, err := OpenStore(c)
 	if err != nil {
 		return nil, err
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &Service{config: c, Catalog: catalog, Store: store, executor: executor, ctx: ctx, cancel: cancel, active: map[string]context.CancelFunc{}}
+	s := &Service{config: c, Catalog: catalog, Guidance: guidance, search: newSearchIndex(catalog, guidance), catalogRevision: CatalogRevision(), Store: store, executor: executor, ctx: ctx, cancel: cancel, active: map[string]context.CancelFunc{}}
 
 	if cli, ok := executor.(*CLIExecutor); ok {
 		cli.store = store
@@ -143,7 +153,20 @@ func (s *Service) Invoke(ctx context.Context, p Principal, operation string, arg
 	return s.execute(ctx, record)
 }
 
-func (s *Service) execute(parent context.Context, record Record) Result {
+func (s *Service) execute(parent context.Context, record Record) (result Result) {
+	// 执行中的 panic 按进程中断处理：写入可能已经发生，回执记为 unknown；读取记为 failed。
+	defer func() {
+		if v := recover(); v != nil {
+			slog.Error("invocation panic", "id", record.ID, "operation", record.OperationID, "panic", fmt.Sprint(v), "stack", string(debug.Stack()))
+			result = record.Result
+			result.Status = "unknown"
+			if op, ok := s.Catalog.Operation(record.OperationID); ok && op.Risk == "read" {
+				result.Status = "failed"
+			}
+			result.Error = fault("internal", "服务内部错误，请通过调用记录核对")
+			_ = s.Store.Finish(record.ID, result)
+		}
+	}()
 	op, ok := s.Catalog.Operation(record.OperationID)
 	if !ok {
 		r := record.Result

@@ -1,0 +1,58 @@
+> 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
+
+# `wiki` domain `wiki.+node-delete`
+
+Delete a wiki node (or pull a cloud doc out of Wiki). OpenAPI: `DELETE /open-apis/wiki/v2/spaces/:space_id/nodes/:node_token`.
+
+> ⚠️ **High-risk write & irreversible** — deletes the node and (by default) its whole subtree. Requires explicit administrator pre-authorization (high_risk_operations); without it the CLI returns a `confirmation_required` error and nothing is deleted.
+
+- **Sync / async**: an empty `task_id` means the delete completed synchronously (`ready=true`). A non-empty `task_id` triggers bounded polling; if the window elapses the output carries `timed_out=true` and a `next_command`:
+
+## Usage
+
+```text
+
+# Preview the call chain without deleting
+# 网关不提供 dry-run 预览，此示例省略
+```
+
+## Flags
+
+| Flag | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `node_token` | string | **Yes** | — | `node_token`, cloud-doc `obj_token`, or a Lark URL embedding one; URL paths also imply `obj_type` |
+| `obj_type` | enum | Conditional | — | Required for a raw token (URL inputs auto-infer). `wiki` uses the resolved `node_token`; other types use the resolved `obj_token` and must match its document type |
+| `space_id` | string | No | — | Assert the resolved node belongs to this space; inferred when omitted |
+| `include_children` | bool | No | `true` | Cascade-delete the subtree (default). `include_children=false` lifts direct children up to the parent |
+
+The lookup sends only `token`, including when `space_id` is provided. Deletion uses the resolved token matching `obj_type`; a document-type mismatch is rejected before deletion.
+
+For a Wiki shortcut, use `obj_type=wiki` to delete the shortcut itself. Other types are rejected because the shortcut's `obj_token` identifies its origin document.
+
+## Output
+
+```json
+{
+  "space_id": "7160145948494381236",
+  "node_token": "wikcnEXAMPLE",
+  "obj_type": "wiki",
+  "include_children": true,
+  "ready": true,
+  "failed": false,
+  "status": "success",
+  "status_msg": "success"
+}
+```
+
+Async/timeout adds `task_id`, `timed_out`, and `next_command`.
+
+## Behavior
+
+- **Task poll**: `GET /open-apis/wiki/v2/tasks/{task_id}?task_type=delete_node`. The status lives under `data.task.simple_task_result.status` (the gateway's generic key — **not** `delete_node_result`); that object has no `status_msg`, so the label falls back to the status code.
+- **Error hints**:
+  - `131011` → the node has delete-approval enabled; apply via the Wiki UI (CLI cannot bypass approval).
+  - `131003` → subtree too large to cascade-delete; use `include_children=false` or delete sub-trees first.
+
+## Required Scopes
+
+Both `wiki:node:create` (deletion) and `wiki:node:retrieve` (target lookup) are required, including when `space_id` is provided. The server also checks access to the target node.

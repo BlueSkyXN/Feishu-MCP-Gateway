@@ -1,0 +1,86 @@
+> 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
+
+# `vc.+recording`
+
+通过 meeting_id 或 calendar_event_id 查询对应的 minute_token。这是 VC 域和 Minutes 域之间的桥梁命令。只读操作。
+
+> **边界提醒：** 如果用户明确要的是"妙记信息""妙记详情""妙记链接""minute_token""标题""时长""owner"这类妙记元信息，先用本命令拿到 `minute_token`，再调用 `minutes.minutes.get`。不要直接切到 `minutes.+detail`；`minutes.+detail` 只用于纪要内容和逐字稿。
+
+本 skill 对应 shortcut：`vc.+recording`。
+
+## 命令
+
+```text
+# 通过会议 ID 查询（逗号分隔支持批量，最多 50 个）
+vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28"}
+vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28,69xxxxxxxxxxxxx29"}
+
+# 通过日程事件 ID 查询
+vc.+recording {"calendar_event_ids": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_0"}
+
+# 输出格式
+vc.+recording {"meeting_ids": "69xxxxxxxxxxxxx28"}
+
+# 预览 API 调用
+# 网关不提供 dry-run 预览，此示例省略
+```
+
+## 参数
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `meeting_ids=<ids>` | 二选一 | 会议 ID，逗号分隔支持批量 |
+| `calendar_event_ids=<ids>` | 二选一 | 日程事件 ID，逗号分隔支持批量 |
+
+## 核心约束
+
+### 1. 两种参数互斥
+
+每次只能指定一种输入方式。同时传入会报错。
+
+### 3. 批量上限
+
+每次最多传入 50 个 ID。
+
+### 4. 录制必须已完成
+
+录制必须完成生成后才能查询。时长 < 5 秒的录制可能不会生成文件。
+
+## 输出结果
+
+返回 `recordings` 数组，每条记录包含：
+
+| 字段 | 说明 |
+|------|------|
+| `meeting_id` | 会议 ID |
+| `calendar_event_id` | 日历事件 ID（仅 `calendar_event_ids` 路径） |
+| `minute_token` | 从录制 URL 中解析的妙记 Token |
+| `recording_url` | 录制 URL |
+| `duration` | 录制时长（毫秒） |
+| `error` | 错误信息（仅查询失败时存在） |
+
+## 如何获取输入参数
+
+| 输入参数 | 获取方式 |
+|---------|---------|
+| `meeting_id` | 使用 `vc.+search` 搜索历史会议，取结果中的 `id` 字段 |
+| `calendar_event_id` | 使用 `calendar.+agenda` 查看日程，取结果中的 `event_id` 字段 |
+
+## 常见错误与排查
+
+| 错误现象 | 根本原因 | 解决方案 |
+|---------|---------|---------|
+| `exactly one of ... is required` | 未传入参数或同时传了多种 | 只指定一种输入方式 |
+| `no recording available` | 该会议无录制或录制未完成 | 确认会议已结束且开启了录制 |
+| `121005 no permission` | 无权查看该会议录制 | 确认是会议参与者或有录制权限 |
+| `124002 recording generating` | 录制文件仍在生成中 | 等待录制完成后重试 |
+
+## 提示
+
+- 默认使用  输出，Agent 更擅长解析 JSON 数据。
+- 排查参数与请求结构时优先使用 dry-run（网关不提供，改为先读取核对）。
+- `minute_token` 从录制 URL 尾段解析（`https://meetings.feishu.cn/minutes/{minute_token}`）。
+- 拿到 `minute_token` 后，如果要妙记基础信息，优先传给 `minutes.minutes.get`；如果要下载媒体文件，传给 `minutes.+download`；如果要逐字稿、总结、待办、章节，再传给 `minutes.+detail`。
+
+## 相关场景
+- 查询会议及其产物（主题 `query-meeting-and-artifacts`）

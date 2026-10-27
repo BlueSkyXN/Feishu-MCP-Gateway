@@ -13,6 +13,8 @@ import shutil
 import subprocess
 import tarfile
 
+import package_skill
+
 
 def run(argv, cwd, env=None, capture=False):
     return subprocess.check_output(argv, cwd=cwd, env=env, text=True) if capture else subprocess.run(argv, cwd=cwd, env=env, check=True)
@@ -68,7 +70,7 @@ subprocess.run(['go','build','-mod=vendor','-trimpath','-buildvcs=false','-tags=
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('lark_source', type=Path)
-    parser.add_argument('--tag', default='v0.2.0-dev')
+    parser.add_argument('--tag', default='v0.3.0-dev')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[1]
@@ -167,6 +169,8 @@ THIRD_PARTY_LICENSES/ 保留实际链接模块的许可与版本。Go 工具链�
             shutil.copy2(sources/'project'/name, bundle/name)
         for name in ['examples', 'skills', 'docs']:
             shutil.copytree(sources/'project'/name, bundle/name)
+        # 发布包中的 Skill 带离线指南，可直接上传到 Wake 等宿主。
+        package_skill.add_references(sources/'project', bundle/'skills/feishu-gateway')
         (bundle/'scripts').mkdir()
         shutil.copy2(sources/'project/scripts/transfer_file.py', bundle/'scripts/transfer_file.py')
         shutil.copytree(licenses, bundle/'THIRD_PARTY_LICENSES')

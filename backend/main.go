@@ -37,6 +37,7 @@ type shortcutInfo struct {
 	Hidden            bool                       `json:"hidden"`
 	HasDryRun         bool                       `json:"has_dry_run"`
 	FlagSchemas       map[string]json.RawMessage `json:"flag_schemas,omitempty"`
+	Tips              []string                   `json:"tips,omitempty"`
 }
 
 func main() {
@@ -47,7 +48,7 @@ func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--gateway-export-shortcuts" {
 		var all []shortcutInfo
 		for _, s := range shortcuts.AllShortcuts() {
-			v := shortcutInfo{Service: s.Service, Command: s.Command, Description: s.Description, Risk: s.Risk, AuthTypes: s.AuthTypes, Flags: s.Flags, Scopes: s.ScopesForIdentity("bot"), ConditionalScopes: s.ConditionalScopesForIdentity("bot"), Hidden: s.Hidden, HasDryRun: s.DryRun != nil}
+			v := shortcutInfo{Service: s.Service, Command: s.Command, Description: s.Description, Risk: s.Risk, AuthTypes: s.AuthTypes, Flags: s.Flags, Scopes: s.ScopesForIdentity("bot"), ConditionalScopes: s.ConditionalScopesForIdentity("bot"), Hidden: s.Hidden, HasDryRun: s.DryRun != nil, Tips: s.Tips}
 			if s.PrintFlagSchema != nil {
 				v.FlagSchemas = map[string]json.RawMessage{}
 				for _, f := range s.Flags {
