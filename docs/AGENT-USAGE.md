@@ -29,7 +29,7 @@ Gateway 用固定的操作目录执行飞书请求，用一层“用法知识”
 - `feishu_tools_describe`：参数 schema、返回结构、应用 scopes、风险，以及该操作的指南。
 - `feishu_execute_read` / `feishu_execute_write`：已知 operation_id 与参数时直接调用，不必每次先 search 和 describe。
 
-搜索的排序规则：查询拆成若干条件（中文按词表最长匹配，英文按词拆分并做同义归一），优先返回全部条件都命中的操作；命中位置按 operation_id 与工具名、领域别名、能力包、参数名、描述与适用场景依次降权；领域入口操作和 shortcut 在同等命中时靠前，已隐藏的旧命令靠后。没有操作满足全部条件时，返回部分命中结果并标记 `match: partial`。
+搜索的排序规则：查询拆成若干条件（中文按词表最长匹配，英文按词拆分并做同义归一，英文虚词不计入条件；“明天”“本周”等时间词只为日程视图加分），优先返回全部条件都命中的操作；命中位置按 operation_id 与工具名、领域别名、能力包、参数名、描述与适用场景依次降权；领域入口操作和 shortcut 在同等命中时靠前，已隐藏的旧命令靠后。没有操作满足全部条件时，返回部分命中结果并标记 `match: partial`。
 
 ## 提问者级发现
 
@@ -55,7 +55,7 @@ Gateway 用固定的操作目录执行飞书请求，用一层“用法知识”
 
 `skills/feishu-gateway/SKILL.md` 说明调用约定、写入与回执、文件、分页、错误处理和 Wake 身份，并给出领域路由表。宿主支持 Skill 时与 MCP 连接一起安装；不支持时，`instructions` 与 `feishu_guide` 提供同样的入口。
 
-需要离线指南时，用打包脚本生成带 `references/` 的 Skill 目录或 ZIP，可直接上传到 Wake：
+需要离线指南时，用打包脚本生成带 `references/` 的 Skill 目录或 ZIP（ZIP 内为 `feishu-gateway/SKILL.md` 与 `feishu-gateway/references/`），按 Wake 的“包含 SKILL.md 和必要资源的压缩包”方式上传：
 
 ```sh
 python3 scripts/package_skill.py local/skill --zip
@@ -79,17 +79,29 @@ go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
 2. shortcut 的 Go Tips：由受控后端 `--gateway-export-shortcuts` 导出；同一操作在 affordance 中写了 Tips 时以 affordance 为准，与上游规则一致。
 3. 15 个官方 Skill 的 SKILL.md 与参考文档：转换为领域指南和主题。
 
+导入的 Skill 为 lark-doc、lark-sheets、lark-base、lark-drive、lark-wiki、lark-im、lark-calendar、lark-task、lark-mail、lark-okr、lark-slides、lark-meeting、lark-whiteboard、lark-markdown、lark-contact。lark-minutes、lark-vc、lark-vc-agent、lark-note、lark-event、lark-attendance 只把引用改写为对应领域，内容由 lark-meeting 或网关工具覆盖。以下 Skill 不导入：
+
+| Skill | 原因 |
+|---|---|
+| lark-approval | 审批操作仅支持用户身份 |
+| lark-apps | 妙搭应用的操作几乎都仅支持用户身份 |
+| lark-shared | CLI 的登录、身份切换与配置 |
+| lark-skill-maker、lark-openapi-explorer | 制作 CLI Skill、通过 CLI 调用未封装的 OpenAPI |
+| lark-workflow-standup-report、lark-workflow-meeting-summary | 汇总“我的”日程、待办和会议，依赖用户身份操作 |
+
 转换规则：
 
 - `lark-cli docs +fetch --detail with-ids`、`docs +fetch`、`+fetch`、`[[+fetch]]` 等写法改为 operation_id，参数改为 JSON 参数名，例如 `docs.+fetch`（detail="with-ids"）；代码块中的命令改为 `operation_id {参数}` 行。
 - 网关目录中没有的操作标注“网关不提供”及原因（例如仅支持用户身份）。
-- `--print-schema`、`--help` 和 `lark-cli schema` 改为 `feishu_tools_describe`；`--yes` 改为管理员预授权；`--dry-run`、jq 标注网关不提供。
-- 只适用于用户身份、CLI 登录授权、本机路径或 CLI 自身管理的行和条目会被删除，约占上游文本行数的 3%。
+- `--print-schema`、`--help` 和 `lark-cli schema` 改为 `feishu_tools_describe`；`--yes` 改为管理员预授权；`--dry-run`、jq 标注网关不提供。说明 CLI 语法的模板（如 `lark-cli im +<verb> [flags]`）改为 operation_id 写法。
+- 网关固定以应用身份执行：只提到 `--as bot` 的内容保留，改写为“应用身份”，命令中的该参数去掉；涉及用户身份的内容删除。
+- 只适用于 CLI 登录授权、本机路径或 CLI 自身管理的行和条目会被删除；描述 CLI 全局参数的表格行、按 shell 区分写法的表格整行或整表删除。删除部分约占上游 Markdown 行数的 2%。表格续行的空首格写“同上”。
+- affordance 与 Go Tips 是英文，插入其中的网关说明也用英文。
 - Skill 内的相对链接改为“主题 `x`”或领域指南引用。
 
 同一次导入还会清理目录中的操作与参数描述：删除用户身份说明，把 CLI flag 写法改为本操作的参数名。目录的参数、风险和执行映射不变。
 
-已知限制：约 70 处无法安全转换的 `lark-cli` 写法保持原文，多为带管道、heredoc 或变量替换的 shell 片段，每篇指南开头的说明会提示这些 CLI 专用能力在网关中不可用；指南内容来自上游文档，没有逐项做真实飞书验证。
+已知限制：32 行无法安全转换的 `lark-cli` 写法保持原文，多为带管道、heredoc 或变量替换的 shell 片段和 CLI 输出示例；每篇指南开头说明这些 CLI 专用能力在网关中不可用，以及结果中的 `next_command` 怎样换成 operation_id。`go test` 检查残留不超过这个数，并检查指南中没有身份切换参数和残缺的表格行。指南内容来自上游文档，没有逐项做真实飞书验证。
 
 ## 升级 lark-cli
 
