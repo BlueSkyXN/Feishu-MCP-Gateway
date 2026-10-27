@@ -129,6 +129,13 @@ func TestSearchFindsTaskPhrasesInChineseAndEnglish(t *testing.T) {
 		{"多维表格 记录", 5, []string{"base.+record-list"}},
 		{"知识库节点", 5, []string{"wiki.+node-get"}},
 		{"创建日程", 3, []string{"calendar.+create"}},
+		// 以下说法在 0.3.0-dev 首版中没有找到目标操作。
+		{"新建电子表格", 3, []string{"sheets.+workbook-create"}},
+		{"create spreadsheet", 3, []string{"sheets.+workbook-create"}},
+		{"往表格追加一行", 3, []string{"sheets.+table-put"}},
+		{"append rows to sheet", 3, []string{"sheets.+table-put"}},
+		{"在知识库里找文档", 3, []string{"drive.+search"}},
+		{"查看我明天的日程", 3, []string{"calendar.+agenda"}},
 	} {
 		got := top(tc.query, tc.n)
 		for _, want := range tc.want {
