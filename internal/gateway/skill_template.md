@@ -15,7 +15,7 @@ description: 通过 Feishu-MCP-Gateway 以飞书应用身份处理飞书/Lark �
    - 具名视图：直接调用工具。operation_id 换成工具名的规则是加 `feishu_` 前缀、去掉 `+`、把 `.` 和 `-` 换成 `_`，例如 `docs.+fetch` 对应 `feishu_docs_fetch`。
    - 紧凑视图：已知 operation_id 和参数时直接调用 `feishu_execute_read` 或 `feishu_execute_write`；否则先用 `feishu_tools_search` 查找（中英文均可，可按 domain 过滤），再用 `feishu_tools_describe` 查看参数和用法。
 4. 领域指南由 lark-cli 官方 Skill 转换而来。标注“网关不提供”的操作不能调用；CLI 的本地脚本、jq、stdin 和 dry-run 在网关中不可用。
-5. 如果本 Skill 目录带有 `references/`，其中文件与 `feishu_guide` 返回的内容相同，可以直接读：docs、mindnotes 对应 `references/lark-doc/`，vc、minutes、note 对应 `references/lark-meeting/`，其余领域对应 `references/lark-<领域 ID>/`，入口文件为 `GUIDE.md`。
+5. 如果本 Skill 目录带有 `references/`，其中文件与 `feishu_guide` 返回的内容相同，可以直接读：{{REFERENCES}}，入口文件为 `GUIDE.md`。
 
 ## 领域路由
 
