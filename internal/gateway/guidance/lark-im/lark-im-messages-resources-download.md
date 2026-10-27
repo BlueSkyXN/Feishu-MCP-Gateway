@@ -20,6 +20,9 @@ im.+messages-resources-download {"message_id": "om_xxx", "file_key": "file_v3_xx
 # Specify the output path
 im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image", "output": "./photo.png"}
 
+# Download as a bot
+im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image"}
+
 # Preview the request without executing it
 im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx", "type": "image"}
 ```
@@ -32,7 +35,6 @@ im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx
 | `file_key=<key>` | Yes | Resource key (`img_xxx` or `file_xxx`) |
 | `type=<type>` | Yes | Resource type: `image` or `file` |
 | `output=<path>` | No | Output path, relative or absolute, that must resolve inside the built-in allowed roots (the working directory, `/tmp`, `~/files`); system and credential directories stay refused. When omitted, the command uses the attachment name when available and otherwise falls back to the resource key |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it |
 
 ## Choose `type`
 
@@ -47,7 +49,7 @@ Different resource markers in message content correspond to different `file_key`
 
 Stickers cannot be downloaded with this command.
 
-A folder itself cannot be downloaded: expand it with `im.files.folder` first (see `im` 领域指南), then download the files it contains.
+A folder itself cannot be downloaded: expand it with `im.files.folder` first (see `im` domain指南), then download the files it contains.
 
 ## Output
 
@@ -80,4 +82,4 @@ im.+messages-resources-download {"message_id": "om_xxx", "file_key": "img_v3_xxx
 
 ## References
 
-- `im` 领域指南 - all message-related commands
+- `im` domain指南 - all message-related commands

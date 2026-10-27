@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+signature`（网关不提供：仅支持用户身份）
+# `mail.+signature` (not available in the gateway: user identity only)
 
 查看邮箱签名列表或详情。返回签名的类型、默认使用情况、内容预览等信息。TENANT（企业）签名的模板变量会被自动替换为实际值。
 

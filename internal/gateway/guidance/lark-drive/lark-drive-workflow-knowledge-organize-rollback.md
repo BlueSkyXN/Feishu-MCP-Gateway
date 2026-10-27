@@ -182,9 +182,6 @@ MUST:
 
 Verification table:
 
-| plan_id | 标题 | 原位置 | 当前实际位置 | 状态 | 失败原因 |
-|---------|------|--------|--------------|------|----------|
-
 Status values:
 
 | Status | Meaning |
@@ -258,7 +255,7 @@ drive.+delete {"file_token": "<folder_token>", "type": "folder"}
 wiki.+node-delete {"node_token": "<node_token>", "obj_type": "wiki", "include_children": true}
 ```
 
-管理员预授权（high_risk_operations） is allowed only after the user explicitly confirmed cleanup deletion.
+administrator pre-authorization (high_risk_operations) is allowed only after the user explicitly confirmed cleanup deletion.
 
 MUST NOT:
 
@@ -279,9 +276,6 @@ MUST:
 3. Stop after reporting cleanup results.
 
 Verification table:
-
-| 类型 | 路径 | token | 状态 | 失败原因 |
-|------|------|-------|------|----------|
 
 Status values:
 

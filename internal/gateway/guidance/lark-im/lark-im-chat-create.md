@@ -4,6 +4,8 @@
 
 This skill maps to the shortcut: `im.+chat-create` (internally calls `POST /open-apis/im/v1/chats`).
 
+- app identity requires the `im:chat:create` scope.
+
 ## Commands
 
 ```text
@@ -28,8 +30,14 @@ im.+chat-create {"name": "My Group", "bots": "cli_aaa,cli_bbb"}
 # Invite both users and bots
 im.+chat-create {"name": "My Group", "users": "ou_aaa", "bots": "cli_aaa"}
 
+# Make the creating bot a group manager (bot identity only)
+im.+chat-create {"name": "My Group", "set_bot_manager": true}
+
 # JSON output
 im.+chat-create {"name": "My Group"}
+
+# Create a group with bot identity
+im.+chat-create {"name": "My Group", "users": "ou_aaa"}
 
 # Preview the request without creating anything
 im.+chat-create {"name": "My Group"}
@@ -45,17 +53,22 @@ im.+chat-create {"name": "My Group"}
 | `bots=<ids>` | No | Up to 5, format `cli_xxx` | Comma-separated bot app IDs |
 | `type=<type>` | No | `private` (default) or `public` | Group type. Default to `private`; pass `public` only when the user explicitly asks for a discoverable/public group. |
 | `chat_mode=<mode>` | No | `group` (default) or `topic` | Group mode; `topic` creates a topic chat (not the same as `group_message_type=thread`). When the user asks for a topic chat, pass `topic` explicitly — do not rely on the default. |
-|  | No | - | Output as JSON |
-| dry-run（网关不提供，改为先读取核对） | No | - | Preview the request without executing it |
+| `set_bot_manager` | No | - | Set the creating bot as a group manager (only effective with app identity) |
 
 > **`chat_mode=topic` vs "normal group with topic-message mode"**: `chat_mode=topic` here creates a 话题群 — the entire group is a topic chat. This is different from "normal group (`chat_mode=group`) + topic-message mode (`group_message_type=thread`)". This CLI exposes only `chat_mode`; `group_message_type` is intentionally not surfaced.
 
 ## AI Usage Guidance
 
+### When using app identity
+
 Bot may fail to invite users who are mutually invisible to it during group creation (error 232043). To avoid this, use the **two-step flow** below instead of passing other users' open_ids in `users`.
 
-1. **Get the current user's open_id:** Run `contact.+search-user`（网关不提供：仅支持用户身份） to retrieve it.
+1. **Get the current user's open_id:** Run `contact.+search-user` (not available in the gateway: user identity only) to retrieve it.
 2. **Create the group — by default include the current user:**
+
+```text
+   im.+chat-create {"name": "<group name>", "users": "<current user open_id>"}
+```
 
    **Default behavior:** Always add the current user to the group, unless the user explicitly says "do not add me" or "bot-only group" — only then omit `users`.
 
@@ -114,4 +127,4 @@ im.+messages-send {"chat_id": "$CHAT_ID", "text": "Welcome, everyone!"}
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands

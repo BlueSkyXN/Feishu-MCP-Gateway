@@ -23,7 +23,6 @@ slides.+delete-slide {"presentation": "$PRES_ID", "slide_id": "$SID"}
 | `presentation` | 是 | `xml_presentation_id`、`/slides/` URL 或 `/wiki/` URL |
 | `slide_id` | 是 | 要删除的页面 ID |
 | `revision_id` | 否 | 演示文稿版本号，默认 `-1`（最新）；传具体版本号做乐观锁 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 打印将要发起的请求，不删除 |
 
 ## 成功输出
 
@@ -47,7 +46,7 @@ slides.+delete-slide {"presentation": "$PRES_ID", "slide_id": "$SID"}
 
 ## 删错了怎么办
 
-删除在原地不可撤销，但可以走历史版本回滚：`slides.+history-list` 找 `history_version_id` → `slides.+history-revert`（只接受 `history_version_id`，不能传 `revision_id`）→ `slides.+history-revert-status` 轮询。命令用法见 lark-slides-history.md（主题 `lark-slides-history`）。
+删除在原地不可撤销，但可以走历史版本回滚：`slides.+history-list` 找 `history_version_id` → `slides.+history-revert`（只接受 `history_version_id`，不能传 `revision_id`）→ `slides.+history-revert-status` 轮询。命令用法见 主题 `lark-slides-history`。
 
 ## 常见错误
 
@@ -55,3 +54,4 @@ slides.+delete-slide {"presentation": "$PRES_ID", "slide_id": "$SID"}
 |------|------|------|
 | `slide_id cannot be empty` | 传了空串或纯空格 | 检查变量有没有取到值 |
 | 3350001 `invalid param` | `slide_id` 写错或该页已被删 | `slides.+xml-get` 回读确认 `slide_id` 还在 |
+| 403 / 权限不足 | 当前身份对这份 PPT 没有编辑权限 | 检查是否拥有 `slides:presentation:update` 或 `slides:presentation:write_only` scope；wiki 链接另需 `wiki:node:read`；应用身份 还要求该 bot 对目标 PPT 有编辑权限 |

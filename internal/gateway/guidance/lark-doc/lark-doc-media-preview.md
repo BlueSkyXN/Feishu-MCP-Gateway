@@ -35,5 +35,5 @@ docs.+media-preview {"token": "Z1Fjxxxxxxxx", "output": "./asset.png"}
 
 ## 参考
 
-- lark-doc-fetch（主题 `lark-doc-fetch`） — 获取文档内容（用于提取 token）
-- lark-doc-media-download（主题 `lark-doc-media-download`） — 明确下载素材，或下载画板缩略图
+- 主题 `lark-doc-fetch` — 获取文档内容（用于提取 token）
+- 主题 `lark-doc-media-download` — 明确下载素材，或下载画板缩略图

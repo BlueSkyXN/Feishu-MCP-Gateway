@@ -21,7 +21,7 @@ task.+comment {"task_id": "<task_guid>", "content": "Looks good!"}
 ## Workflow
 
 1. Confirm the task and comment content.
-2. Execute `task.+comment`（task_id="..."，content="..."）
+2. Execute `task.+comment` (task_id="...", content="...")
 3. Report success and comment ID.
 
 > [!CAUTION]

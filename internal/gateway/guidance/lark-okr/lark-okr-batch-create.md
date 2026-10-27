@@ -23,8 +23,6 @@
 | `input`        | 是  | —         | JSON 数组格式的 Objective 列表。支持 `@文件路径` 从文件读取或 `-` 从 stdin 读取。 |
 | `category_id`  | 否  | —         | 默认 Objective 分类 ID。仅用于 input 中未设置 `category_id` 的 Objective。通常不需要传入，见下方“分类提示”。 |
 | `user_id_type` | 否  | `open_id` | mention 中使用的用户 ID 类型：`open_id` \| `union_id` \| `user_id`  |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —         | 预览 API 调用而不实际执行                                            |
-|        | 否  | `json`    | 输出格式                                                       |
 
 ## 输入格式
 

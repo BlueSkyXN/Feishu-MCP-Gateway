@@ -16,7 +16,7 @@
 
 ### 1. 调用 suggestion
 
-详见 主题 `lark-calendar-suggestion`（主题 `lark-calendar-suggestion`）。
+详见 主题 `lark-calendar-suggestion`。
 
 ```text
 calendar.+suggestion {"start": "<range_start>", "end": "<range_end>", "attendee_ids": "<ids>", "duration_minutes": "<n>", "event_rrule": "<rrule>"}
@@ -39,7 +39,7 @@ calendar.+suggestion {"start": "<range_start>", "end": "<range_end>", "attendee_
 
 > **注意**：即使用户最初只说"查会议室"且未带时间，也必须强制走 suggestion → room-find 路径。
 
-详见 主题 `lark-calendar-room-find`（主题 `lark-calendar-room-find`）。
+详见 主题 `lark-calendar-room-find`。
 
 ### 3. 用户确认后
 

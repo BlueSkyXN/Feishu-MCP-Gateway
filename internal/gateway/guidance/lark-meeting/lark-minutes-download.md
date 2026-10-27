@@ -38,7 +38,6 @@ minutes.+download {"minute_tokens": "obcnxxxxxxxxxxxxxxxxxxxx"}
 | `output_dir=<dir>` | 否 | 输出目录（单/批量均可）。与 `output` 互斥 |
 | `overwrite` | 否 | 覆盖已存在的输出文件 |
 | `--url-only` | 否 | 仅返回下载链接，不下载文件 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 > **默认落点**：未指定 `output` / `output_dir` 时，文件落到 `./minutes/{minute_token}/<server-filename>`。文件名沿用服务端 Content-Disposition / Content-Type 推断，Agent 可从 `saved_path` 字段读取实际路径。同一 minute_token 的录像和 `minutes.+detail` 的逐字稿默认会落在**同一目录**下，方便聚合。
 

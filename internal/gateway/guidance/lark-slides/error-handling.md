@@ -21,7 +21,7 @@
 2. 用 `slides.+xml-get` 回读，确认是否已有部分页面写入。
 3. 检查失败页是否含未转义字符：`Q&A -> Q&amp;A`，文本 `<` / `>` 写成 `&lt;` / `&gt;`，属性 URL `a=1&b=2 -> a=1&amp;b=2`。
 4. 检查标签闭合、属性引号、`<content>` 结构，以及 `<slide>` 直接子元素。
-5. 页面空白、溢出、重叠或越界时，按 validation-xml.md（主题 `validation-xml`） 运行 `xml_lint.py`；先修复所有 `error`，再对 `warning` 指向的页面和元素做截图复核。
+5. 页面空白、溢出、重叠或越界时，按 主题 `validation-xml` 运行 `xml_lint.py`；先修复所有 `error`，再对 `warning` 指向的页面和元素做截图复核。
 6. 如果使用 `slides=[...]` 字面量，怀疑 shell 转义或截断时改用文件输入：`slides.+create`（slide=["<内容>", "<内容>"]）。
 7. 局部问题用 `slides.+replace-slide` 块级修正；整页结构要改时用 `slides.+delete-slide` 删旧页 + `slides.+add-slide` 建新页。
 
@@ -58,6 +58,6 @@
 
 ## Command-Specific References
 
-- 图片上传、`@path` 占位符、`file_token`：见 lark-slides-media-upload.md（主题 `lark-slides-media-upload`） 和 lark-slides-create.md（主题 `lark-slides-create`）。
-- 块级替换、`block_id`、3350001 replace 细节：见 lark-slides-replace-slide.md（主题 `lark-slides-replace-slide`）。
-- 追加/插入单页、`before_slide_id` 和 `slide=@file` 绕开转义：见 lark-slides-add-slide.md（主题 `lark-slides-add-slide`）。
+- 图片上传、`@path` 占位符、`file_token`：见 主题 `lark-slides-media-upload` 和 主题 `lark-slides-create`。
+- 块级替换、`block_id`、3350001 replace 细节：见 主题 `lark-slides-replace-slide`。
+- 追加/插入单页、`before_slide_id` 和 `slide=@file` 绕开转义：见 主题 `lark-slides-add-slide`。

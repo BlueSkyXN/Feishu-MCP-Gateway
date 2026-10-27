@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # markdown (v1)
 
@@ -49,15 +50,15 @@ markdown.+patch {"file_token": "boxcnxxxx", "regex": true, "pattern": "version \
 
 ## Shortcuts（推荐优先使用）
 
-Shortcut 是对常用操作的高级封装（`lark-cli markdown +<verb> [flags]`）。有 Shortcut 的操作优先使用。
+Shortcut 是对常用操作的高级封装（`markdown.+<verb> {参数}`）。有 Shortcut 的操作优先使用。
 
 | Shortcut | 说明 |
 |----------|------|
-| `markdown.+create`（主题 `lark-markdown-create`） | Create a Markdown file in Drive |
-| `markdown.+diff`（主题 `lark-markdown-diff`） | Compare two remote Markdown versions, or compare remote Markdown against a local file |
-| `markdown.+fetch`（主题 `lark-markdown-fetch`） | Fetch a Markdown file from Drive |
-| `markdown.+patch`（主题 `lark-markdown-patch`） | Patch a Markdown file in Drive via fetch-local-replace-overwrite |
-| `markdown.+overwrite`（主题 `lark-markdown-overwrite`） | Overwrite an existing Markdown file in Drive |
+| `markdown.+create` (topic `lark-markdown-create`) | Create a Markdown file in Drive |
+| `markdown.+diff` (topic `lark-markdown-diff`) | Compare two remote Markdown versions, or compare remote Markdown against a local file |
+| `markdown.+fetch` (topic `lark-markdown-fetch`) | Fetch a Markdown file from Drive |
+| `markdown.+patch` (topic `lark-markdown-patch`) | Patch a Markdown file in Drive via fetch-local-replace-overwrite |
+| `markdown.+overwrite` (topic `lark-markdown-overwrite`) | Overwrite an existing Markdown file in Drive |
 
 ## 参考
 

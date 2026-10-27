@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `wiki` 领域 `wiki.+member-list`
+# `wiki` domain `wiki.+member-list`
 
 List the members of a wiki space. OpenAPI: `GET /open-apis/wiki/v2/spaces/:space_id/members`. **Default fetches a single page** (matches `wiki.+space-list` / `wiki.+node-list`); pass `page_all` to walk every page.
 
@@ -33,7 +33,6 @@ wiki.+member-list {"space_id": "<space_id>"}
 | `page_token` | string | No | — | Page cursor; implies single-page fetch (no auto-pagination) |
 | `page_all` | bool | No | `false` | Automatically paginate through all pages (capped by `page_limit`) |
 | `page_limit` | int | No | 10 | Max pages with `page_all` (0 = unlimited) |
-|  | enum | No | `json` | `json` / `pretty` / `table` / `csv` / `ndjson` |
 
 ## Output
 
@@ -65,8 +64,9 @@ wiki.+member-list {"space_id": "<space_id>"}
 
 ## Notes
 
-- Use `member_id` from the output as `member_id` for `wiki.+member-remove`（主题 `lark-wiki-member-remove`）; `member_type` and `member_role` must be passed exactly as listed to remove a grant.
-- dry-run（网关不提供，改为先读取核对） previews 2 steps when `space_id=my_library` (resolve → list), 1 step otherwise.
+- **Bot + `my_library` is rejected upfront** — pass an explicit `space_id` when app identity.
+- Use `member_id` from the output as `member_id` for `wiki.+member-remove` (topic `lark-wiki-member-remove`); `member_type` and `member_role` must be passed exactly as listed to remove a grant.
+- dry-run (not available in the gateway; read and verify first) previews 2 steps when `space_id=my_library` (resolve → list), 1 step otherwise.
 
 ## Required Scope
 

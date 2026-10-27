@@ -42,7 +42,6 @@ drive.+delete {"file_token": "<FOLDER_TOKEN>", "type": "folder"}
 |------|------|------|
 | `file_token` | 是 | 需要删除的文件或文件夹 token |
 | `type` | 是 | 文件类型，可选值：`file`、`docx`、`bitable`、`doc`、`sheet`、`mindnote`、`folder`、`shortcut`、`slides` |
-| 管理员预授权（high_risk_operations） | 是 | 确认执行高风险删除操作 |
 
 ## 行为说明
 

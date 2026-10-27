@@ -17,7 +17,6 @@
 |------|------|------|
 | `token` | 是 | bare token 或完整 URL。URL 路径支持 `/folder/`、`/docx/`、`/doc/`、`/sheets/`、`/base/`、`/bitable/`、`/wiki/`、`/file/`、`/mindnotes/`、`/slides/`、`/minutes/`、`/page/`。 |
 | `type` | bare token 必填 | 目标类型：`doc` / `sheet` / `file` / `wiki` / `bitable` / `docx` / `mindnote` / `minutes` / `slides` / `folder` / `apps`。URL 可自动推断；如果同时传 URL 和冲突的 `type`，CLI 会拒绝。 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 只打印请求，不调用 API。 |
 
 ## 输出
 

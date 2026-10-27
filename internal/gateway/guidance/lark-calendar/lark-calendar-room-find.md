@@ -95,6 +95,6 @@ calendar.+room-find {"slot": ["2026-03-27T14:00:00+08:00~2026-03-27T15:00:00+08:
 
 ## 参考
 
-- lark-calendar-create（主题 `lark-calendar-create`）
-- lark-calendar-suggestion（主题 `lark-calendar-suggestion`）
+- topic `lark-calendar-create`
+- topic `lark-calendar-suggestion`
 - `calendar` 领域指南 — skill 入口与路由

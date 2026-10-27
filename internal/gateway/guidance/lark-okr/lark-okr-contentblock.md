@@ -254,7 +254,7 @@ OKR shortcuts 支持 `style` 标志控制 content/notes 字段的输入输出格
 
 | 字段        | 类型               | 说明                                                                                                        |
 |-----------|------------------|-----------------------------------------------------------------------------------------------------------|
-| `text`    | `string`         | 纯文本内容（必填，不能为空）。**输出时**包含 ` @{userID} ` 占位符以保留提及的位置上下文；**输入时** `@{...}` 占位符会被自动 strip 掉，只识别 `mention` 字段内容 |
+| `text`    | `string`         | 纯文本内容（必填，不能为空）。**输出时**包含 `@{userID}` 占位符以保留提及的位置上下文；**输入时** `@{...}` 占位符会被自动 strip 掉，只识别 `mention` 字段内容 |
 | `mention` | `string[]`       | 用户 ID 列表（可选），与 text 中的 `@{userID}` 占位符一一对应，输入时按顺序转换为 mention 元素**置于文本末尾**                                 |
 | `docs`    | `SemiPlainDoc[]` | 文档列表（仅输出时包含，输入时 simple 风格不支持）                                                                             |
 | `images`  | `string[]`       | 图片 URL 列表（仅输出时包含，输入时 simple 风格不支持）                                                                        |
@@ -268,7 +268,7 @@ OKR shortcuts 支持 `style` 标志控制 content/notes 字段的输入输出格
 
 ### 双向转换说明
 
-- **ContentBlock → SemiPlainContent**（输出时）：提取纯文本、提及用户、文档链接和图片 URL，丢弃格式信息（粗体、列表、颜色等）。**提及的位置信息通过 ` @{userID} ` 占位符保留在 text 中**，同时 userID 也会被收集到 mention 数组中
+- **ContentBlock → SemiPlainContent**（输出时）：提取纯文本、提及用户、文档链接和图片 URL，丢弃格式信息（粗体、列表、颜色等）。**提及的位置信息通过 `@{userID}` 占位符保留在 text 中**，同时 userID 也会被收集到 mention 数组中
 - **SemiPlainContent → ContentBlock**（输入时）：自动 strip 掉 text 中的 `@{...}` 占位符，然后将 text 和 mention 合并为单个段落，mention 按顺序附加在文本末尾。docs 和 images 在输入时被忽略（simple 风格不支持）
 
 ## 使用示例

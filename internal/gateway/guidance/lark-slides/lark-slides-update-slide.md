@@ -91,7 +91,7 @@ python3 "<lark-slides-skill-dir>/scripts/xml_lint.py" --input page.xml
 
 写入成功后，必须回读整份演示文稿的最新 XML，而不是只相信写接口的成功响应：
 
-按当前已加载 `lark-slides/SKILL.md` 指向的 validation-xml.md（主题 `validation-xml`） 完成验证：核对总页数、目标页和关键元素（包括需要保留的 ID、文本、背景与备注），并对回读 XML 运行同一版式 lint；发现差异时先停止后续写入并重新基于最新版处理。
+按当前已加载 `lark-slides/SKILL.md` 指向的 主题 `validation-xml` 完成验证：核对总页数、目标页和关键元素（包括需要保留的 ID、文本、背景与备注），并对回读 XML 运行同一版式 lint；发现差异时先停止后续写入并重新基于最新版处理。
 
 ## 成功输出
 
@@ -124,5 +124,6 @@ python3 "<lark-slides-skill-dir>/scripts/xml_lint.py" --input page.xml
 | 现象 | 原因 | 解决 |
 |------|------|------|
 | 3350001，原因包含 `not found` | `presentation` 不匹配，或 `slide_id` 对应的页面已被删除 | 检查 `presentation` 和 `slide_id`，再用 `slides.+xml-get` 回读当前页面 ID |
-| 3350001，其他 invalid param | `content` 的 XML 结构有问题（如 `<shape>` 缺 `<content/>`、包含服务端不支持的元素） | 按 error-handling.md（主题 `error-handling`） 检查 `content` 的 XML 结构 |
+| 3350001，其他 invalid param | `content` 的 XML 结构有问题（如 `<shape>` 缺 `<content/>`、包含服务端不支持的元素） | 按 主题 `error-handling` 检查 `content` 的 XML 结构 |
 | 3350002 not found | `revision_id` 传了不存在的版本号 | 用 `-1` 或真实存在的 `revision_id` |
+| 1061004 / 403 | 当前身份对这份 PPT 没有编辑权限 | 检查是否拥有 `slides:presentation:update` 或 `slides:presentation:write_only` scope；wiki 链接另需 `wiki:node:read`，`@` 占位符另需 `docs:document.media:upload`；应用身份 还要求该 bot 对目标 PPT 有编辑权限 |

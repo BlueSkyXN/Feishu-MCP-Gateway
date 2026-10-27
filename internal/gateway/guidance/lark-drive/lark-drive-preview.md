@@ -85,7 +85,7 @@ drive.+preview {"file_token": "<FILE_TOKEN>", "version": "12", "type": "html", "
 - `type=source_file` 用于查看文件内容，不依赖 `list_only` 返回的候选项；它适合读取或保存源内容，不等同于 PDF/text/image 等转换预览
 - 候选项状态来自后端 `preview_status` 枚举，例如 `READY` / `PROCESSING` / `FAILED` / `NO_SUPPORT`
 - 本地文件名在未显式带扩展名时，会结合响应头自动补扩展名
-- Wiki URL / 裸 Wiki node token 会先解析到底层文档，解析后会在输出里附带 `wiki_token` 和 `wiki_node`（含底层 `obj_token`/`obj_type`）；`obj_type` 必须是 `file`。如果 Wiki 指向 `docx` / `sheet` / `bitable` / `slides` 等在线文档，`drive.+preview` 无法直接处理，CLI 会返回 typed validation error，并在 hint 中提示改用 lark-drive-export（主题 `lark-drive-export`）
+- Wiki URL / 裸 Wiki node token 会先解析到底层文档，解析后会在输出里附带 `wiki_token` 和 `wiki_node`（含底层 `obj_token`/`obj_type`）；`obj_type` 必须是 `file`。如果 Wiki 指向 `docx` / `sheet` / `bitable` / `slides` 等在线文档，`drive.+preview` 无法直接处理，CLI 会返回 typed validation error，并在 hint 中提示改用 主题 `lark-drive-export`
 
 ### 参考
 

@@ -70,40 +70,40 @@ Card 2.0 组件按**容器 / 展示 / 交互**三类，均通过 `tag` 字段声
 
 | 组件 | 用途 |
 |---|---|
-| column_set（主题 `column_set`） | 横向分栏，多列图文对齐（数据表、字段对、列表） |
-| collapsible_panel（主题 `collapsible_panel`） | 折叠面板，收纳备注/长文本等次要信息 |
-| form（主题 `form`） | 表单容器，批量录入表单项后一次提交 |
-| interactive_container（主题 `interactive_container`） | 整块可点击区域，可统一定义样式与交互 |
+| 主题 `column_set` | 横向分栏，多列图文对齐（数据表、字段对、列表） |
+| 主题 `collapsible_panel` | 折叠面板，收纳备注/长文本等次要信息 |
+| 主题 `form` | 表单容器，批量录入表单项后一次提交 |
+| 主题 `interactive_container` | 整块可点击区域，可统一定义样式与交互 |
 | 循环容器（主题 `recycling_container`） | 批量渲染同版式不同数据（仅搭建工具） |
 
 ## 展示类（无交互）
 
 | 组件 | 用途 |
 |---|---|
-| header（主题 `header`） | 卡片标题区：主/副标题、后缀标签、主题色 |
-| div（主题 `div`） | 普通文本，带前缀图标、字段对 |
-| markdown（主题 `markdown`） | 富文本，最常用；@人、彩色、链接、列表、表格等 |
-| img（主题 `img`） | 单图 |
-| img_combination（主题 `img_combination`） | 多图拼排（双图/三图/宫格） |
-| person（主题 `person`） | 单个人员头像/姓名 |
-| person_list（主题 `person_list`） | 多个人员头像/姓名 |
-| chart（主题 `chart`） | VChart 图表（折线/柱/饼/词云等） |
-| table（主题 `table`） | 多列数据表（只能放根节点） |
-| hr（主题 `hr`） | 分割线 |
+| 主题 `header` | 卡片标题区：主/副标题、后缀标签、主题色 |
+| 主题 `div` | 普通文本，带前缀图标、字段对 |
+| 主题 `markdown` | 富文本，最常用；@人、彩色、链接、列表、表格等 |
+| 主题 `img` | 单图 |
+| 主题 `img_combination` | 多图拼排（双图/三图/宫格） |
+| 主题 `person` | 单个人员头像/姓名 |
+| 主题 `person_list` | 多个人员头像/姓名 |
+| 主题 `chart` | VChart 图表（折线/柱/饼/词云等） |
+| 主题 `table` | 多列数据表（只能放根节点） |
+| 主题 `hr` | 分割线 |
 
 ## 交互类
 
 | 组件 | 用途 |
 |---|---|
-| button（主题 `button`） | 按钮：回调 / 跳转 / 表单提交 |
-| input（主题 `input`） | 文本输入框（多嵌在 form 内） |
-| overflow（主题 `overflow`） | 折叠按钮组，收纳多个操作 |
-| select_static（主题 `select_static`） | 下拉单选 |
-| multi_select_static（主题 `multi_select_static`） | 下拉多选 |
-| select_person（主题 `select_person`） | 人员单选 |
-| multi_select_person（主题 `multi_select_person`） | 人员多选 |
-| date_picker（主题 `date_picker`） | 日期选择器 |
-| picker_time（主题 `picker_time`） | 时间选择器 |
-| picker_datetime（主题 `picker_datetime`） | 日期时间选择器 |
-| select_img（主题 `select_img`） | 图片选择（单/多选） |
-| checker（主题 `checker`） | 勾选器，任务勾选回调 |
+| 主题 `button` | 按钮：回调 / 跳转 / 表单提交 |
+| 主题 `input` | 文本输入框（多嵌在 form 内） |
+| 主题 `overflow` | 折叠按钮组，收纳多个操作 |
+| 主题 `select_static` | 下拉单选 |
+| 主题 `multi_select_static` | 下拉多选 |
+| 主题 `select_person` | 人员单选 |
+| 主题 `multi_select_person` | 人员多选 |
+| 主题 `date_picker` | 日期选择器 |
+| 主题 `picker_time` | 时间选择器 |
+| 主题 `picker_datetime` | 日期时间选择器 |
+| 主题 `select_img` | 图片选择（单/多选） |
+| 主题 `checker` | 勾选器，任务勾选回调 |

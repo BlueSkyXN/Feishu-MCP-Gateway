@@ -193,4 +193,4 @@ value schema 随计算结果类型变化；拿不准时先读取字段定义，�
 - `formula` / `lookup` 的 value schema 是动态的；拿不准 value 类型时先读字段定义，或根据错误提示修正类型。
 
 ## 6. 参考
-- Lookup Field（主题 `lark-base-field-lookup`）
+- Lookup Field (topic `lark-base-field-lookup`)

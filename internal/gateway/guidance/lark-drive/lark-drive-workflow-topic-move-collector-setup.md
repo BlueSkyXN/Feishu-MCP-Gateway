@@ -12,8 +12,8 @@
 
 执行本文档规则前：
 
-2. 解析 Drive 目标时，遵循 主题 `lark-drive-inspect`（主题 `lark-drive-inspect`）、主题 `lark-drive-create-folder`（主题 `lark-drive-create-folder`） 和 主题 `lark-drive-search`（主题 `lark-drive-search`）。
-3. 解析 Wiki 目标时，遵循 `../../lark-wiki/SKILL.md`（`wiki` 领域指南）、`../../lark-wiki/references/lark-wiki-node-get.md`（主题 `lark-wiki-node-get`） 和 `../../lark-wiki/references/lark-wiki-node-create.md`（主题 `lark-wiki-node-create`）。
+2. 解析 Drive 目标时，遵循 主题 `lark-drive-inspect`、主题 `lark-drive-create-folder` 和 主题 `lark-drive-search`。
+3. 解析 Wiki 目标时，遵循 `../../lark-wiki/SKILL.md`（`wiki` 领域指南）、主题 `lark-wiki-node-get` 和 主题 `lark-wiki-node-create`。
 
 ## 状态：`PARSE_INPUT`
 

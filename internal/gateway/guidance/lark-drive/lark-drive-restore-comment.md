@@ -2,7 +2,7 @@
 
 # `drive.+restore-comment`
 
-恢复 / 重新打开一条已解决的评论。反向操作——把评论标记为已解决——是独立命令 主题 `lark-drive-resolve-comment`（主题 `lark-drive-resolve-comment`）。
+恢复 / 重新打开一条已解决的评论。反向操作——把评论标记为已解决——是独立命令 主题 `lark-drive-resolve-comment`。
 
 用户说“重新打开 / 取消解决 / 恢复这条评论”对应本命令。
 
@@ -43,4 +43,4 @@ drive.+restore-comment {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>"
 
 ## 参考
 
-- lark-drive-resolve-comment（主题 `lark-drive-resolve-comment`） -- 解决（标记已解决）评论
+- 主题 `lark-drive-resolve-comment` -- 解决（标记已解决）评论

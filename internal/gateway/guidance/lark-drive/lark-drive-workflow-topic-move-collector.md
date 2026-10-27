@@ -15,10 +15,10 @@ Risk / Structure: `R2-R3` / `S3`
 按阶段渐进加载其他 skill / 引用文档：
 
 - 目标是 Wiki 或个人文档库：`../../lark-wiki/SKILL.md`（`wiki` 领域指南）
-- 需要读取文档内容：`../../lark-doc/SKILL.md`（`docs` 领域指南） 和 `../../lark-doc/references/lark-doc-fetch.md`（主题 `lark-doc-fetch`）
+- 需要读取文档内容：`../../lark-doc/SKILL.md`（`docs` 领域指南） 和 主题 `lark-doc-fetch`
 - 需要验证 Sheet 内容：`../../lark-sheets/SKILL.md`（`sheets` 领域指南）
-- 需要 Drive 搜索：主题 `lark-drive-search`（主题 `lark-drive-search`）
-- 需要资源解析：主题 `lark-drive-inspect`（主题 `lark-drive-inspect`）
+- 需要 Drive 搜索：主题 `lark-drive-search`
+- 需要资源解析：主题 `lark-drive-inspect`
 
 ## 适用范围
 
@@ -163,11 +163,11 @@ Risk / Structure: `R2-R3` / `S3`
 
 | 状态 | 必读文档 |
 |-------|---------------|
-| `PARSE_INPUT` / `RESOLVE_TARGET` / `CONFIRM_CONTEXT` | 主题 `lark-drive-workflow-topic-move-collector-setup`（主题 `lark-drive-workflow-topic-move-collector-setup`） |
-| `SEARCH_RECALL` / `RECALL_ENHANCE` | 主题 `lark-drive-workflow-topic-move-collector-recall`（主题 `lark-drive-workflow-topic-move-collector-recall`） |
-| `RESOURCE_RESOLVE` / `CONTENT_VERIFY` | 主题 `lark-drive-workflow-topic-move-collector-resolve-verify`（主题 `lark-drive-workflow-topic-move-collector-resolve-verify`） |
-| `RELEVANCE_CLASSIFY` / `PLAN_MOVE` | 主题 `lark-drive-workflow-topic-move-collector-review-plan`（主题 `lark-drive-workflow-topic-move-collector-review-plan`） |
-| `CONFIRM_EXECUTION` / `EXECUTE` / `VERIFY` / `RESTORE` | 主题 `lark-drive-workflow-topic-move-collector-execute`（主题 `lark-drive-workflow-topic-move-collector-execute`） |
+| `PARSE_INPUT` / `RESOLVE_TARGET` / `CONFIRM_CONTEXT` | topic `lark-drive-workflow-topic-move-collector-setup` |
+| `SEARCH_RECALL` / `RECALL_ENHANCE` | topic `lark-drive-workflow-topic-move-collector-recall` |
+| `RESOURCE_RESOLVE` / `CONTENT_VERIFY` | topic `lark-drive-workflow-topic-move-collector-resolve-verify` |
+| `RELEVANCE_CLASSIFY` / `PLAN_MOVE` | topic `lark-drive-workflow-topic-move-collector-review-plan` |
+| `CONFIRM_EXECUTION` / `EXECUTE` / `VERIFY` / `RESTORE` | topic `lark-drive-workflow-topic-move-collector-execute` |
 
 ## 命令映射
 
@@ -188,12 +188,12 @@ Risk / Structure: `R2-R3` / `S3`
 - 资源解析与内容验证（主题 `lark-drive-workflow-topic-move-collector-resolve-verify`）
 - 审核与计划（主题 `lark-drive-workflow-topic-move-collector-review-plan`）
 - 执行（主题 `lark-drive-workflow-topic-move-collector-execute`）
-- lark-drive-search（主题 `lark-drive-search`）
-- lark-drive-inspect（主题 `lark-drive-inspect`）
-- lark-drive-move（主题 `lark-drive-move`）
-- lark-drive-create-folder（主题 `lark-drive-create-folder`）
-- lark-drive-delete（主题 `lark-drive-delete`）
-- lark-wiki-move（主题 `lark-wiki-move`）
-- lark-wiki-move-to-drive（主题 `lark-wiki-move-to-drive`）
-- lark-wiki-node-create（主题 `lark-wiki-node-create`）
-- lark-wiki-node-delete（主题 `lark-wiki-node-delete`）
+- topic `lark-drive-search`
+- topic `lark-drive-inspect`
+- topic `lark-drive-move`
+- topic `lark-drive-create-folder`
+- topic `lark-drive-delete`
+- topic `lark-wiki-move`
+- topic `lark-wiki-move-to-drive`
+- topic `lark-wiki-node-create`
+- topic `lark-wiki-node-delete`

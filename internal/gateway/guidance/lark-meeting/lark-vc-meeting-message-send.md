@@ -19,6 +19,8 @@
 
 | meeting_id 来源 | 发送时身份 |
 | --- | --- |
+| `vc.+meeting-list-active` (user_id="<user_open_id>") | `vc.+meeting-message-send` |
+| `vc.+meeting-join` 返回的 `meeting.id` | `vc.+meeting-message-send` |
 
 ## 参数
 
@@ -59,6 +61,11 @@ CLI 会把 `text` 或 `emoji_type` 统一映射到 OpenAPI 请求体的 `content
 | 看不到、画面有问题 | `VC_CanNotSee` |
 | 声音清楚 | `VC_SoundsClear` |
 | 会议画面效果不错、画面看起来可以 | `VC_LooksGood` |
+
+```text
+vc.+meeting-message-send {"meeting_id": "<meeting_id>", "msg_type": "reaction", "emoji_type": "LOVE"}
+vc.+meeting-message-send {"meeting_id": "<meeting_id>", "msg_type": "reaction", "emoji_type": "VC_NoSound"}
+```
 
 不要编造列表外的 `emoji_type`，也不要把 mixed-case 值改成全大写，例如 `EatingFood`、`CheckMark`、`StatusInFlight` 都要按原值传。
 

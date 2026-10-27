@@ -22,7 +22,7 @@ drive.+react-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "r
 | `token` | 与 `url` 二选一 | 裸 token 或 URL。裸 token 必须搭配 `type`；wiki token 使用 `type=wiki`。 |
 | `type` | 裸 token 时必填 | 传 token 对应类型：`doc`、`docx`、`sheet`、`file`、`slides`、`bitable`、`base`、`apps`、`wiki`。wiki token 使用 `wiki`；传 `base` 时，CLI 会按 `bitable` 类型处理。 |
 | `reply_id` | 是 | 要操作的回复 ID；来自 `drive.+list-replies` 的 `items[].reply_id`。给“这条评论”加/删表情时取该评论根回复（第一页 `items[0]`）的 `reply_id` |
-| `emoji` | 是 | `reaction_type` 值，大小写敏感；本地按平台枚举校验。完整列表与语义映射见 主题 `lark-drive-reactions`（主题 `lark-drive-reactions`） |
+| `emoji` | 是 | `reaction_type` 值，大小写敏感；本地按平台枚举校验。完整列表与语义映射见 主题 `lark-drive-reactions` |
 | `action` | 是 | `add` 添加；`delete` 删除当前身份自己加的 reaction |
 
 ## 行为说明
@@ -47,5 +47,5 @@ drive.+react-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "r
 
 ## 参考
 
-- lark-drive-reactions（主题 `lark-drive-reactions`） -- reaction 查询规则、语义与完整枚举
-- lark-drive-list-replies（主题 `lark-drive-list-replies`） -- 获取 reply_id
+- 主题 `lark-drive-reactions` -- reaction 查询规则、语义与完整枚举
+- 主题 `lark-drive-list-replies` -- 获取 reply_id

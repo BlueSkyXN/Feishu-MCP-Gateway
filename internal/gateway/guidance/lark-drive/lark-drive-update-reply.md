@@ -20,7 +20,7 @@ drive.+update-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "
 | `type` | 裸 token 时必填 | 传 token 对应类型：`doc`、`docx`、`sheet`、`file`、`slides`、`bitable`、`base`、`apps`、`wiki`。wiki token 使用 `wiki`；传 `base` 时，CLI 会按 `bitable` 类型处理。 |
 | `comment_id` | 是 | 回复所属的评论 ID；来自 `drive.+list-comments` |
 | `reply_id` | 是 | 要更新的回复 ID；来自 `drive.+list-replies` 的 `items[].reply_id` |
-| `content` | 是 | 新的 `reply_elements` JSON，`type=text` 文本自动转义；完整 schema 见 主题 `lark-drive-comment-content`（主题 `lark-drive-comment-content`） |
+| `content` | 是 | 新的 `reply_elements` JSON，`type=text` 文本自动转义；完整 schema 见 主题 `lark-drive-comment-content` |
 
 ## 行为说明
 
@@ -41,5 +41,5 @@ drive.+update-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "
 
 ## 参考
 
-- lark-drive-comment-content（主题 `lark-drive-comment-content`） -- `content` 格式
-- lark-drive-list-replies（主题 `lark-drive-list-replies`） -- 获取回复与 reply_id
+- 主题 `lark-drive-comment-content` -- `content` 格式
+- 主题 `lark-drive-list-replies` -- 获取回复与 reply_id

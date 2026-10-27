@@ -56,8 +56,6 @@ im.+chat-search {"query": "project"}
 | `page_token=<token>` | No | - | Starting cursor, normally returned by a previous response |
 | `page_all` | No | - | Automatically fetch and merge subsequent pages; capped by `page_limit` |
 | `page_limit=<n>` | No | 1-1000, default 10 | Maximum pages fetched by `page_all` |
-|  | No | - | Output as JSON |
-| dry-run（网关不提供，改为先读取核对） | No | - | Preview the request without executing it |
 
 With `page_all`, `page_token` sets the starting cursor. If `meta.pagination.complete=false`, resume from `meta.pagination.next_token` or raise `page_limit`.
 
@@ -136,4 +134,4 @@ When the user asks to search chats, follow these rules:
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands

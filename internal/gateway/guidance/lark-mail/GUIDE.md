@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # mail (v1)
 
@@ -79,6 +80,10 @@
 2. 展示："将删除 N 封邮件（发件人 spam@x.com，主题：…），确认？"
 3. 用户确认后 → `mail.+message-trash`（网关不提供：仅支持用户身份）
 
+## 身份选择：优先使用 user 身份
+
+- **应用身份**：以应用身份访问邮箱。需要在飞书开发者后台为应用开通相应权限，否则请求会被拒绝。bot 身份不能使用默认 `mailbox=me`，必须显式传邮箱地址。
+
 ## 典型工作流
 
 1. **确认身份** — 首次操作邮箱前先调用 `mail.user_mailboxes.profile`（网关不提供：仅支持用户身份） 获取当前用户的真实邮箱地址（`primary_email_address`），不要通过系统用户名猜测。后续判断"发件人是否为用户本人"时以此地址为准。
@@ -88,7 +93,7 @@
 5. **回复** — `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份）（默认存草稿，加 `--confirm-send` 则立即发送）
 6. **转发** — `mail.+forward`（网关不提供：仅支持用户身份）（默认存草稿，加 `--confirm-send` 则立即发送）
 7. **新邮件** — `mail.+send`（网关不提供：仅支持用户身份） 存草稿（默认），加 `--confirm-send` 发送
-8. **HTML body 预检（可选）** — 复杂 HTML body 提交前可先跑 `mail.+lint-html` 看 lint 会改 / 删什么；写信路径（`mail.+send`（网关不提供：仅支持用户身份） / `mail.+draft-create`（网关不提供：仅支持用户身份） / `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） / `mail.+draft-edit`（网关不提供：仅支持用户身份） body op）已内置 autofix，普通正文不必先跑。详见 references/lark-mail-html.md（主题 `lark-mail-html`） 中的「写入路径内置 HTML lint」章节
+8. **HTML body 预检（可选）** — 复杂 HTML body 提交前可先跑 `mail.+lint-html` 看 lint 会改 / 删什么；写信路径（`mail.+send`（网关不提供：仅支持用户身份） / `mail.+draft-create`（网关不提供：仅支持用户身份） / `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） / `mail.+draft-edit`（网关不提供：仅支持用户身份） body op）已内置 autofix，普通正文不必先跑。详见 主题 `lark-mail-html` 中的「写入路径内置 HTML lint」章节
 9. **确认投递** — 立即发送后用 `send_status` 查询投递状态，定时发送后在预定时间后再查询；取消定时发送用 `cancel_scheduled_send`
 10. **编辑草稿** — `mail.+draft-edit`（网关不提供：仅支持用户身份） 修改已有草稿。正文编辑通过 `patch_file`：回复/转发草稿用 `set_reply_body` op 保留引用区，普通草稿用 `set_body` op
 11. **已读回执** —
@@ -103,19 +108,19 @@
 
 ## 常用操作速查
 
-- 收件人地址搜索：搜索用户邮箱地址、群邮箱地址、邮件组地址，提供给用户确认。ref: lark-mail-recipient-search（主题 `lark-mail-recipient-search`）
-- 使用公共邮箱发信、使用邮箱别名发信：通过 `mailbox` 指定邮箱归属，通过 `--from` 指定发件人地址。ref: lark-mail-send-as（主题 `lark-mail-send-as`）
-- 查看发送邮件后的投递状态：发送成功后查看邮件投递状态；也覆盖发送拦截。ref: lark-mail-send-status（主题 `lark-mail-send-status`）
-- 使用邮件模板：区分个人模板和静态 HTML 模板，发信类 shortcut 用 `template_id` 套用模板。ref: lark-mail-template（主题 `lark-mail-template`）
-- 撤回已发送邮件：撤回邮件并查询异步撤回状态。ref: lark-mail-recall（主题 `lark-mail-recall`）
+- 收件人地址搜索：搜索用户邮箱地址、群邮箱地址、邮件组地址，提供给用户确认。ref: 主题 `lark-mail-recipient-search`
+- 使用公共邮箱发信、使用邮箱别名发信：通过 `mailbox` 指定邮箱归属，通过 `--from` 指定发件人地址。ref: 主题 `lark-mail-send-as`
+- 查看发送邮件后的投递状态：发送成功后查看邮件投递状态；也覆盖发送拦截。ref: 主题 `lark-mail-send-status`
+- 使用邮件模板：区分个人模板和静态 HTML 模板，发信类 shortcut 用 `template_id` 套用模板。ref: 主题 `lark-mail-template`
+- 撤回已发送邮件：撤回邮件并查询异步撤回状态。ref: 主题 `lark-mail-recall`
 - 修改邮件标签/已读状态/文件夹：优先使用 `mail.+message-modify`（网关不提供：仅支持用户身份）。ref: `mail.+message-modify`（网关不提供：仅支持用户身份）（主题 `lark-mail-message-modify`）
 - 修改会话标签/文件夹：使用 `mail.+thread-modify`。ref: `mail.+thread-modify`（主题 `lark-mail-thread-modify`）
 - 软删除邮件：优先使用 `mail.+message-trash`（网关不提供：仅支持用户身份）。ref: `mail.+message-trash`（网关不提供：仅支持用户身份）（主题 `lark-mail-message-trash`）
 - 软删除会话：已有 `thread_id` 时可使用 `mail.+thread-trash`。ref: `mail.+thread-trash`（主题 `lark-mail-thread-trash`）
-- 收信规则：查看、创建、更新、删除、启停、排序自动处理收到邮件的规则。ref: lark-mail-rules（主题 `lark-mail-rules`）
-- 分享邮件到 IM：分享邮件或会话到群聊、个人会话。ref: lark-mail-share-to-chat（主题 `lark-mail-share-to-chat`）
-- 发送日程邀请邮件：在邮件中嵌入 `text/calendar` 日程邀请。ref: lark-mail-calendar-invite（主题 `lark-mail-calendar-invite`）
-- 编写复杂 HTML 正文：复杂 HTML、本地图片、安全不确定时读取规范或运行 `mail.+lint-html`；普通正文无需预读。ref: lark-mail-html（主题 `lark-mail-html`）
+- 收信规则：查看、创建、更新、删除、启停、排序自动处理收到邮件的规则。ref: 主题 `lark-mail-rules`
+- 分享邮件到 IM：分享邮件或会话到群聊、个人会话。ref: 主题 `lark-mail-share-to-chat`
+- 发送日程邀请邮件：在邮件中嵌入 `text/calendar` 日程邀请。ref: 主题 `lark-mail-calendar-invite`
+- 编写复杂 HTML 正文：复杂 HTML、本地图片、安全不确定时读取规范或运行 `mail.+lint-html`；普通正文无需预读。ref: 主题 `lark-mail-html`
 - 读取邮件：按场景选择 triage、单封、批量或会话读取。ref: `mail.+triage`（主题 `lark-mail-triage`）、`mail.+message`（主题 `lark-mail-message`）、`mail.+messages`（主题 `lark-mail-messages`）、`mail.+thread`（主题 `lark-mail-thread`）
 - 写信、草稿、回复、转发：先判断新邮件、回复或转发，再决定创建草稿、直接发送或定时发送。命令选择见下方；公共邮箱/别名、发送状态等见相关 ref。
 
@@ -139,11 +144,11 @@
 | **转发** | `mail.+forward`（网关不提供：仅支持用户身份） | `mail.+forward`（网关不提供：仅支持用户身份） | `mail.+forward`（网关不提供：仅支持用户身份） |
 
 - 有原邮件上下文 → 用 `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份）（默认即草稿），**不要用 `mail.+draft-create`（网关不提供：仅支持用户身份）**
-- 当需要查找收件人邮箱地址时，使用联系人搜索接口。ref: lark-mail-recipient-search（主题 `lark-mail-recipient-search`）
+- 当需要查找收件人邮箱地址时，使用联系人搜索接口。ref: 主题 `lark-mail-recipient-search`
 - **发送前必须向用户确认收件人和内容；如有必要，可引导用户去飞书邮件里打开草稿查看详情；用户明确同意后才可执行发送或使用 `--confirm-send`**
-- **发送后必须调用 `send_status` 确认投递状态**；定时发送（`--send-time`）在预定发送时间后再查询。ref: lark-mail-send-status（主题 `lark-mail-send-status`）
-- 公共邮箱/别名发信见 lark-mail-send-as（主题 `lark-mail-send-as`）
-- 发送拦截见 lark-mail-send-status（主题 `lark-mail-send-status`）
+- **发送后必须调用 `send_status` 确认投递状态**；定时发送（`--send-time`）在预定发送时间后再查询。ref: 主题 `lark-mail-send-status`
+- 公共邮箱/别名发信见 主题 `lark-mail-send-as`
+- 发送拦截见 主题 `lark-mail-send-status`
 
 ### 正文格式与书写规范
 
@@ -197,11 +202,12 @@ mail.+messages {"message_ids": "<id1>,<id2>,<id3>", "html": false}
 
 确定 `<resource>` 和 `<method>` 后，查 schema 了解参数：
 
-```text
-# 例如：lark-cli schema mail.user_mailbox.messages.modify_message
+```bash
+feishu_tools_describe（operation_id="mail.<resource>.<method>"）
+# 例如：feishu_tools_describe（operation_id="mail.user_mailbox.messages.modify_message"）（网关目录中没有此操作）
 ```
 
-> **⚠️ 注意**：① 必须精确到 method 级别，禁止查 resource 级别（如 `feishu_tools_describe`，输出 78K）。② schema 路径用 `.` 分隔（`mail.user_mailbox.messages.modify_message`），但 CLI 命令在 resource 和 method 之间用**空格**（`lark-cli mail user_mailbox.messages modify_message`），不要混淆。
+> **⚠️ 注意**：① 必须精确到 method 级别，禁止查 resource 级别（如 `feishu_tools_describe（operation_id="mail.user_mailbox.messages"）（网关目录中没有此操作）`，输出 78K）。② schema 路径用 `.` 分隔（`mail.user_mailbox.messages.modify_message`），但 CLI 命令在 resource 和 method 之间用**空格**（`lark-cli mail user_mailbox.messages modify_message`），不要混淆。
 
 schema 输出是 JSON，包含两个关键部分：
 
@@ -217,7 +223,7 @@ schema 输出是 JSON，包含两个关键部分：
 按 Step 2 的映射规则，拼接命令：
 
 ```
-lark-cli mail <resource> <method> --params '{...}' [--data '{...}']
+mail.<resource>.<method> {"params": {…}, "data": {…}}
 ```
 
 ### 示例
@@ -245,27 +251,27 @@ mail.user_mailbox.folders.create {"params": {"user_mailbox_id": "me"}, "data": {
 
 ## Shortcuts（推荐优先使用）
 
-Shortcut 是对常用操作的高级封装（`lark-cli mail +<verb> [flags]`）。有 Shortcut 的操作优先使用。
+Shortcut 是对常用操作的高级封装（`mail.+<verb> {参数}`）。有 Shortcut 的操作优先使用。
 
 | Shortcut | 说明 |
 |----------|------|
-| `mail.+message`（主题 `lark-mail-message`） | Use only when reading full content for one email by one message ID. For multiple message IDs, use `mail.+messages`; do not loop `mail.+message`. |
-| `mail.+messages`（主题 `lark-mail-messages`） | Use when reading full content for multiple emails by message ID. Accepts comma-separated message IDs; CLI handles more than 20 IDs in batches and merges output. |
-| `mail.+thread`（主题 `lark-mail-thread`） | Use when querying a full mail conversation/thread by thread ID. Returns all messages in chronological order, including replies and drafts, with body content and attachments metadata, including inline images. |
-| `mail.+thread-modify`（主题 `lark-mail-thread-modify`） | Modify existing mail threads by adding/removing label IDs or moving them to a folder. Batches thread IDs in groups of 20 and returns success_thread_ids / failed_thread_ids. |
-| `mail.+thread-trash`（主题 `lark-mail-thread-trash`） | Soft-delete existing mail threads. Batches thread IDs in groups of 20 and returns success_thread_ids / failed_thread_ids. Requires 管理员预授权（high_risk_operations）. |
-| `mail.+triage`（主题 `lark-mail-triage`） | List mail summaries (date/from/subject/message_id). Use `query` for full-text search, `filter` for exact-match conditions. |
-| `mail.+watch`（网关不提供：仅支持用户身份）（主题 `lark-mail-watch`） | Watch for incoming mail events via WebSocket (requires scope mail:event and bot event mail.user_mailbox.event.message_received_v1 added). Run with `print_output_schema` to see per-format field reference before parsing output. |
-| `mail.+reply`（网关不提供：仅支持用户身份）（主题 `lark-mail-reply`） | Reply to a message and save as draft (default). Use --confirm-send to send immediately after user confirmation. Sets Re: subject, In-Reply-To, and References headers automatically. |
-| `mail.+reply-all`（网关不提供：仅支持用户身份）（主题 `lark-mail-reply-all`） | Reply to all recipients and save as draft (default). Use --confirm-send to send immediately after user confirmation. Includes all original To and CC automatically. |
-| `mail.+send`（网关不提供：仅支持用户身份）（主题 `lark-mail-send`） | Compose a new email and save as draft (default). Use --confirm-send to send immediately after user confirmation. |
-| `mail.+draft-create`（网关不提供：仅支持用户身份）（主题 `lark-mail-draft-create`） | Create a brand-new mail draft from scratch (NOT for reply or forward). For reply drafts use `mail.+reply`（网关不提供：仅支持用户身份）; for forward drafts use `mail.+forward`（网关不提供：仅支持用户身份）. Only use `mail.+draft-create`（网关不提供：仅支持用户身份） when composing a new email with no parent message. |
-| `mail.+draft-edit`（网关不提供：仅支持用户身份）（主题 `lark-mail-draft-edit`） | Use when updating an existing mail draft without sending it. Prefer this shortcut over calling raw drafts.get or drafts.update directly, because it performs draft-safe MIME read/patch/write editing while preserving unchanged structure, attachments, and headers where possible. |
-| `mail.+forward`（网关不提供：仅支持用户身份）（主题 `lark-mail-forward`） | Forward a message and save as draft (default). Use --confirm-send to send immediately after user confirmation. Original message block included automatically. |
-| `mail.+send-receipt`（网关不提供：仅支持用户身份）（主题 `lark-mail-send-receipt`） | Send a read-receipt reply for an incoming message that requested one (i.e. carries the READ_RECEIPT_REQUEST label). Body is auto-generated (subject / recipient / send time / read time) to match the Lark client's receipt format — callers cannot customize it, matching the industry norm that read-receipt bodies are system-generated templates, not free-form replies. Intended for agent use after the user confirms. |
-| `mail.+decline-receipt`（网关不提供：仅支持用户身份）（主题 `lark-mail-decline-receipt`） | Dismiss the read-receipt request banner on an incoming mail by clearing its READ_RECEIPT_REQUEST label, without sending a receipt. Use when the user wants to silence the prompt but refuse to confirm they have read it. Idempotent — safe to re-run. |
-| `mail.+signature`（网关不提供：仅支持用户身份）（主题 `lark-mail-signature`） | List or view email signatures with default usage info. |
-| `mail.+share-to-chat`（网关不提供：仅支持用户身份）（主题 `lark-mail-share-to-chat`） | Share an email or thread as a card to a Lark IM chat. |
-| `mail.+template-create`（主题 `lark-mail-template-create`） | Create a personal mail template. Scans HTML <img src> local paths (reusing draft inline-image detection), uploads inline images and non-inline attachments to Drive, rewrites HTML to cid: references, and POSTs a Template payload to mail.user_mailbox.templates.create. |
-| `mail.+template-update`（主题 `lark-mail-template-update`） | Update an existing mail template. Supports `inspect` (read-only projection), `print_patch_template` (prints a JSON skeleton for `patch_file`), and flat flags (`set_subject` / `set_name` / etc). Internally it GETs the template, applies the patch, rewrites <img> local paths to cid: refs, and PUTs a full-replace update (no optimistic locking: last-write-wins). |
-| `mail.+lint-html`（主题 `lark-mail-lint-html`） | Lint mail HTML body for compatibility / safety / Feishu-native rules. Returns warnings/errors and (default) auto-fixed HTML. Read-only: no draft, no API call. Use this BEFORE creating a draft to preview what the writing-path lint would change, or as a CI gate for static HTML templates. |
+| `mail.+message` (topic `lark-mail-message`) | Use only when reading full content for one email by one message ID. For multiple message IDs, use `mail.+messages`; do not loop `mail.+message`. |
+| `mail.+messages` (topic `lark-mail-messages`) | Use when reading full content for multiple emails by message ID. Accepts comma-separated message IDs; CLI handles more than 20 IDs in batches and merges output. |
+| `mail.+thread` (topic `lark-mail-thread`) | Use when querying a full mail conversation/thread by thread ID. Returns all messages in chronological order, including replies and drafts, with body content and attachments metadata, including inline images. |
+| `mail.+thread-modify` (topic `lark-mail-thread-modify`) | Modify existing mail threads by adding/removing label IDs or moving them to a folder. Batches thread IDs in groups of 20 and returns success_thread_ids / failed_thread_ids. |
+| `mail.+thread-trash` (topic `lark-mail-thread-trash`) | Soft-delete existing mail threads. Batches thread IDs in groups of 20 and returns success_thread_ids / failed_thread_ids. Requires administrator pre-authorization (high_risk_operations). |
+| `mail.+triage` (topic `lark-mail-triage`) | List mail summaries (date/from/subject/message_id). Use `query` for full-text search, `filter` for exact-match conditions. |
+| `mail.+watch` (not available in the gateway: user identity only) (topic `lark-mail-watch`) | Watch for incoming mail events via WebSocket (requires scope mail:event and bot event mail.user_mailbox.event.message_received_v1 added). Run with `print_output_schema` to see per-format field reference before parsing output. |
+| `mail.+reply` (not available in the gateway: user identity only) (topic `lark-mail-reply`) | Reply to a message and save as draft (default). Use --confirm-send to send immediately after user confirmation. Sets Re: subject, In-Reply-To, and References headers automatically. |
+| `mail.+reply-all` (not available in the gateway: user identity only) (topic `lark-mail-reply-all`) | Reply to all recipients and save as draft (default). Use --confirm-send to send immediately after user confirmation. Includes all original To and CC automatically. |
+| `mail.+send` (not available in the gateway: user identity only) (topic `lark-mail-send`) | Compose a new email and save as draft (default). Use --confirm-send to send immediately after user confirmation. |
+| `mail.+draft-create` (not available in the gateway: user identity only) (topic `lark-mail-draft-create`) | Create a brand-new mail draft from scratch (NOT for reply or forward). For reply drafts use `mail.+reply` (not available in the gateway: user identity only); for forward drafts use `mail.+forward` (not available in the gateway: user identity only). Only use `mail.+draft-create` (not available in the gateway: user identity only) when composing a new email with no parent message. |
+| `mail.+draft-edit` (not available in the gateway: user identity only) (topic `lark-mail-draft-edit`) | Use when updating an existing mail draft without sending it. Prefer this shortcut over calling raw drafts.get or drafts.update directly, because it performs draft-safe MIME read/patch/write editing while preserving unchanged structure, attachments, and headers where possible. |
+| `mail.+forward` (not available in the gateway: user identity only) (topic `lark-mail-forward`) | Forward a message and save as draft (default). Use --confirm-send to send immediately after user confirmation. Original message block included automatically. |
+| `mail.+send-receipt` (not available in the gateway: user identity only) (topic `lark-mail-send-receipt`) | Send a read-receipt reply for an incoming message that requested one (i.e. carries the READ_RECEIPT_REQUEST label). Body is auto-generated (subject / recipient / send time / read time) to match the Lark client's receipt format — callers cannot customize it, matching the industry norm that read-receipt bodies are system-generated templates, not free-form replies. Intended for agent use after the user confirms. |
+| `mail.+decline-receipt` (not available in the gateway: user identity only) (topic `lark-mail-decline-receipt`) | Dismiss the read-receipt request banner on an incoming mail by clearing its READ_RECEIPT_REQUEST label, without sending a receipt. Use when the user wants to silence the prompt but refuse to confirm they have read it. Idempotent — safe to re-run. |
+| `mail.+signature` (not available in the gateway: user identity only) (topic `lark-mail-signature`) | List or view email signatures with default usage info. |
+| `mail.+share-to-chat` (not available in the gateway: user identity only) (topic `lark-mail-share-to-chat`) | Share an email or thread as a card to a Lark IM chat. |
+| `mail.+template-create` (topic `lark-mail-template-create`) | Create a personal mail template. Scans HTML <img src> local paths (reusing draft inline-image detection), uploads inline images and non-inline attachments to Drive, rewrites HTML to cid: references, and POSTs a Template payload to mail.user_mailbox.templates.create. |
+| `mail.+template-update` (topic `lark-mail-template-update`) | Update an existing mail template. Supports `inspect` (read-only projection), `print_patch_template` (prints a JSON skeleton for `patch_file`), and flat flags (`set_subject` / `set_name` / etc). Internally it GETs the template, applies the patch, rewrites <img> local paths to cid: refs, and PUTs a full-replace update (no optimistic locking: last-write-wins). |
+| `mail.+lint-html` (topic `lark-mail-lint-html`) | Lint mail HTML body for compatibility / safety / Feishu-native rules. Returns warnings/errors and (default) auto-fixed HTML. Read-only: no draft, no API call. Use this BEFORE creating a draft to preview what the writing-path lint would change, or as a CI gate for static HTML templates. |

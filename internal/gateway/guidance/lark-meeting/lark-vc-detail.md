@@ -9,6 +9,7 @@
 vc.+detail {"meeting_ids": "<meeting_id1>,<meeting_id2>"}
 
 # 应用身份（只能查应用有权限的会议）
+vc.+detail {"meeting_ids": "<meeting_id1>,<meeting_id2>"}
 ```
 
 ## 输出字段

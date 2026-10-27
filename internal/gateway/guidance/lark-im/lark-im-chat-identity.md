@@ -19,12 +19,14 @@
 
 When an owner-level action is needed and the owner is unknown, infer in this order:
 
+1. A bot created the group and `owner` was **not** specified -> the owner is the bot (app identity)
 4. Still unclear -> ask the user to confirm who owns the group before making owner-level changes
 
 ### When the Owner Is Neither the Current User Nor the Bot
 
 If the query shows that the owner is a third-party user (`owner_id` is neither the currently authorized user nor the bot), the current identity does not have owner privileges. In that case:
 
+- **Permission/setting changes:** if the bot is an admin of the group, app identity can still perform admin-level operations such as renaming the group or changing permissions.
 - Explain the limitation clearly to the user instead of retrying blindly.
 
 ## Common Pitfalls
@@ -33,7 +35,7 @@ If the query shows that the owner is a third-party user (`owner_id` is neither t
 
 If a bot creates a group and `users` includes users who are mutually invisible to the bot, the entire request fails with 232043. Use two steps instead:
 
-1. Create the group with the bot first, excluding invisible users: `im.+chat-create`（name="Group Name"）
+1. Create the group with the bot first, excluding invisible users: `im.+chat-create` (name="Group Name")
 2. Add users later with a user-identity member-management flow
 
 ### Insufficient Privileges
@@ -43,4 +45,4 @@ If a bot creates a group and `users` includes users who are mutually invisible t
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands

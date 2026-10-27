@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+draft-create`（网关不提供：仅支持用户身份）
+# `mail.+draft-create` (not available in the gateway: user identity only)
 
 从零创建一封全新的邮件草稿。适用于已知收件人、主题和正文的场景。
 
@@ -8,7 +8,7 @@
 
 如需修改已有草稿，不要使用此命令，请使用 `mail.+draft-edit`（网关不提供：仅支持用户身份）。
 
-**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 lark-mail-html.md（主题 `lark-mail-html`），其中包含邮件书写规范**
+**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 主题 `lark-mail-html`，其中包含邮件书写规范**
 
 ## 安全约束
 
@@ -63,9 +63,6 @@ mail.+draft-create  # 网关不提供：仅支持用户身份
 | `--event-location <text>` | 否 | 日程地点 |
 
 > **日程约束**：`--event-*` 与 `--send-time` 不可同时使用；`to` 和 `cc` 收件人自动成为日程参与者（ATTENDEE），`bcc` 收件人不计入参与者。
-
-|  | 否 | 输出格式：`json`（默认）/ `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求，不执行 |
 
 ## 返回值
 

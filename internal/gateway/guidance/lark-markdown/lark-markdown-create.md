@@ -70,6 +70,7 @@ markdown.+create {"name": "README.md", "content": "# Hello"}
 ```
 
 > [!IMPORTANT]
+> 如果 Markdown 文件是**以应用身份（bot）创建**的，如 `markdown.+create`，在创建成功后，CLI 会**尝试为当前 CLI 用户自动授予该文件的 `full_access`（可管理权限）**。
 >
 > 以应用身份创建时，结果里会额外返回 `permission_grant` 字段，明确说明授权结果：
 > - `status = granted`：当前 CLI 用户已获得该文件的可管理权限

@@ -2,6 +2,8 @@
 
 # `drive.+create-folder`（创建云空间/云盘/云存储文件夹）
 
+在飞书云空间（云盘/云存储）中创建一个新文件夹。该 shortcut 对原生 `drive.files.create_folder` 做了一层更适合日常使用的封装：`folder_token` 可省略，此时会在调用者根目录创建；如果使用 应用身份，创建成功后 CLI 会尝试把新文件夹的可管理权限自动授予当前 CLI 用户。
+
 ## 命令
 
 ```text
@@ -23,8 +25,10 @@ drive.+create-folder {"folder_token": "<PARENT_FOLDER_TOKEN>", "name": "分析�
 - `url`：新建文件夹链接（如果接口返回）
 - `name`：文件夹名称
 - `parent_folder_token`：父文件夹 token；为空字符串表示创建在根目录
+- `permission_grant`（可选）：仅 应用身份 时返回，说明是否已自动为当前 CLI 用户授予可管理权限
 
 > [!IMPORTANT]
+> 如果文件夹是**以应用身份（bot）创建**的，如 `drive.+create-folder`，在创建成功后 CLI 会**尝试为当前 CLI 用户自动授予该文件夹的 `full_access`（可管理权限）**。
 >
 > 以应用身份创建时，结果里会额外返回 `permission_grant` 字段，明确说明授权结果：
 > - `status = granted`：当前 CLI 用户已获得该文件夹的可管理权限
@@ -44,6 +48,7 @@ drive.+create-folder {"folder_token": "<PARENT_FOLDER_TOKEN>", "name": "分析�
 ## 行为说明
 
 - **根目录创建**：不传 `folder_token` 时，shortcut 会向 API 显式传空字符串 `folder_token=""`，让后端按“根目录”语义创建
+- **bot 自动授权**：只有在 应用身份 时，结果才会额外带上 `permission_grant`
 - **原生 API 仍可用**：如果用户明确要求按底层 API 字段调用，仍可继续使用 `drive.files.create_folder`
 
 ## 推荐场景

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `minutes.+upload`（网关不提供：仅支持用户身份）
+# `minutes.+upload` (not available in the gateway: user identity only)
 
 上传音视频文件到飞书妙记并生成妙记（Minute）。
 
@@ -46,7 +46,7 @@ minutes.+upload  # 网关不提供：仅支持用户身份
 
 ### 2. 异步生成
 
-API 会立即返回 `minute_url`，但妙记可能仍在异步生成中。`minutes.+upload`（网关不提供：仅支持用户身份） 不返回处理状态，命令成功只表示异步创建请求已提交；只有后续执行 `minutes.+detail` 并确认就绪，才能声称妙记产物已生成或可用。上传与后续产物获取由 `create-and-edit-minutes`（主题 `create-and-edit-minutes`） 编排；上传后立即查询产物时，`minutes.+detail` 必须使用 `--wait-ready`。
+API 会立即返回 `minute_url`，但妙记可能仍在异步生成中。`minutes.+upload`（网关不提供：仅支持用户身份） 不返回处理状态，命令成功只表示异步创建请求已提交；只有后续执行 `minutes.+detail` 并确认就绪，才能声称妙记产物已生成或可用。上传与后续产物获取由 主题 `create-and-edit-minutes` 编排；上传后立即查询产物时，`minutes.+detail` 必须使用 `--wait-ready`。
 
 ## 输出结果示例
 

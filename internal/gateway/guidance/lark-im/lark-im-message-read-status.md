@@ -4,14 +4,14 @@
 
 Use two focused shortcuts for message read-status queries:
 
-- `im.+messages-read-status`（网关不提供：仅支持用户身份） queries whether the current user has read 1–50 messages.
+- `im.+messages-read-status` (not available in the gateway: user identity only) queries whether the current user has read 1–50 messages.
 - `im.+message-read-users` lists users who have read one message and supports automatic pagination.
 
 ## Identity and scopes
 
 | Shortcut | Identity | Scope |
 |---|---|---|
-| `im.+messages-read-status`（网关不提供：仅支持用户身份） | user only | `im:message:readonly` (recommended), `im:message`, or `im:message:get_as_user` |
+| `im.+messages-read-status` (not available in the gateway: user identity only) | user only | `im:message:readonly` (recommended), `im:message`, or `im:message:get_as_user` |
 | `im.+message-read-users` | user | `im:message:readonly` (recommended), `im:message`, `im:message:basic`, or `im:message:get_as_user` |
 | `im.+message-read-users` | bot | `im:message:readonly` |
 
@@ -32,9 +32,10 @@ The command accepts 1–50 comma-separated `om_` message IDs. The three scopes a
 
 ## List users who read one message
 
-```bash
+```text
 
 # Fetch every page as a bot, bounded to ten pages by default
+im.+message-read-users {"message_id": "om_xxx", "user_id_type": "open_id", "page_all": true}
 ```
 
 Pagination flags:
@@ -64,4 +65,4 @@ Prefer the shortcuts for flag validation, identity-specific scope hints, and rea
 
 ## References
 
-- `im` 领域指南
+- `im` domain指南

@@ -110,9 +110,9 @@ Structure Level：
 
 | Workflow | Status | Risk | Structure | Entry File | Trigger                                                         |
 |----------|--------|------|-----------|------------|-----------------------------------------------------------------|
-| `permission_governance` | Registered | `R2` | `S2` | 主题 `lark-drive-workflow-permission-governance`（主题 `lark-drive-workflow-permission-governance`） | 权限审计、公开链接/外部访问、复制/下载/评论/分享设置、权限申请、owner 转移 / 批量 owner 转移、密级标签调整 |
-| `knowledge_organize` | Registered | `R2-R3` | `S3` | 主题 `lark-drive-workflow-knowledge-organize`（主题 `lark-drive-workflow-knowledge-organize`） | 整理云盘 / 文件夹 / 文档库 / 知识库、盘点目录结构、归类资源、生成整理方案，并在用户确认后创建目录或移动资源      |
-| `topic_move_collector` | Registered | `R2-R3` | `S3` | 主题 `lark-drive-workflow-topic-move-collector`（主题 `lark-drive-workflow-topic-move-collector`） | 按主题、关键词或内容线索跨容器搜索资料，验证相关性和移动资格，并在用户确认后归档到 Drive 文件夹或 Wiki 节点    |
+| `permission_governance` | Registered | `R2` | `S2` | 主题 `lark-drive-workflow-permission-governance` | 权限审计、公开链接/外部访问、复制/下载/评论/分享设置、权限申请、owner 转移 / 批量 owner 转移、密级标签调整 |
+| `knowledge_organize` | Registered | `R2-R3` | `S3` | 主题 `lark-drive-workflow-knowledge-organize` | 整理云盘 / 文件夹 / 文档库 / 知识库、盘点目录结构、归类资源、生成整理方案，并在用户确认后创建目录或移动资源      |
+| `topic_move_collector` | Registered | `R2-R3` | `S3` | 主题 `lark-drive-workflow-topic-move-collector` | 按主题、关键词或内容线索跨容器搜索资料，验证相关性和移动资格，并在用户确认后归档到 Drive 文件夹或 Wiki 节点    |
 
 ## Workflow Loading
 

@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # sheets
 
@@ -38,7 +39,7 @@
 ## 飞书表格编辑准则
 
 1. **最小改动**：用户没点名要删 / 改名 / 隐藏时，已有 Sheet 一张不动；补齐只写空格，未要求调整的值 / 结构 / 格式不动。
-2. **目标子表与回读断言**：先确认真实末行与目标区域；未点名子表时只从 `resource_type=sheet && is_hidden=false` 的可见网格候选里选，唯一才自动使用，多张不得按 index 猜。涉及"所有 / 每个 sheet"（跨表汇总、批量清洗、合并多张子表）时先 `sheets.+workbook-info` 列全再逐个处理，别只做前几张。写后用 `sheets.+csv-get` / `sheets.+cells-get` / `+<对象>-list` 验首、中、末及用户点名项——返回 `ok` 只表示请求成功。纯 CSV 回写前去掉 `annotated_csv` 的 `[row=N] ` 前缀，`cells-get` 的样式字段与值分开处理，公式必须回读 `formula`。**样式同样要回读**：写过边框 / 底色 / 字体色 / 数字格式 / 行高列宽 / 冻结的，收尾用 `sheets.+cells-get`（include=["style"]） 或 `sheets.+sheet-info` 抽查目标区域首、中、末格确认属性真的在——写入返回 `ok` 不代表样式落上了；缺的整份重发（样式是幂等盖章，重发无副作用）。
+2. **目标子表与回读断言**：先确认真实末行与目标区域；未点名子表时只从 `resource_type=sheet && is_hidden=false` 的可见网格候选里选，唯一才自动使用，多张不得按 index 猜。涉及"所有 / 每个 sheet"（跨表汇总、批量清洗、合并多张子表）时先 `sheets.+workbook-info` 列全再逐个处理，别只做前几张。写后用 `sheets.+csv-get` / `sheets.+cells-get` / `+<对象>-list` 验首、中、末及用户点名项——返回 `ok` 只表示请求成功。纯 CSV 回写前去掉 `annotated_csv` 的 `[row=N]` 前缀，`cells-get` 的样式字段与值分开处理，公式必须回读 `formula`。**样式同样要回读**：写过边框 / 底色 / 字体色 / 数字格式 / 行高列宽 / 冻结的，收尾用 `sheets.+cells-get`（include=["style"]） 或 `sheets.+sheet-info` 抽查目标区域首、中、末格确认属性真的在——写入返回 `ok` 不代表样式落上了；缺的整份重发（样式是幂等盖章，重发无副作用）。
 3. **公式闭环**：可推导值写落格公式，不用静态值代替——用 Python 算好数值再写进单元格，交付的是改输入不重算的死表；Python 只用于推导和验证，落进单元格的必须是引用其他格的公式。写前确认字段语义、阈值边界（以上/至少=`>=`，超过/大于=`>`）、单位/时区和完整源范围，选首中末、空值、边界及一条可手算记录作哨兵；写后逐段 `sheets.+formula-verify`（exit_on_error=true），各段 `status='success'` 且哨兵值正确才算完成（AI 公式例外：异步计算，改用 `sheets.+formula-verify`（ai_only=true） 对整个写入区间做一次异步状态检查，不用 `sheets.+cells-get` 轮询结果，`failed` 清零后即使仍有 pending 也可交付并说明）；试错 3 次仍失败可降级静态值，交付说明写明「静态值 + 失败原因 + 不随源数据更新」。
 4. **完整继承样式**：新增行列时禁止只读值只写值——原表字体、对齐、底色（含奇偶行交替）、四边框都延续到新区域。**物理插入行 / 列**用 `sheets.+dim-insert`（inherit_style="before|after"）（原生继承，比补刷可靠）；**往已有空白区域扩写**（如在数据右侧加新列）用 `sheets.+range-copy`（paste_type="formats"） 先铺样式再写值；两者都表达不了的非规则样式，才用 `sheets.+cells-get`（include=["style"]） 读源区样式随值写回。无论走哪条路径，插入后都另查行高列宽（行高不随样式继承，插行填长文本前补 `sheets.+rows-resize`）、合并与跨列标题并补齐。详见 主题 `lark-sheets-write-cells`。
 5. **原子操作**：排序用 `sheets.+range-sort`，`range` 覆盖完整记录宽度，排序列只写进 `sort_keys`；删除记录用 `sheets.+dim-delete`，清空内容 / 格式才用 `sheets.+cells-clear`；禁止读值后用 `sheets.+csv-put` 覆盖来模拟排序 / 删除。仅跨类型且有顺序依赖时才用 high-risk `sheets.+batch-update`。
@@ -96,7 +97,6 @@ reference 分两组：先读**通用方法与规范**（横切所有任务的样
 2. **sheet 定位（公共四件套 shortcut 必填）**：`sheet_id` 与 `sheet_name` 二选一。
    - ⚠️ **不确定 sheet 名时禁止猜 `Sheet1`**：除非对话或上下文已出现具体值，第一步先 `sheets.+workbook-info` 拿 `sheets[].sheet_id/title` 再选——中文表的子表常叫"数据"/"工作表 1"/业务名，猜名大概率撞 `sheet not found`。
    - ⚠️ **`range` 里的 `Sheet1!` 前缀不能替代 sheet 定位**：仍必须传 `sheet_id` / `sheet_name`。
-   - ⚠️ **A1 引用含 `!` 时整段用单引号包裹**（`range=Sheet1!A1:B2`，挡 bash history expansion；别用 `set +H`，sh/dash 下非法）。sheet 名要在 A1 里内层再包单引号时用 `'\''` 转义。
    - **例外**：徽章标 `_公共：URL/token（无 sheet 定位）…_` 的 shortcut 不接受 sheet 定位——工作簿级（`sheets.+workbook-info` / `sheets.+sheet-list` / `sheets.+sheet-create` / `sheets.+revision-get` / `sheets.+changeset-get` / `+history-list|revert|revert-status`）、批量与整表级（`sheets.+batch-update` / `+batch-chart-create|update` / `sheets.+cells-batch-clear` / `sheets.+styles-put` / `+dropdown-update|delete`），以及子表名写在 payload 里的 `sheets.+table-put`。`sheets.+workbook-export` 只接 `sheet_id`（无 `sheet_name`），`sheets.+pivot-create` 用 `target_sheet_id/name`（XOR，可都不传）。徽章是判据，本行只是速记。
 
 ```text
@@ -106,15 +106,7 @@ sheets.+csv-get {"url": "https://.../sheets/shtXXX", "sheet_name": "<真实表�
 
 ### 系统 flag
 
-| Flag | Type | 必填 | 说明 |
-| --- | --- | --- | --- |
-| dry-run（网关不提供，改为先读取核对） | bool | 否 | 零副作用：仅打印请求路径与参数模板，不发起调用 |
-| `feishu_tools_describe` | bool | 否 | 写复合 JSON flag 前结构不确定就先跑它：本地打印 Schema 并退出（不发起调用、不需要其它 required flag），搭配  指定查哪个 flag，省略时列出该 shortcut 可查的 flag。只有含复合 JSON flag 的 shortcut 支持。 |
-|  | string | 否 | 配合 `feishu_tools_describe`：flag 名不带 `--` 前缀（`cells` / `properties`）。**支持点分路径切片**： 只打印该子树，大 schema（chart 的 properties 约 1700 行）按需取，别整篇翻页。 |
-
-> **bool flag 语法**：开启可用裸 `--flag`；显式值只用 `--flag=true` 或 `--flag=false`，不得用空格分隔。
-
-> ⚠️ **high-risk-write 命令清单（exit 10 强确认门禁）**：`sheets.+batch-update`、`sheets.+cells-clear`、`sheets.+cells-batch-clear`、`sheets.+sheet-delete`、`sheets.+dim-delete`、`sheets.+dropdown-delete`、`sheets.+history-revert`（整表回滚到历史版本），以及各对象删除 `sheets.+chart-delete` / `sheets.+pivot-delete` / `sheets.+cond-format-delete` / `sheets.+filter-delete` / `sheets.+filter-view-delete` / `sheets.+sparkline-delete` / `sheets.+float-image-delete`。
+> ⚠️ **high-risk-write 命令清单（需管理员预授权）**：`sheets.+batch-update`、`sheets.+cells-clear`、`sheets.+cells-batch-clear`、`sheets.+sheet-delete`、`sheets.+dim-delete`、`sheets.+dropdown-delete`、`sheets.+history-revert`（整表回滚到历史版本），以及各对象删除 `sheets.+chart-delete` / `sheets.+pivot-delete` / `sheets.+cond-format-delete` / `sheets.+filter-delete` / `sheets.+filter-view-delete` / `sheets.+sparkline-delete` / `sheets.+float-image-delete`。
 >
 
 **Schema 的边界**：`feishu_tools_describe` 打印的是 flag 值的内部结构，flag 描述要求外层信封时（如 `sheets` 的 `{"sheets":[…]}`）schema 里看不到那层，按描述补上；reference 的 `## Schemas` 段也只给一层。图表直接 `sheets.+chart-create`（print_example="<type>"） 拿最小可用模板改参。
@@ -123,8 +115,3 @@ sheets.+csv-get {"url": "https://.../sheets/shtXXX", "sheet_name": "<真实表�
 
 - JSON 类入参分三类：**复合 JSON** = 深层嵌套对象（`feishu_tools_describe` 可查）；**简单 JSON** = 一二维标量数组；**非 JSON 文本** = 原样文本（如 CSV）。
 - **envelope**：所有 shortcut 返回统一外层 `{ok, identity, data, ...}`；写操作不会自动回读，校验自行调用 `+*-list` / `+*-get` / `sheets.+cells-get`。
-
-| 形态 | bash / zsh | PowerShell | cmd.exe |
-| --- | --- | --- | --- |
-| 大 / 多行 JSON | `--flag - <<'JSON' … JSON` | 先写 UTF-8 无 BOM 文件再 `--flag '@./x.json'`，或 `Get-Content -Raw ./x.json \| lark-cli … --flag -` | 先写文件再 `--flag @./x.json`（cmd 无 heredoc / 管道读文件不可靠） |
-| 单行 inline JSON | `--flag '{"a":1}'` | `--flag '{"a":1}'`（PS 单引号同为字面量） | 不要 inline——cmd 会吃掉内层双引号，一律走 `{"file_id": …}` |

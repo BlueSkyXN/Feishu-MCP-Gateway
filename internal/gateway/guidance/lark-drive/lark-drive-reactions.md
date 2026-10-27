@@ -2,7 +2,7 @@
 
 # drive reactions
 
-处理文档评论 / 回复上的 reaction（点赞、表情、各表情数量、谁点了什么、添加/删除表情）。这个场景不常见，但规则比较集中：查询时只有在用户明确需要 reaction 信息时才在 `drive.+list-comments` / `drive.+batch-query-comments` / `drive.+list-replies` 上带 `need_reaction`；写入优先使用 `drive.+react-reply`（命令参数细节见 主题 `lark-drive-react-reply`（主题 `lark-drive-react-reply`）），操作对象始终是 `reply_id`。本文是跨切面专题，集中放 reaction 的查询规则、语义联想和完整枚举。
+处理文档评论 / 回复上的 reaction（点赞、表情、各表情数量、谁点了什么、添加/删除表情）。这个场景不常见，但规则比较集中：查询时只有在用户明确需要 reaction 信息时才在 `drive.+list-comments` / `drive.+batch-query-comments` / `drive.+list-replies` 上带 `need_reaction`；写入优先使用 `drive.+react-reply`（命令参数细节见 主题 `lark-drive-react-reply`），操作对象始终是 `reply_id`。本文是跨切面专题，集中放 reaction 的查询规则、语义联想和完整枚举。
 
 > [!IMPORTANT]
 > **`reaction_type` 只能使用本文下方“完整 `reaction_type` 列表”中定义的枚举值。**
@@ -38,7 +38,7 @@ drive.+list-replies {"url": "<DOC_URL>", "comment_id": "<COMMENT_ID>", "need_rea
 
 ## 写入规则
 
-- 添加 / 删除 reaction 优先使用 `drive.+react-reply`；命令参数、目标定位和 dry-run 见 主题 `lark-drive-react-reply`（主题 `lark-drive-react-reply`）。
+- 添加 / 删除 reaction 优先使用 `drive.+react-reply`；命令参数、目标定位和 dry-run 见 主题 `lark-drive-react-reply`。
 - 操作对象是 `reply_id`（来自 `drive.+list-replies` 的 `items[].reply_id`），不是 `comment_id`。
 - 如果用户说要给"这条评论"加 / 删 reaction，取该评论卡片根回复（第一页 `items[0]`）的 `reply_id` 再操作。
 - add / delete 幂等：重复添加已有 reaction、删除不存在的 reaction 都会成功返回且无副作用；delete 只取消当前身份自己加的 reaction。
@@ -107,4 +107,4 @@ Music, Typing, Pepper, CheckMark, CrossMark
 ## 参考
 
 - `drive` 领域指南 -- 云空间（云盘/云存储）全部命令
-- lark-drive-react-reply（主题 `lark-drive-react-reply`） -- `drive.+react-reply` 命令参数
+- 主题 `lark-drive-react-reply` -- `drive.+react-reply` 命令参数

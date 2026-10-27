@@ -5,8 +5,9 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
-# `vc` 领域
+# `vc` domain
 
 飞书视频会议业务的统一入口，支持查询会议记录、实时会议互动、管理妙记、阅读智能纪要等操作。本技能负责领域关系、任务路由和跨命令编排。
 
@@ -76,7 +77,10 @@ Calendar 日程 ──meeting_note────────────► Doc（
 
 ### 查询进行中的会议内容
 
-```bash
+```text
+
+# 应用机器人可见的目标用户会议
+vc.+meeting-list-active {"user_id": "<open_id>"}
 
 # 确定唯一 meeting_id 后沿用来源身份
 ```
@@ -97,34 +101,34 @@ Calendar 日程 ──meeting_note────────────► Doc（
 
 | 命令 | 用途 | 参考方式 |
 |---|---|---|
-| `vc.+search` | 搜索历史会议 | lark-vc-search（主题 `lark-vc-search`） |
-| `vc.+detail` | 查询会议信息及关联的 Note、Minutes 标识 | lark-vc-detail（主题 `lark-vc-detail`） |
+| `vc.+search` | 搜索历史会议 | 主题 `lark-vc-search` |
+| `vc.+detail` | 查询会议信息及关联的 Note、Minutes 标识 | 主题 `lark-vc-detail` |
 | `vc.meeting.get` | 查询会议基础信息和参会人快照 | `feishu_tools_describe`（operation_id="vc.meeting.get"） |
-| `vc.+recording` | 从会议定位录制及妙记 | lark-vc-recording（主题 `lark-vc-recording`） |
-| `vc.+meeting-list-active` | 发现当前可见的进行中会议 | lark-vc-meeting-list-active（主题 `lark-vc-meeting-list-active`） |
-| `vc.+meeting-events` | 读取会中事件和共享内容 | lark-vc-meeting-events（主题 `lark-vc-meeting-events`） |
-| `vc.+meeting-message-send` | 发送会中文本消息或表情 | lark-vc-meeting-message-send（主题 `lark-vc-meeting-message-send`） |
-| `vc.+meeting-screenshot` | 获取视频会议截图 | lark-vc-meeting-screenshot（主题 `lark-vc-meeting-screenshot`） |
-| `vc.+meeting-countdown` | 设置、延长、提前结束或关闭会中倒计时 | lark-vc-meeting-countdown（主题 `lark-vc-meeting-countdown`） |
-| `vc.+meeting-join` | 让应用机器人加入会议 | lark-vc-agent-meeting-join（主题 `lark-vc-agent-meeting-join`） |
-| `vc.+meeting-invite` | 以应用机器人邀请指定用户或全部合格日程参会人 | lark-vc-agent-meeting-invite（主题 `lark-vc-agent-meeting-invite`） |
-| `vc.+meeting-end` | 让当前 Host 应用机器人结束会议 | lark-vc-agent-meeting-end（主题 `lark-vc-agent-meeting-end`） |
-| `vc.+meeting-leave` | 让应用机器人离开会议 | lark-vc-agent-meeting-leave（主题 `lark-vc-agent-meeting-leave`） |
-| `minutes.+search` | 搜索妙记 | lark-minutes-search（主题 `lark-minutes-search`） |
+| `vc.+recording` | 从会议定位录制及妙记 | 主题 `lark-vc-recording` |
+| `vc.+meeting-list-active` | 发现当前可见的进行中会议 | 主题 `lark-vc-meeting-list-active` |
+| `vc.+meeting-events` | 读取会中事件和共享内容 | 主题 `lark-vc-meeting-events` |
+| `vc.+meeting-message-send` | 发送会中文本消息或表情 | 主题 `lark-vc-meeting-message-send` |
+| `vc.+meeting-screenshot` | 获取视频会议截图 | 主题 `lark-vc-meeting-screenshot` |
+| `vc.+meeting-countdown` | 设置、延长、提前结束或关闭会中倒计时 | 主题 `lark-vc-meeting-countdown` |
+| `vc.+meeting-join` | 让应用机器人加入会议 | 主题 `lark-vc-agent-meeting-join` |
+| `vc.+meeting-invite` | 以应用机器人邀请指定用户或全部合格日程参会人 | 主题 `lark-vc-agent-meeting-invite` |
+| `vc.+meeting-end` | 让当前 Host 应用机器人结束会议 | 主题 `lark-vc-agent-meeting-end` |
+| `vc.+meeting-leave` | 让应用机器人离开会议 | 主题 `lark-vc-agent-meeting-leave` |
+| `minutes.+search` | 搜索妙记 | 主题 `lark-minutes-search` |
 | `minutes.minutes.get` | 查询妙记基础信息 | `feishu_tools_describe`（operation_id="minutes.minutes.get"） |
-| `minutes.+detail` | 读取妙记信息和指定产物 | lark-minutes-detail（主题 `lark-minutes-detail`） |
-| `minutes.+download` | 下载妙记原始音视频 | lark-minutes-download（主题 `lark-minutes-download`） |
-| `minutes.+upload`（网关不提供：仅支持用户身份） | 从云空间音视频生成妙记 | lark-minutes-upload（主题 `lark-minutes-upload`） |
-| `minutes.+update`（网关不提供：仅支持用户身份） | 修改妙记标题 | lark-minutes-update（主题 `lark-minutes-update`） |
-| `minutes.+speaker-replace`（网关不提供：仅支持用户身份） | 替换妙记逐字稿说话人 | lark-minutes-speaker-replace（主题 `lark-minutes-speaker-replace`） |
-| `minutes.+summary`（网关不提供：仅支持用户身份） | 替换妙记 AI 总结 | lark-minutes-summary（主题 `lark-minutes-summary`） |
-| `minutes.+todo`（网关不提供：仅支持用户身份） | 增删改妙记 AI 待办 | lark-minutes-todo（主题 `lark-minutes-todo`） |
-| `minutes.+apply-permission` | 申请妙记查看或编辑权限 | lark-minutes-apply-permission（主题 `lark-minutes-apply-permission`） |
-| `drive.+member-list` | 查看妙记协作者及其权限 | lark-drive-member-list（主题 `lark-drive-member-list`） |
-| `drive.+member-add` | 给指定成员分配妙记查看或编辑权限 | lark-drive-member-add（主题 `lark-drive-member-add`） |
+| `minutes.+detail` | 读取妙记信息和指定产物 | 主题 `lark-minutes-detail` |
+| `minutes.+download` | 下载妙记原始音视频 | 主题 `lark-minutes-download` |
+| `minutes.+upload`（网关不提供：仅支持用户身份） | 从云空间音视频生成妙记 | 主题 `lark-minutes-upload` |
+| `minutes.+update`（网关不提供：仅支持用户身份） | 修改妙记标题 | 主题 `lark-minutes-update` |
+| `minutes.+speaker-replace`（网关不提供：仅支持用户身份） | 替换妙记逐字稿说话人 | 主题 `lark-minutes-speaker-replace` |
+| `minutes.+summary`（网关不提供：仅支持用户身份） | 替换妙记 AI 总结 | 主题 `lark-minutes-summary` |
+| `minutes.+todo`（网关不提供：仅支持用户身份） | 增删改妙记 AI 待办 | 主题 `lark-minutes-todo` |
+| `minutes.+apply-permission` | 申请妙记查看或编辑权限 | 主题 `lark-minutes-apply-permission` |
+| `drive.+member-list` | 查看妙记协作者及其权限 | 主题 `lark-drive-member-list` |
+| `drive.+member-add` | 给指定成员分配妙记查看或编辑权限 | 主题 `lark-drive-member-add` |
 | `minutes.+word-replace`（网关不提供：仅支持用户身份） | 批量替换妙记逐字稿关键词 | `minutes.+word-replace`（网关不提供：仅支持用户身份） |
-| `note.+detail` | 查询智能纪要及关联文档标识 | lark-note-detail（主题 `lark-note-detail`） |
-| `note.+transcript`（网关不提供：仅支持用户身份） | 获取 unified 智能纪要逐字稿 | lark-note-transcript（主题 `lark-note-transcript`） |
+| `note.+detail` | 查询智能纪要及关联文档标识 | 主题 `lark-note-detail` |
+| `note.+transcript`（网关不提供：仅支持用户身份） | 获取 unified 智能纪要逐字稿 | 主题 `lark-note-transcript` |
 
 ## 渐进加载规则
 

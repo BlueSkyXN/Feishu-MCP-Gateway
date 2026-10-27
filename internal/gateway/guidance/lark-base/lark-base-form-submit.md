@@ -42,6 +42,9 @@ base.+form-submit {"share_token": "<share_token>", "base_token": "<base_token>",
     }
   }'    --yes
 
+# 使用应用身份（bot）
+base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
+
 # 预览 API 调用（不实际执行，dry-run 无需 --yes）
 base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
 ```
@@ -53,9 +56,6 @@ base.+form-submit {"share_token": "<share_token>", "json": "{\"fields\":{...}}"}
 | `share_token=<token>` | 是 | 表单分享 Token（必填），从表单分享链接中提取 |
 | `base_token=<token>` | 条件必填 | Base token；**当 `json` 包含 `attachments` 时必须提供**，用于将附件上传到 Base Drive Media |
 | `json=<json>` | 是 | JSON 对象，包含 `"fields"`（普通字段值）和 `"attachments"`（附件上传），详见下方说明 |
-| 管理员预授权（high_risk_operations） | 是 | 确认高风险写操作。本命令为 high-risk-write，不带 管理员预授权（high_risk_operations） 会返回 `confirmation_required` |
-|  | 否 | 输出格式：json（默认）\| pretty \| table \| ndjson \| csv |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ### `json` 结构说明
 

@@ -34,7 +34,7 @@
 | ①源码重构 | `whiteboard.+export` 返回单一 Mermaid/PlantUML（即画板由代码绘制） | 在源码上改 → 按源码类型用 `whiteboard.+update`（input_format="mermaid"） 或 `whiteboard.+update`（input_format="plantuml"） | overwrite（整板重建） | ⚠️ **非严格无损，执行前确认** |
 | ②属性微调 | 只改已有节点的文字/颜色 | `whiteboard.+export`（output_type="raw"，output="<file>"）（**必须写入文件**）→ 编辑文件中目标节点字段；如只能用 `whiteboard.+update`（input_format="raw"，source={"file_id": "<file_id>"}，overwrite=true） 写回，先说明会整板重建并等待用户确认 | overwrite（整板重建） | ⚠️ **有损风险，未确认不得执行** |
 | ③增量追加 | 在原图基础上新增图/元素，保留原内容 | `whiteboard.+export`（output_type="preview"） → 理解原图 → `whiteboard.+export`（output_type="raw"） → 确定新节点坐标 → [§ 渲染 & 写入画板](#渲染--写入画板) 创作&写入 | append（**不加 `overwrite`**） | 无损（原节点不动） |
-| ④结构重绘 | 需几何变动/增删元素/结构调整/混合编辑 | `../routes/svg-edit.md`（主题 `svg-edit`） | overwrite（清空重来） | ⚠️ **有损，必须先经用户确认** |
+| ④结构重绘 | 需几何变动/增删元素/结构调整/混合编辑 | 主题 `svg-edit` | overwrite（清空重来） | ⚠️ **有损，必须先经用户确认** |
 
 **⚠️ 止损**：一条路径最多试 2 轮，不行就换条路径尝试一次；仍不行就停下，如实告诉用户卡点，不要在各路径间反复横跳。
 
@@ -52,11 +52,11 @@
 
 | 图表类型               | 身份                                  | 路径                                             |
 |--------------------|-------------------------------------|------------------------------------------------|
-| 当前要生成/追加的内容包含 @用户提及或图片/配图 | 任何身份                                | `../routes/dsl.md`（主题 `dsl`）         |
-| 思维导图、时序图、类图、饼图、甘特图 | 任何身份                                | `../routes/mermaid.md`（主题 `mermaid`） |
-| 鱼骨图、金字塔图、流程图    | `Doubao` / `Seed`                   | `../routes/dsl.md`（主题 `dsl`）         |
-| 其他图表               | `Claude` / `Gemini` / `GPT` / `GLM` / `Doubao` / `Seed`  | `../routes/svg.md`（主题 `svg`）         |
-| 其他图表               | `Other`                             | `../routes/dsl.md`（主题 `dsl`）         |
+| 当前要生成/追加的内容包含 @用户提及或图片/配图 | 任何身份                                | 主题 `dsl`         |
+| 思维导图、时序图、类图、饼图、甘特图 | 任何身份                                | 主题 `mermaid` |
+| 鱼骨图、金字塔图、流程图    | `Doubao` / `Seed`                   | 主题 `dsl`         |
+| 其他图表               | `Claude` / `Gemini` / `GPT` / `GLM` / `Doubao` / `Seed`  | 主题 `svg`         |
+| 其他图表               | `Other`                             | 主题 `dsl`         |
 
 > **⚠️ SVG 路径失败回退**：走 主题 `svg` 时，碰到以下情况之一 → **丢弃当前 SVG，改读 主题 `dsl` 从零重画，不要逐行修补**：
 > - 渲染命令直接报错（语法级崩溃，不是 `--check` 的 warn/error）
@@ -83,5 +83,5 @@ diagram.png           ← 渲染结果
 
 写入画板时按最终产物类型选择 `whiteboard.+update`：
 
-- Mermaid / PlantUML / SVG 产物直接写入时，`input_format` 取单值 `mermaid` / `plantuml` / `svg`；写入非空已有画板并需要 overwrite 时，先确认会整板重建；SVG 修改已有画板时先走 `../routes/svg-edit.md`（主题 `svg-edit`） 的确认 workflow。
+- Mermaid / PlantUML / SVG 产物直接写入时，`input_format` 取单值 `mermaid` / `plantuml` / `svg`；写入非空已有画板并需要 overwrite 时，先确认会整板重建；SVG 修改已有画板时先走 主题 `svg-edit` 的确认 workflow。
 - 只有 DSL 产物或已明确需要 OpenAPI 原生节点格式时，才先用 `npx -y @larksuite/whiteboard-cli@^0.2.13 --to openapi  json` 转换，再用 `raw` 写入。

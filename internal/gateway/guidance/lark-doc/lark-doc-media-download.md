@@ -45,5 +45,5 @@ docs.+media-download {"type": "whiteboard", "token": "wbcnxxxxxxxx", "output": "
 
 ## 参考
 
-- lark-doc-fetch（主题 `lark-doc-fetch`） — 获取文档内容（用于提取 token）
-- lark-doc-media-preview（主题 `lark-doc-media-preview`） — 预览素材
+- 主题 `lark-doc-fetch` — 获取文档内容（用于提取 token）
+- 主题 `lark-doc-media-preview` — 预览素材

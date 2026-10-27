@@ -12,11 +12,11 @@
 
 执行本文档规则前：
 
-2. 按 主题 `lark-drive-inspect`（主题 `lark-drive-inspect`） 处理 URL / token 解析。
+2. 按 主题 `lark-drive-inspect` 处理 URL / token 解析。
 3. 使用 `drive.metas.batch_query` 补齐 Drive 资源 owner、标题和 URL。
 4. 必要时使用 `drive.permission.members.auth` 读取权限信号；该接口不提供 `full_access` / 移动权限的直接判定，不能把 `manage_public` 等同为可移动。
-5. 按 `../../lark-wiki/references/lark-wiki-node-get.md`（主题 `lark-wiki-node-get`） 处理 Wiki 节点解析。
-6. 按 `../../lark-doc/references/lark-doc-fetch.md`（主题 `lark-doc-fetch`） 读取文档内容。
+5. 按 主题 `lark-wiki-node-get` 处理 Wiki 节点解析。
+6. 按 主题 `lark-doc-fetch` 读取文档内容。
 7. 需要验证 Sheet 内容时，按 `../../lark-sheets/SKILL.md`（`sheets` 领域指南） 执行。
 
 ## 进入解析与验证阶段前校验
@@ -175,7 +175,7 @@
 
 1. 确认 `content_verify_completed=true`，且每个 `ResourceItem` 都已有验证状态或跳过原因。
 2. 将下一状态设置为 `RELEVANCE_CLASSIFY`。
-3. 加载 主题 `lark-drive-workflow-topic-move-collector-review-plan`（主题 `lark-drive-workflow-topic-move-collector-review-plan`）。
+3. 加载 主题 `lark-drive-workflow-topic-move-collector-review-plan`。
 4. 不得直接进入 `PLAN_MOVE`。
 
 ## ResourceItem

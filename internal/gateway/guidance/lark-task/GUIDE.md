@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # task (v2)
 
@@ -15,7 +16,7 @@
 1. 先将用户意图与下方 Shortcut 表精确匹配。只有表中明确列出的 shortcut 才可直接选择；参数不确定时读取对应 reference 或运行该 shortcut 的 `feishu_tools_describe`。
 2. 没有精确匹配、或无法确认当前版本是否支持时，先运行 `feishu_tools_search`（domain="task"），以当前 CLI 输出的命令列表为准。
 3. help 中存在匹配 shortcut 时，使用 help 列出的完整 shortcut token（例如 `task.+create`）运行 `feishu_tools_describe`，再按真实 flag 执行。
-4. help 中没有匹配 shortcut 时，不得尝试相似的 `+<verb>`；从 help 中选择原生 resource，运行 `feishu_tools_describe` 确认 method，再运行 `feishu_tools_describe` 获取参数结构，最后调用 `lark-cli task <resource> <method> ...`。
+4. help 中没有匹配 shortcut 时，不得尝试相似的 `+<verb>`；从 help 中选择原生 resource，运行 `feishu_tools_describe` 确认 method，再运行 `feishu_tools_describe（operation_id="task.<resource>.<method>"）` 获取参数结构，最后调用 `task.<resource>.<method> {参数}`。
 5. 遇到 `unknown_subcommand` 时必须停止猜测或尝试变体，回到第 2 步重新发现能力。
 
 shortcut 名称只能来自本 Skill 的 Shortcut 表或 `feishu_tools_search`（domain="task"）；原生 resource/method 以逐级 help 为准，参数名、类型和嵌套结构以 method schema 为准。
@@ -58,29 +59,29 @@ shortcut 名称只能来自本 Skill 的 Shortcut 表或 `feishu_tools_search`�
 
 | Shortcut | 说明 |
 |----------|------|
-| `task.+create`（主题 `lark-task-create`） | create a task |
-| `task.+update`（主题 `lark-task-update`） | update task attributes |
-| `task.+set-ancestor`（主题 `lark-task-set-ancestor`） | set or clear a task ancestor |
-| `task.+comment`（主题 `lark-task-comment`） | add a comment to a task |
-| `task.+complete`（主题 `lark-task-complete`） | mark a task as complete |
-| `task.+reopen`（主题 `lark-task-reopen`） | reopen a completed task |
-| `task.+assign`（主题 `lark-task-assign`） | assign or remove task members |
-| `task.+followers`（主题 `lark-task-followers`） | manage task followers |
-| `task.+reminder`（主题 `lark-task-reminder`） | manage task reminders |
-| `task.+get-my-tasks`（网关不提供：仅支持用户身份）（主题 `lark-task-get-my-tasks`） | List tasks assigned to me |
-| `task.+get-related-tasks`（网关不提供：仅支持用户身份）（主题 `lark-task-get-related-tasks`） | list tasks related to me |
-| `task.+search`（网关不提供：仅支持用户身份）（主题 `lark-task-search`） | search tasks |
-| `task.+upload-attachment`（主题 `lark-task-upload-attachment`） | upload a local file as an attachment to a task |
-| `task.+tasklist-create`（主题 `lark-task-tasklist-create`） | create a tasklist and optionally add tasks |
-| `task.+tasklist-search`（网关不提供：仅支持用户身份）（主题 `lark-task-tasklist-search`） | search tasklists |
-| `task.+tasklist-task-add`（主题 `lark-task-tasklist-task-add`） | add tasks to a tasklist |
-| `task.+tasklist-members`（主题 `lark-task-tasklist-members`） | manage tasklist members |
+| `task.+create` (topic `lark-task-create`) | create a task |
+| `task.+update` (topic `lark-task-update`) | update task attributes |
+| `task.+set-ancestor` (topic `lark-task-set-ancestor`) | set or clear a task ancestor |
+| `task.+comment` (topic `lark-task-comment`) | add a comment to a task |
+| `task.+complete` (topic `lark-task-complete`) | mark a task as complete |
+| `task.+reopen` (topic `lark-task-reopen`) | reopen a completed task |
+| `task.+assign` (topic `lark-task-assign`) | assign or remove task members |
+| `task.+followers` (topic `lark-task-followers`) | manage task followers |
+| `task.+reminder` (topic `lark-task-reminder`) | manage task reminders |
+| `task.+get-my-tasks` (not available in the gateway: user identity only) (topic `lark-task-get-my-tasks`) | List tasks assigned to me |
+| `task.+get-related-tasks` (not available in the gateway: user identity only) (topic `lark-task-get-related-tasks`) | list tasks related to me |
+| `task.+search` (not available in the gateway: user identity only) (topic `lark-task-search`) | search tasks |
+| `task.+upload-attachment` (topic `lark-task-upload-attachment`) | upload a local file as an attachment to a task |
+| `task.+tasklist-create` (topic `lark-task-tasklist-create`) | create a tasklist and optionally add tasks |
+| `task.+tasklist-search` (not available in the gateway: user identity only) (topic `lark-task-tasklist-search`) | search tasklists |
+| `task.+tasklist-task-add` (topic `lark-task-tasklist-task-add`) | add tasks to a tasklist |
+| `task.+tasklist-members` (topic `lark-task-tasklist-members`) | manage tasklist members |
 
 ## API Resources
 
 ```bash
-# feishu_tools_describe
-lark-cli task <resource> <method> [flags] # 调用 API
+feishu_tools_describe（operation_id="task.<resource>.<method>"）   # 调用 API 前必须先查看参数结构
+task.<resource>.<method> {参数} # 调用 API
 ```
 
 > **重要**：使用原生 API 时，必须先运行 `schema` 查看 `data` / `params` 参数结构，不要猜测字段格式。

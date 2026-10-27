@@ -29,19 +29,19 @@
 
    | Content Profile | 独特专业任务 |
    |-|-|
-   | `route-workplace.md`（主题 `route-workplace`） | 组织决策、执行、留档 |
-   | `route-report.md`（主题 `route-report`） | 数据、研究和证据形成洞察 |
-   | `route-knowledge.md`（主题 `route-knowledge`） | 理解、自学、一次已知操作或检索 |
-   | `route-media.md`（主题 `route-media`） | 独立采集、核实和公共理解 |
-   | `route-opinion.md`（主题 `route-opinion`） | 形成并论证判断 |
-   | `route-consumer.md`（主题 `route-consumer`） | 以真实体验或测试辅助消费选择 |
-   | `route-marketing.md`（主题 `route-marketing`） | 组织授权的认知、转化或公关内容 |
-   | `route-personal-brand.md`（主题 `route-personal-brand`） | 本人经历、能力和作品的可信呈现 |
-   | `route-creative.md`（主题 `route-creative`） | 角色、冲突、情节与分支叙事 |
+   | 主题 `route-workplace` | 组织决策、执行、留档 |
+   | 主题 `route-report` | 数据、研究和证据形成洞察 |
+   | 主题 `route-knowledge` | 理解、自学、一次已知操作或检索 |
+   | 主题 `route-media` | 独立采集、核实和公共理解 |
+   | 主题 `route-opinion` | 形成并论证判断 |
+   | 主题 `route-consumer` | 以真实体验或测试辅助消费选择 |
+   | 主题 `route-marketing` | 组织授权的认知、转化或公关内容 |
+   | 主题 `route-personal-brand` | 本人经历、能力和作品的可信呈现 |
+   | 主题 `route-creative` | 角色、冲突、情节与分支叙事 |
 
    | Adapter | 渠道 |
    |-|-|
-   | `route-platform.md`（主题 `route-platform`） | Email、微信公众号、小红书 |
+   | 主题 `route-platform` | Email、微信公众号、小红书 |
 
 ### Step 3：收集资料并扫描表达机会。
 
@@ -97,7 +97,7 @@ docs.+script {"command": "init-draft", "presentation_decision": "<上方完整 J
 
 ### Step 5：生成 release candidate。
 
-读取 主题 `lark-doc-xml`（主题 `lark-doc-xml`），并结合 Presentation Decision、适用 contract 和 Philosophy 生成完整 XML。使用扩展标签时按需读取 `拓展标签`（主题 `lark-doc-xml-extended-blocks`）。
+读取 主题 `lark-doc-xml`，并结合 Presentation Decision、适用 contract 和 Philosophy 生成完整 XML。使用扩展标签时按需读取 `拓展标签`（主题 `lark-doc-xml-extended-blocks`）。
 
 1. 公开网络图片使用 `<img href="URL"/>`；已有本地图片使用 `<img path="@./downloads/image.png"/>`；画板使用 `<whiteboard type="svg" path="@./<work_dir>/diagram.svg"/>` 并遵循`画板工作流`（主题 `lark-doc-whiteboard`）；HTML 使用 `<html5-block path="@./<work_dir>/widget.html"/>` 并遵循`拓展标签`（主题 `lark-doc-xml-extended-blocks`）。
 3. 首次写入后，发现 XML 语法问题时只修复最小范围，不无故重写正确内容。
@@ -105,12 +105,12 @@ docs.+script {"command": "init-draft", "presentation_decision": "<上方完整 J
 ### Step 6：执行 Draft Profile Check。
 
 1. 执行 `docs.+script`（command="parse"，content={"file_id": "<file_id>"}）。顶层 `ok` 仅表示命令执行成功，是否通过看 `data.assessment.status`。失败时按 `data.diagnostics[]` 局部修复；只有草稿为空、截断或结构无效时才全文重建。`parse` 不替代 XML 规则或服务端校验。
-2. `passed` 只覆盖已启用的检查；先对照用户要求确认应声明的约束已完整填写，再按 主题 `lark-doc-xml`（主题 `lark-doc-xml`） 复查标签、属性和值，并依据 Philosophy 检查事实与来源、用户硬约束、适用 contract / adapter 以及 `visual_plan`。最终 XML 能否写入以 `docs.+create` 的服务端结果为准。
+2. `passed` 只覆盖已启用的检查；先对照用户要求确认应声明的约束已完整填写，再按 主题 `lark-doc-xml` 复查标签、属性和值，并依据 Philosophy 检查事实与来源、用户硬约束、适用 contract / adapter 以及 `visual_plan`。最终 XML 能否写入以 `docs.+create` 的服务端结果为准。
 
 ### Step 7：创建文档并处理局部失败。
 
-1. 只有最新 release candidate 完成 Draft Profile Check 和 XML 规则复查后，才读取 主题 `lark-doc-create`（主题 `lark-doc-create`），使用同一个 `draft_path` 创建文档。
-2. 创建结果存在 warning、局部资源失败或回查发现局部问题时，不得再次新建文档；读取 主题 `lark-doc-update`（主题 `lark-doc-update`），对已创建文档做最小范围修复，并按 update 流程 fetch 验证。
+1. 只有最新 release candidate 完成 Draft Profile Check 和 XML 规则复查后，才读取 主题 `lark-doc-create`，使用同一个 `draft_path` 创建文档。
+2. 创建结果存在 warning、局部资源失败或回查发现局部问题时，不得再次新建文档；读取 主题 `lark-doc-update`，对已创建文档做最小范围修复，并按 update 流程 fetch 验证。
 
 ### Step 8：交付。
 

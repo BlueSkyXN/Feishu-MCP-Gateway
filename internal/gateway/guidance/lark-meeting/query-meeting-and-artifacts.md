@@ -31,7 +31,7 @@
 
 只需要找到会议时，返回唯一 `meeting_id` 后停止。
 
-搜索参数、日期语义和分页细节见 `lark-vc-search`（主题 `lark-vc-search`）。
+搜索参数、日期语义和分页细节见 主题 `lark-vc-search`。
 
 ## 获取参会人
 
@@ -53,7 +53,7 @@ Note 与 Minutes 来自相互独立的 AI 总结和录制链路，可能同时�
 - `meeting_note` 是 Calendar 日程上由用户绑定的 Doc，只能从 `event_id` 经 `calendar.+meeting`（网关不提供：仅支持用户身份） 获取；它与 AI 智能纪要独立，不要从 `meeting_id` 或 `note_id` 推断。
 - 用户询问“有哪些纪要”或“纪要链接”且上下文包含 `event_id` 时，保留 `calendar.+meeting`（网关不提供：仅支持用户身份） 返回的 `meeting_note`；如存在 `note_id`，进入智能纪要场景取得 `note_doc_token`，再同时返回两者供用户区分选择。
 
-会议详情字段见 `lark-vc-detail`（主题 `lark-vc-detail`）。
+会议详情字段见 主题 `lark-vc-detail`。
 
 ## 转交智能纪要场景
 

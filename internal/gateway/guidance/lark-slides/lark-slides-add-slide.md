@@ -24,7 +24,6 @@ slides.+add-slide {"presentation": "$PRES_ID", "slide": {"file_id": "<file_id>"}
 | `slide` | 是 | 一个完整的 `<slide>...</slide>` 文档；支持字面量、`{"file_id": …}`、stdin `-` |
 | `before_slide_id` | 否 | 插到该 `slide_id` 之前；**不传就是追加到末尾** |
 | `revision_id` | 否 | 演示文稿版本号，默认 `-1`（最新）；传具体版本号做乐观锁 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 打印将要发起的请求（含图片上传步骤），不写入 |
 
 ## 本地图片：`@路径` 占位符
 
@@ -58,3 +57,4 @@ XML 里写 `<img src="@./chart.png" .../>`，CLI 会：先把每个不重复的�
 | `slide is not a single complete <slide> document` | 传了 `<presentation>` 整份 XML，或多个 `<slide>` 拼在一起 | 一次只传一页，根元素必须是 `<slide>` |
 | `slide cannot be empty` | `{"file_id": …}` 指向空文件，或 stdin 没内容 | 检查文件内容 |
 | 3350001 | XML 结构/转义有问题；**或 `before_slide_id` 不是有效 `slide_id`** | 优先改用 `slide=@file` 绕开 shell 转义；插页失败先 `slides.+xml-get` 回读确认 `slide_id`；再按 workflow/error-handling.md（主题 `error-handling`） 排查 |
+| 1061004 / 403 | 当前身份对这份 PPT 没有编辑权限 | 检查是否拥有 `slides:presentation:update` 或 `slides:presentation:write_only` scope；wiki 链接另需 `wiki:node:read`，`@` 占位符另需 `docs:document.media:upload`；应用身份 还要求该 bot 对目标 PPT 有编辑权限 |

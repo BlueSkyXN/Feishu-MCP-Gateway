@@ -64,6 +64,7 @@ Quick codes above: condition `type=6` = subject, `operator=1` = contains, action
 
 收信规则走 `user_mailbox.rules` 资源。参数不确定时先运行：
 
-```text
+```bash
 # feishu_tools_describe
+feishu_tools_describe（operation_id="mail.user_mailbox.rules.<method>"）
 ```

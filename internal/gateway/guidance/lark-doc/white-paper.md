@@ -13,7 +13,7 @@
 
 ## 适用与消歧
 
-让专业读者系统理解并评估问题、框架或解决路径。先区分有权主体的政府政策白皮书与专业、技术或品牌资助白皮书；`白皮书`、`正式`、`权威`单独不产生政府或标准身份。明确研究问题和方法为核心走 主题 `research-report`（主题 `research-report`），特定组织选项决策走 主题 `business-analysis`（主题 `business-analysis`），设计 / RFC / 接口契约走 Technical，产品卖点、获客或 CTA 为主走 Marketing。
+让专业读者系统理解并评估问题、框架或解决路径。先区分有权主体的政府政策白皮书与专业、技术或品牌资助白皮书；`白皮书`、`正式`、`权威`单独不产生政府或标准身份。明确研究问题和方法为核心走 主题 `research-report`，特定组织选项决策走 主题 `business-analysis`，设计 / RFC / 接口契约走 Technical，产品卖点、获客或 CTA 为主走 Marketing。
 
 ## 子类型
 

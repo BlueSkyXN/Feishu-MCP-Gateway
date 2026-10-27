@@ -25,6 +25,9 @@
 # 关键词搜索
 vc.+search {"query": "周会"}
 
+# 通过 9 位会议号查询会议 ID
+vc.+search {"query": "123456789"}
+
 # 查询某一天开过的会（单日查询时，start 和 end 必须填写同一天）
 vc.+search {"start": "2026-03-10", "end": "2026-03-10"}
 
@@ -55,7 +58,6 @@ vc.+search {"query": "周会", "page_token": "<PAGE_TOKEN>"}
 | `room_ids=<ids>` | 否 | 会议室 ID 列表，逗号分隔；多值为 OR 语义 |
 | `page_size=<n>` | 否 | 每页数量，默认 `15`，最大 `30` |
 | `page_token=<token>` | 否 | 翻页标记，用于获取下一页 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## 核心约束
 

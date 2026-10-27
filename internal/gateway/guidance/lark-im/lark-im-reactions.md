@@ -2,7 +2,7 @@
 
 # im reactions
 
-> **Heads-up — don't reach for `batch_query` by default.** The four message-pulling shortcuts (`im.+messages-mget`, `im.+chat-messages-list`, `im.+messages-search`, `im.+threads-messages-list`) already call `im.reactions.batch_query` automatically and attach the result as a `reactions` block on each message (replies inside `thread_replies` included). Use those shortcuts for any "read reactions of messages I'm already pulling" task. Reach for the raw `batch_query` API only when you have a standalone `message_id` outside that pull flow. See the main message enrichment（主题 `lark-im-message-enrichment`） for the contract.
+> **Heads-up — don't reach for `batch_query` by default.** The four message-pulling shortcuts (`im.+messages-mget`, `im.+chat-messages-list`, `im.+messages-search`, `im.+threads-messages-list`) already call `im.reactions.batch_query` automatically and attach the result as a `reactions` block on each message (replies inside `thread_replies` included). Use those shortcuts for any "read reactions of messages I'm already pulling" task. Reach for the raw `batch_query` API only when you have a standalone `message_id` outside that pull flow. See the main message enrichment (topic `lark-im-message-enrichment`) for the contract.
 
 This reference is the shared annotation target for the IM reaction APIs:
 
@@ -38,14 +38,17 @@ It focuses on:
 
 ## Inspect Schema
 
-```text
-# feishu_tools_describe（operation_id="im.reactions.delete"）
+```bash
+feishu_tools_describe（operation_id="im.reactions"）（网关目录中没有此操作）
+feishu_tools_describe（operation_id="im.reactions.create"） --format pretty
+feishu_tools_describe（operation_id="im.reactions.list"） --format pretty
+feishu_tools_describe（operation_id="im.reactions.delete"） --format pretty
 ```
 
 If your local build has already exposed the batch API in `schema`, also check:
 
-```text
-# feishu_tools_describe（operation_id="im.reactions.batch_query"）
+```bash
+feishu_tools_describe（operation_id="im.reactions.batch_query"） --format pretty
 ```
 
 ## create
@@ -286,5 +289,5 @@ GoGoGo, ThanksFace, SaluteFace, Shrug, ClownFace, HappyDragon
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands
 - Official emoji doc: `https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message-reaction/emojis-introduce`

@@ -1,8 +1,8 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+flag-list`（网关不提供：仅支持用户身份）
+# `im.+flag-list` (not available in the gateway: user identity only)
 
-This skill maps to shortcut: `im.+flag-list`（网关不提供：仅支持用户身份）. Underlying API: `GET /open-apis/im/v1/flags`.
+This skill maps to shortcut: `im.+flag-list` (not available in the gateway: user identity only). Underlying API: `GET /open-apis/im/v1/flags`.
 
 ## Sorting Rules (Important)
 
@@ -44,7 +44,7 @@ Note: `(thread, feed)` / `(msg_thread, feed)` entries are automatically enriched
 ## Limitations
 
 - **Auto-pagination is bounded**: `page_all` fetches at most 20 pages by default. If the response still has `has_more=true`, the result is incomplete; increase `page_limit` up to 1000 or resume with `page_token`. Never interpret `flag_items: []` as an authoritative zero while more pages remain. Historical `delete_flag_items` may occupy early pages and push active flags to later pages.
-- **delete_flag_items are not enriched**: Message content is only fetched for active flags (`flag_items`), not canceled flags (`delete_flag_items`). If you need message content for a canceled flag, query the message separately using `im.+messages-mget`（message_ids="<item_id>"）.
+- **delete_flag_items are not enriched**: Message content is only fetched for active flags (`flag_items`), not canceled flags (`delete_flag_items`). If you need message content for a canceled flag, query the message separately using `im.+messages-mget` (message_ids="<item_id>").
 
 ## Response Example (Sanitized)
 

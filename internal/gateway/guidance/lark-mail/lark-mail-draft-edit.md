@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+draft-edit`（网关不提供：仅支持用户身份）
+# `mail.+draft-edit` (not available in the gateway: user identity only)
 
 编辑已有的邮件草稿。命令会读取当前原始 EML，应用最小化补丁，然后将更新后的草稿写回。
 
@@ -12,7 +12,7 @@
 
 **正文整体替换的快捷方式：** `body=<text>` / `body_file=<path>`（二选一互斥）会自动展开为 `set_body` op。如果只想做整段正文替换且不需要保留引用区，用这两个 flag 即可，无需写 patch-file。要保留引用区或做更精细的 op 组合，仍走 `patch_file`。两个入口与 `patch_file` 内的 `set_body` / `set_reply_body` 互斥。
 
-**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 lark-mail-html.md（主题 `lark-mail-html`），其中包含邮件书写规范**
+**CRITICAL - 编辑邮件内容前 MUST 先用 Read 工具读取 主题 `lark-mail-html`，其中包含邮件书写规范**
 
 ## 正文编辑：快捷 flag 与 typed op 的选择
 
@@ -88,8 +88,6 @@ mail.+draft-edit  # 网关不提供：仅支持用户身份
 | `print_patch_template` | 否 | 打印 `patch_file` 的 JSON 模板和支持的操作。建议在生成补丁文件前先运行此命令。不会读取或写入草稿 |
 | `inspect` | 否 | 查看草稿但不修改。返回包含 `has_quoted_content`（是否有引用区）、`attachments_summary`（普通附件，含 `part_id`/`cid`/`filename`）、`large_attachments_summary`（超大附件，含 `token`/`filename`/`size_bytes`）和 `inline_summary` 的草稿投影 |
 | `--request-receipt` | 否 | 在草稿上追加 `Disposition-Notification-To: <草稿的 From 地址>` 头，请求已读回执（RFC 3798）。本质上是在 patch 中注入一个 `set_header` op；已有的 DNT 值会被覆盖。可以与其他 `--set-*` / `patch_file` 编辑组合，也可以单独使用 |
-|  | 否 | 输出格式：`json`（默认）/ `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | 否 | 仅打印请求，不执行 |
 
 ## `patch_file` 格式
 

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+watch`（网关不提供：仅支持用户身份）
+# `mail.+watch` (not available in the gateway: user identity only)
 
 实时监听新邮件事件（`mail.user_mailbox.event.message_received_v1`）。
 
@@ -46,7 +46,6 @@ mail.+watch  # 网关不提供：仅支持用户身份
 |------|------|------|
 | `mailbox=<id>` | `me` | 订阅目标邮箱 |
 | `--msg-format <mode>` | `metadata` | 输出模式：`metadata` / `minimal` / `plain_text_full` / `full` / `event` |
-|  | `data` | 输出样式：`json`（带 ok/data 信封的 NDJSON 流）/ `data`（裸 NDJSON 流） |
 | `--folder-ids <json-array>` | — | 文件夹 ID 过滤，如 `["INBOX","SENT"]` |
 | `--folders <json-array>` | — | 文件夹名称过滤（与 `--folder-ids` 取并集） |
 | `--label-ids <json-array>` | — | 标签 ID 过滤，如 `["FLAGGED","IMPORTANT"]` |
@@ -55,7 +54,6 @@ mail.+watch  # 网关不提供：仅支持用户身份
 > **过滤逻辑：** `--folder-ids`/`--folders` 与 `--label-ids`/`labels` 之间是 **AND** 关系，即邮件必须**同时**匹配指定的文件夹和标签才会输出。同类参数内部是 **OR** 关系（匹配其中任一即可）。新收到的邮件通常只有系统标签（如 `UNREAD`、`IMPORTANT`），不会自动带有自定义标签。
 | `--output-dir <dir>` | — | 每条事件写入单独 JSON 文件 |
 | `print_output_schema` | — | 打印各 `--msg-format` 的输出字段说明（解析输出前先运行此命令） |
-| dry-run（网关不提供，改为先读取核对） | — | 仅预览订阅请求，不实际连接 |
 
 ## --msg-format 输出结构（ json）
 
@@ -89,5 +87,5 @@ mail.+watch  # 网关不提供：仅支持用户身份
 ## 参考
 
 - `mail` 领域指南 — 邮箱域总览
-- lark-mail-triage（主题 `lark-mail-triage`） — 邮件摘要列表
+- 主题 `lark-mail-triage` — 邮件摘要列表
 - `events` 领域指南 — 通用事件订阅

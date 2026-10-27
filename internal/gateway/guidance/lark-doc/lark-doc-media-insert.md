@@ -84,7 +84,7 @@ docs.+media-insert {"doc": "doxcnXXX", "from_clipboard": true, "width": 800, "he
 | `height=<px>` | 否 | Image display height in pixels (only for `type=image`). If `width` is omitted, it is auto-computed from the source image aspect ratio. Supported auto-detection formats: PNG, JPEG, GIF; other formats (WebP, BMP, etc.) require both `width` and `height`. |
 
 > [!IMPORTANT]
-> 如果上一步是 `lark-doc-create`（主题 `lark-doc-create`），并且它在知识库/知识空间场景下返回的是 `/wiki/...` 形式的 `doc_url`，后续调用 `docs.+media-insert` 时应优先传 `doc_id`，不要直接传这个 `doc_url`。
+> 如果上一步是 主题 `lark-doc-create`，并且它在知识库/知识空间场景下返回的是 `/wiki/...` 形式的 `doc_url`，后续调用 `docs.+media-insert` 时应优先传 `doc_id`，不要直接传这个 `doc_url`。
 
 ## 平台注意（仅 `from_clipboard`）
 
@@ -105,4 +105,4 @@ docs.+media-insert {"doc": "doxcnXXX", "from_clipboard": true, "width": 800, "he
 
 ## 参考
 
-- lark-doc-fetch（主题 `lark-doc-fetch`） — 获取文档内容（可用于确认插入后的结果、以及提取媒体 token）
+- 主题 `lark-doc-fetch` — 获取文档内容（可用于确认插入后的结果、以及提取媒体 token）

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+send-receipt`（网关不提供：仅支持用户身份）
+# `mail.+send-receipt` (not available in the gateway: user identity only)
 
 响应收到的已读回执请求。**本命令仅在对方邮件请求了已读回执（`READ_RECEIPT_REQUEST` 标签，系统 ID `-607`）时使用**，用于向原发件人发送一封短回复以告知"已阅读"。
 
@@ -33,8 +33,6 @@ mail.+send-receipt  # 网关不提供：仅支持用户身份
 | `message_id=<id>` | 是 | — | 请求了已读回执的原邮件 message ID |
 | `mailbox=<email>` | 否 | `me` | 回执邮件归属的邮箱 |
 | `--from <email>` | 否 | 邮箱主地址 | 回执 From 头 |
-| 管理员预授权（high_risk_operations） | 是 | — | 确认高危写操作。仅在用户明确同意发回执后附上 |
-| dry-run（网关不提供，改为先读取核对） | 否 | — | 仅打印请求，不执行 |
 
 > **没有 `body` 参数**：回执正文**由命令自动生成**（见下方"行为细节"），对齐业界惯例（Outlook / Thunderbird / Lark 客户端等均不支持逐封自定义回执正文）。若真需要自由回复，请改用 `mail.+reply`（网关不提供：仅支持用户身份）——那本来就是"自由回复"的命令，不该与"已读回执"混用。
 

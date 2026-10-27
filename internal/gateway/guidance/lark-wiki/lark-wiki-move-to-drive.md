@@ -79,7 +79,7 @@ shortcut 会按以下协议执行：
   "status": 1,
   "status_msg": "processing",
   "timed_out": true,
-  "next_command": "lark-cli drive +task_result --scenario wiki_move_to_drive --task-id <OPAQUE_TASK_ID> --as user"
+  "next_command": "lark-cli drive +task_result --scenario wiki_move_to_drive --task-id <OPAQUE_TASK_ID>"
 }
 ```
 

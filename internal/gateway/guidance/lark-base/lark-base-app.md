@@ -40,7 +40,7 @@
 
 页面和组件命令使用 `app_token`；Base 数据命令使用 `base_token`。`base.+app-block-get-data` 使用 `app_token + base_token + chart_token`：CLI 参数名仍为 `block_id`，但必须传组件返回的 `chart_token`，不能传普通 `block_id`。请求路径与仪表盘图表数据接口相同。
 
-BaseApp / AppMode 是 Base 域能力。用户提供 `/app/` 链接时，先用 `base.+url-resolve`；它会返回 `app_token`，并忠实提取链接实际携带的 `workspace_token` 与 `page_id`。直接使用本指引和 `lark-cli base +...`，不要先尝试 `lark-cli apps`。
+BaseApp / AppMode 是 Base 域能力。用户提供 `/app/` 链接时，先用 `base.+url-resolve`；它会返回 `app_token`，并忠实提取链接实际携带的 `workspace_token` 与 `page_id`。直接使用本指引和 `base.+…`，不要先尝试 `lark-cli apps`。
 
 ## 查询应用
 
@@ -181,7 +181,7 @@ base.+app-block-create {"app_token": "<app_token>", "page_id": "<page_id>", "nam
 
 - `data_config.base_token` 是单值：每个列表最多选择一个 Base。
 - Base 必须在当前 App 的同一个 Workspace；CLI 写入前校验。
-- 完整字段协议读 lark-base-app-block-data-config.md（主题 `lark-base-app-block-data-config`）。
+- 完整字段协议读 主题 `lark-base-app-block-data-config`。
 
 ## 更新组件
 

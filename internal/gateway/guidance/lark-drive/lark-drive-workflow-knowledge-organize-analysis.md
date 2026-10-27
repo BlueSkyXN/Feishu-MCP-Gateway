@@ -10,9 +10,9 @@ This file owns low-confidence partial reads, issue analysis, classification rule
 
 Before executing rules in this file:
 
-1. `resource_items` MUST already exist from 主题 `lark-drive-workflow-knowledge-organize-discovery`（主题 `lark-drive-workflow-knowledge-organize-discovery`）.
-2. For document partial reads, follow `../../lark-doc/SKILL.md`（`docs` 领域指南） and `../../lark-doc/references/lark-doc-fetch.md`（主题 `lark-doc-fetch`）.
-3. For sheet / bitable down-drill, follow `../../lark-sheets/SKILL.md`（`sheets` 领域指南） or `../../lark-base/SKILL.md`（`base` 领域指南） only when title and path are insufficient.
+1. `resource_items` MUST already exist from topic `lark-drive-workflow-knowledge-organize-discovery`.
+2. For document partial reads, follow `../../lark-doc/SKILL.md` (`docs` domain指南) and topic `lark-doc-fetch`.
+3. For sheet / bitable down-drill, follow `../../lark-sheets/SKILL.md` (`sheets` domain指南) or `../../lark-base/SKILL.md` (`base` domain指南) only when title and path are insufficient.
 
 ## State: CONTENT_READ
 
@@ -23,7 +23,7 @@ MUST:
 1. Build `low_confidence_items`.
 2. Apply `Low-Confidence Partial Read`.
 3. Read only supported docs through `lark-doc-fetch`.
-4. Switch to `sheets` 领域 / `base` 领域 only when sheet / bitable title and path are insufficient.
+4. Switch to `sheets` domain / `base` domain only when sheet / bitable title and path are insufficient.
 5. Record read evidence for classification.
 6. Continue reading low-confidence resources in internal batches until all supported low-confidence resources in the current inventory are processed or a blocker occurs.
 7. Apply `Analysis Progress Reporting`.

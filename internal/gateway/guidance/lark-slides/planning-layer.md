@@ -117,7 +117,7 @@ Each slide must include:
 - `key_message`: the one idea this page must land.
 - `layout_type`: planned page structure.
 - `visual_focus`: dominant visual object or region.
-- `asset_need`: planning-only structured asset metadata; no search, download, or upload required. Follow 主题 `asset-planning`.
+- `asset_need`: planning-only structured asset metadata; no search, download, or upload required. Follow topic `asset-planning`.
 - `text_density`: `low`, `medium`, or `high`.
 - `speaker_intent`: why the speaker needs this page and how it advances the story.
 
@@ -215,20 +215,20 @@ Use an object for one planned asset, an array for multiple real needs, or `asset
 - `fallback_if_missing`: a plan to create a close-enough image with the image generation tool, or a native `<chart>` for data.
 - `chart_contract`: when `asset_type` is `chart` and the visual is a supported standard data chart, set this optional slide-level field so generation is locked to native `<chart>`.
 
-For detailed rules and examples, read 主题 `asset-planning`.
+For detailed rules and examples, read topic `asset-planning`.
 
 Good examples:
 
 - `{"asset_type":"architecture_diagram","purpose":"Explain component relationships.","suggested_query":"service architecture diagram","fallback_if_missing":"Render the component diagram with <shape> + <line>."}`
 - `{"asset_type":"logo","purpose":"Identify the customer context.","suggested_query":"customer logo","fallback_if_missing":"Create a close-enough image with the image generation tool instead of a real logo."}`
-- `{"asset_type":"chart","purpose":"Show adoption trend.","suggested_query":"monthly adoption trend chart","fallback_if_missing":"Render a native `<chart>` using the provided series when available; otherwise render a native `<chart>` with mock placeholder values and label it as 模拟数据，仅占位，待替换真实数据."}`
+- `{"asset_type":"chart","purpose":"Show adoption trend.","suggested_query":"monthly adoption trend chart","fallback_if_missing":"Render a native`<chart>`using the provided series when available; otherwise render a native`<chart>`with mock placeholder values and label it as 模拟数据，仅占位，待替换真实数据."}`
 
 ## XML Generation Contract
 
 Before writing each slide XML, map the plan fields to concrete decisions:
 
 - `key_message` determines the headline, dominant claim, or main takeaway.
-- `layout_type` determines the coordinate structure and element types. Use 主题 `visual-planning` for concrete layout rules.
+- `layout_type` determines the coordinate structure and element types. Use topic `visual-planning` for concrete layout rules.
 - `visual_focus` determines the largest visual region or emphasized object.
 - `text_density` caps visible text volume.
 - `asset_need` informs placeholder diagrams, icons, charts, screenshots, or fallback visuals only. Missing real assets must use `fallback_if_missing`, not blank regions.

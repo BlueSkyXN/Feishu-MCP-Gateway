@@ -10,11 +10,11 @@
 
 确认本地媒体路径以及用户最终需要妙记链接、逐字稿、总结、待办还是章节。源文件须符合 `minutes.+upload`（网关不提供：仅支持用户身份）（主题 `lark-minutes-upload`） 的格式要求，时长不超过 6 小时，大小不超过 6 GB。
 
-按 `drive` 领域指南 的路径和写操作规则执行 `drive.+upload`，取得 `file_token`。上传参数和文件限制见 `lark-drive-upload`（主题 `lark-drive-upload`）。
+按 `drive` 领域指南 的路径和写操作规则执行 `drive.+upload`，取得 `file_token`。上传参数和文件限制见 主题 `lark-drive-upload`。
 
 ### 使用 file_token 创建妙记
 
-从返回的 `minute_url` 路径最后一段提取 `minute_token`，去掉 query 参数。创建参数、支持格式和异步语义见 `lark-minutes-upload`（主题 `lark-minutes-upload`）。`minutes.+upload`（网关不提供：仅支持用户身份） 成功仅表示异步创建请求已提交；报告返回的 `minute_url` 和可解析的 `minute_token`。未执行 `minutes.+detail` 并确认就绪前，不得声称妙记产物已生成或可用。用户只要求发起创建或返回链接时，到此停止。
+从返回的 `minute_url` 路径最后一段提取 `minute_token`，去掉 query 参数。创建参数、支持格式和异步语义见 主题 `lark-minutes-upload`。`minutes.+upload`（网关不提供：仅支持用户身份） 成功仅表示异步创建请求已提交；报告返回的 `minute_url` 和可解析的 `minute_token`。未执行 `minutes.+detail` 并确认就绪前，不得声称妙记产物已生成或可用。用户只要求发起创建或返回链接时，到此停止。
 
 ### 等待并读取妙记产物
 
@@ -22,7 +22,7 @@
 
 将 `--transcript` 替换或扩展为用户需要的 `--summary`、`--todo`、`--chapter` 或 `--keyword`。创建任务仍在处理中时，按返回状态和重试提示轮询；不要重复上传或重复创建妙记。
 
-用户要求独立提炼或复盘时，读取 Transcript 并基于原始发言分析，不要复述现成 Summary。产物 flags 和等待行为见 `lark-minutes-detail`（主题 `lark-minutes-detail`）。
+用户要求独立提炼或复盘时，读取 Transcript 并基于原始发言分析，不要复述现成 Summary。产物 flags 和等待行为见 主题 `lark-minutes-detail`。
 
 ### 从失败阶段恢复
 
@@ -35,7 +35,7 @@
 妙记 AI 待办不是飞书任务。上下文包含妙记 URL / `minute_token` 并要求修改妙记待办时，禁止改走 `task` 领域；用户同时指定了负责人（包括"负责人是我"）也不改变归属。
 
 - 多条新增优先使用 `--todos` 批量提交。
-- 待办 ID、批量结构和部分成功语义见 `lark-minutes-todo`（主题 `lark-minutes-todo`）。
+- 待办 ID、批量结构和部分成功语义见 主题 `lark-minutes-todo`。
 
 ### 指定负责人
 
@@ -45,7 +45,7 @@
 - 姓名解析只影响追加的 `@` 文本，绝不能阻塞或取消待办创建；不要为处理负责人改走 `task` 领域 或做进一步通讯录搜索。
 - 回复只陈述结果（妙记、待办内容、负责人、完成状态），不要解释接口字段限制，也不要建议改用 `task` 领域 来"明确负责人"。
 
-完整规则和示例见 `lark-minutes-todo`（主题 `lark-minutes-todo`） 的「负责人 / `@` 提及」。
+完整规则和示例见 主题 `lark-minutes-todo` 的「负责人 / `@` 提及」。
 
 ## 批量替换逐字稿关键词
 
@@ -67,7 +67,7 @@
 2. 按原说话人的显示名称精确匹配。存在同名候选时，结合 Transcript 展示候选并让用户确认，不要擅选。
 3. 用户只提供目标姓名时，用 `contact` 领域指南 解析为 `ou_` open_id。
 
-完整流程和参数见 `lark-minutes-speaker-replace`（主题 `lark-minutes-speaker-replace`）。
+完整流程和参数见 主题 `lark-minutes-speaker-replace`。
 
 ## 查看妙记授权列表
 
@@ -89,7 +89,7 @@
 
 没有查看或编辑权限时，先说明权限事实。只有用户明确要求申请权限时才执行：
 
-根据用户目标选择 `view` 或 `edit`，并必须沿用触发无权错误时的身份。这只是发起申请，不代表已经获得权限。身份和权限语义见 `lark-minutes-apply-permission`（主题 `lark-minutes-apply-permission`）。
+根据用户目标选择 `view` 或 `edit`，并必须沿用触发无权错误时的身份。这只是发起申请，不代表已经获得权限。身份和权限语义见 主题 `lark-minutes-apply-permission`。
 
 ## ASR/AI 额度不足
 

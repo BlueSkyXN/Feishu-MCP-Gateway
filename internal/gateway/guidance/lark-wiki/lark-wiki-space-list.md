@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `wiki` 领域 `wiki.+space-list`
+# `wiki` domain `wiki.+space-list`
 
 List wiki spaces accessible to the caller. **Default fetches a single page** (matches the rest of the CLI's list shortcuts); pass `page_all` to walk every page.
 
@@ -32,7 +32,6 @@ wiki.+space-list
 | `page_token` | string | — | Page cursor; implies single-page fetch (no auto-pagination) |
 | `page_all` | bool | `false` | Automatically paginate through all pages (capped by `page_limit`) |
 | `page_limit` | int | 10 | Max pages with `page_all` (0 = unlimited) |
-|  | enum | `json` | `json` / `pretty` / `table` / `csv` / `ndjson` |
 
 ## Output
 
@@ -61,7 +60,7 @@ When the default single-page fetch (or `page_all` capped by `page_limit`) does n
 
 ## Notes
 
-- **The underlying API never returns the my_library personal library**; resolve it via `wiki.spaces.get`（params={"space_id": "my_library"}）.
+- **The underlying API never returns the my_library personal library**; resolve it via `wiki.spaces.get` (params={"space_id": "my_library"}).
 - Use `space_id` from the output as `space_id` for `wiki.+node-list` or `wiki.+node-copy`.
 
 ## Required Scope

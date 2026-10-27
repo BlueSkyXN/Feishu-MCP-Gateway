@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-meeting` 参考文档转换；调用约定见 `vc` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `minutes.+speaker-replace`（网关不提供：仅支持用户身份）
+# `minutes.+speaker-replace` (not available in the gateway: user identity only)
 
 替换妙记逐字稿中的说话人身份：把妙记逐字稿里"原说话人"对应的所有发言段，重新归属到"新说话人"。常用于解决妙记自动识别错说话人，或需要把外部/非飞书说话人改绑到正确飞书用户的场景。
 

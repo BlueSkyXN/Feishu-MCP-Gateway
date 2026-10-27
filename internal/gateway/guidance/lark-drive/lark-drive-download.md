@@ -53,7 +53,7 @@ Wiki URL / 裸 Wiki node token 会先解析到底层文档，解析后会在输�
 
 - 如果返回 `permission_denied`，或最终下载返回 `HTTP 403`，按错误 `hint` 使用 `drive.+preview`（file_token="<FILE_TOKEN>"，type="source_file"，output="<path>"） 获取预览产物。
 - 如果返回限流错误，停止立即重试，稍后按指数退避重试。
-- 如果目标（或 Wiki 解析出的底层文档）是 `docx` / `sheet` / `bitable` / `slides` 等在线文档，`drive.+download` 无法直接下载，会返回 typed validation error；改用 lark-drive-export（主题 `lark-drive-export`） 渲染成 pdf / xlsx / pptx / markdown 等格式。
+- 如果目标（或 Wiki 解析出的底层文档）是 `docx` / `sheet` / `bitable` / `slides` 等在线文档，`drive.+download` 无法直接下载，会返回 typed validation error；改用 主题 `lark-drive-export` 渲染成 pdf / xlsx / pptx / markdown 等格式。
 
 ## 参考
 

@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-task` 参考文档转换；调用约定见 `task` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `task.+tasklist-search`（网关不提供：仅支持用户身份）
+# `task.+tasklist-search` (not available in the gateway: user identity only)
 
 >
 > **⚠️ Note:** This shortcut uses tasklist search followed by tasklist detail queries to render the final output.
@@ -34,5 +34,5 @@ task.+tasklist-search  # 网关不提供：仅支持用户身份
 ## Workflow
 
 1. Build the search keyword and filters from the user's request.
-2. Execute `task.+tasklist-search`（网关不提供：仅支持用户身份）
+2. Execute `task.+tasklist-search` (not available in the gateway: user identity only)
 3. Report the matched tasklists and the next `page_token` if more results exist.

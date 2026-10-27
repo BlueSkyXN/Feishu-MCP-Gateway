@@ -6,7 +6,7 @@
 
 ## 1. filter 结构
 
-`json` 就是一个 filter 条件对象，结构见公共协议 SSOT lark-base-filter-condition.md（主题 `lark-base-filter-condition`），即 `{logic?, conditions?}`。此处 `conditions` 中的 `field` 引用**数据表字段名或字段 id**。
+`json` 就是一个 filter 条件对象，结构见公共协议 SSOT 主题 `lark-base-filter-condition`，即 `{logic?, conditions?}`。此处 `conditions` 中的 `field` 引用**数据表字段名或字段 id**。
 
 - 支持 `filter` 的视图类型：`grid`、`kanban`、`gallery`、`calendar`、`gantt`。
 
@@ -37,7 +37,7 @@ base.+view-set-filter {"base_token": "<base_token>", "table_id": "<table_id>", "
 }
 ```
 
-完整的 operator 列表与各字段类型的 value 写法（`text` / `number` / `select` / `user` / `datetime` / `formula` / `lookup` 等），见 lark-base-filter-condition.md（主题 `lark-base-filter-condition`）。
+完整的 operator 列表与各字段类型的 value 写法（`text` / `number` / `select` / `user` / `datetime` / `formula` / `lookup` 等），见 主题 `lark-base-filter-condition`。
 
 ## 4. 使用建议
 
@@ -57,5 +57,5 @@ base.+view-set-filter {"base_token": "<base_token>", "table_id": "<table_id>", "
 
 ## 6. 参考
 
-- lark-base-filter-condition.md（主题 `lark-base-filter-condition`）：filter/visible_rule 条件结构公共协议 SSOT
-- Lookup Field（主题 `lark-base-field-lookup`）
+- 主题 `lark-base-filter-condition`：filter/visible_rule 条件结构公共协议 SSOT
+- Lookup Field (topic `lark-base-field-lookup`)

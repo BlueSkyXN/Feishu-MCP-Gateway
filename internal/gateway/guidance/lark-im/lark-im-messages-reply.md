@@ -13,6 +13,8 @@ Replies sent by this tool are visible to other people. Before calling it, you **
 
 **Do not** send a reply without explicit user approval.
 
+When using app identity, the reply is sent in the app's name, so make sure the app has already been added to the target chat.
+
 ## Choose The Right Content Flag
 
 ### Default Selection Rule For Agents
@@ -115,6 +117,9 @@ im.+messages-reply {"message_id": "om_xxx", "markdown": {"file_id": "<file_id>"}
 # Equivalent manual JSON
 im.+messages-reply {"message_id": "om_xxx", "content": "{\"text\":\"Received\"}"}
 
+# Reply as a bot
+im.+messages-reply {"message_id": "om_xxx", "text": "bot reply"}
+
 # Reply with preserved multi-line text
 im.+messages-reply {"message_id": "om_xxx", "text": "$Line 1\\nLine 2\\n  indented line"}
 
@@ -170,7 +175,6 @@ im.+messages-reply {"message_id": "om_xxx", "msg_type": "interactive", "content"
 | `attachment=<key>` | One content option | Repeatable bare file/folder key (`file_xxx`); merges into the post message's attachment zone. Requires a post message (`markdown` or `msg_type=post`). Name/size/mime/is_folder are filled by the server from file service metadata, not taken from the client. Use this instead of `file` when the file should render inside a rich-text message's attachment area |
 | `reply_in_thread` | No | Reply inside the thread. The reply appears in the target message's thread instead of the main chat stream                                                                                     |
 | `idempotency_key=<key>` | No | Idempotency key, max 50 characters; the same key sends only one reply within 1 hour                                                                                                          |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it                                                                                                                                                     |
 
 > **Mutual exclusivity rule:** `text`, `markdown`, `content`, and `image`/`file`/`video`/`audio` cannot be used together. Media flags are also mutually exclusive with each other.
 >
@@ -249,7 +253,8 @@ Card content is **not** normalized — use the card-native `<at>` syntax inside 
 - `markdown` always sends `msg_type=post`
 - If you explicitly set `msg_type` and it conflicts with the chosen content flag, validation fails
 - When using `video`, `video_cover` is required as the video cover
-- dry-run（网关不提供，改为先读取核对） uses placeholder image keys for remote Markdown images and placeholder media keys for local uploads
+- dry-run (not available in the gateway; read and verify first) uses placeholder image keys for remote Markdown images and placeholder media keys for local uploads
 - Failures return error codes and messages
+- app identity uses a tenant access token (TAT), and requires the `im:message:send_as_bot` scope
 - When using `markdown` with images, pre-uploading via `images.create` to obtain an `image_key` is recommended for reliability; remote URLs may be auto-resolved at runtime, but if download/upload fails the image is removed with a warning; local paths are not supported
-- **Interactive cards are gated:** you MUST read and follow the `card/lark-im-card-create.md`（主题 `lark-im-card-create`） workflow to produce the card JSON *before* replying. Do not hand-write or copy a card payload — the JSON given to `msg_type interactive content` must be the workflow's output. This applies every time, with no exception
+- **Interactive cards are gated:** you MUST read and follow the topic `lark-im-card-create` workflow to produce the card JSON *before* replying. Do not hand-write or copy a card payload — the JSON given to `msg_type interactive content` must be the workflow's output. This applies every time, with no exception

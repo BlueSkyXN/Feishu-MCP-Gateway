@@ -1,10 +1,10 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+feed-group-list`（网关不提供：仅支持用户身份）
+# `im.+feed-group-list` (not available in the gateway: user identity only)
 
-> Shortcut for `im.+feed-group-list`（网关不提供：仅支持用户身份）. List the caller's feed groups (tags) with auto-pagination that correctly merges both the live and soft-deleted lists.
+> Shortcut for `im.+feed-group-list` (not available in the gateway: user identity only). List the caller's feed groups (tags) with auto-pagination that correctly merges both the live and soft-deleted lists.
 
-`im.+feed-group-list`（网关不提供：仅支持用户身份） is the only CLI surface for listing feed groups — there is no raw `feed.groups list` command. The list response carries two parallel arrays — `groups` (live) and `deleted_groups` (soft-deleted). The shortcut paginates this dual-list response correctly: its `page_all` merges **both** arrays across pages (a naive single-array pager would silently drop one list's later pages). It adds no enrichment.
+`im.+feed-group-list` (not available in the gateway: user identity only) is the only CLI surface for listing feed groups — there is no raw `feed.groups list` command. The list response carries two parallel arrays — `groups` (live) and `deleted_groups` (soft-deleted). The shortcut paginates this dual-list response correctly: its `page_all` merges **both** arrays across pages (a naive single-array pager would silently drop one list's later pages). It adds no enrichment.
 
 ## Scopes
 
@@ -51,6 +51,6 @@ JSON keeps the raw envelope; with `page_all` both lists are returned fully merge
 
 ## See also
 
-- lark-im-feed-groups.md（主题 `lark-im-feed-groups`） — raw `feed.groups.*` APIs, enums, and rule guidance
-- lark-im-feed-group-list-item.md（主题 `lark-im-feed-group-list-item`） — list the feed cards inside one group
-- lark-im-feed-group-query-item.md（主题 `lark-im-feed-group-query-item`） — look up specific feed cards by ID
+- topic `lark-im-feed-groups` — raw `feed.groups.*` APIs, enums, and rule guidance
+- topic `lark-im-feed-group-list-item` — list the feed cards inside one group
+- topic `lark-im-feed-group-query-item` — look up specific feed cards by ID

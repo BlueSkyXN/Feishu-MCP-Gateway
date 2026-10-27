@@ -19,7 +19,6 @@ base.+field-update {"base_token": "<base_token>", "table_id": "<table_id>", "fie
 | `table_id=<id_or_name>` | 是 | 表 ID 或表名 |
 | `field_id=<id_or_name>` | 是 | 字段 ID 或字段名 |
 | `json=<body>` | 是 | 字段属性 JSON 对象 |
-| 管理员预授权（high_risk_operations） | 是 | 确认执行高风险字段更新 |
 
 > 这是**高风险写入操作**。`base.+field-update` 使用 `PUT` 全量字段定义语义；改变字段类型或关键配置可能影响整列已有数据的解释、展示或可用性。CLI 层要求显式传 管理员预授权（high_risk_operations）；如果用户已经明确目标和期望更新，可直接执行并带上 管理员预授权（high_risk_operations）。
 

@@ -2,6 +2,16 @@
 
 # `drive.+version-history`
 
+## 命令
+
+```text
+drive.+version-history {"file_token": "boxcnxxxxxxxx"}
+
+drive.+version-history {"file_token": "boxcnxxxxxxxx", "limit": 50, "cursor": "1777013761763"}
+
+drive.+version-history {"file_token": "boxcnxxxxxxxx"}
+```
+
 ## 参数
 
 | 参数 | 必填 | 说明 |

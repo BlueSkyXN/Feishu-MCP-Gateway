@@ -61,8 +61,5 @@ docs.+script {"command": "parse", "content": {"file_id": "<file_id>"}, "presenta
 
 | 参数 | 用法 |
 |-|-|
-| dry-run（网关不提供，改为先读取核对） | 只返回执行计划，不联网、解析或写文件。 |
-|  | 输出格式：`json|pretty|table|ndjson|csv`；模型使用默认的 `json`。 |
 | `--json` |  的别名。 |
-| jq（网关不提供） / `-q` | 裁剪 JSON；不得与非 JSON 格式同时使用。 |
 | `-h` / `feishu_tools_describe` | 查看帮助。 |

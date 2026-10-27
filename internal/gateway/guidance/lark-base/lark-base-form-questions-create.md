@@ -39,8 +39,6 @@ base.+form-questions-create {"base_token": "<base_token>", "table_id": "<table_i
 | `table_id=<id>` | 是 | 数据表 ID |
 | `form_id=<id>` | 是 | 表单 ID |
 | `questions=<json>` | 是 | 问题 JSON 数组，最多 10 个（见下方格式） |
-|  | 否 | 输出格式：json（默认）\| pretty \| table \| ndjson \| csv |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不执行 |
 
 ## `questions` 格式
 
@@ -112,7 +110,7 @@ base.+form-questions-create {"base_token": "<base_token>", "table_id": "<table_i
 }
 ```
 
-详细的 `visible_rule` 结构（顶层规则、operator 列表、各题目类型的 value 写法）请阅读 lark-base-filter-condition.md（主题 `lark-base-filter-condition`）。
+详细的 `visible_rule` 结构（顶层规则、operator 列表、各题目类型的 value 写法）请阅读 主题 `lark-base-filter-condition`。
 
 ## 输出格式
 
@@ -145,4 +143,4 @@ base.+form-questions-create {"base_token": "<base_token>", "table_id": "<table_i
 ## 参考
 
 - `base` 领域指南 — 多维表格全部命令
-- lark-base-filter-condition.md（主题 `lark-base-filter-condition`） — `visible_rule` / `filter` 条件结构公共协议
+- 主题 `lark-base-filter-condition` — `visible_rule` / `filter` 条件结构公共协议

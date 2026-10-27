@@ -35,8 +35,6 @@ mail.+thread {"thread_id": "<thread-id>"}
 | `thread_id=<id>` | 是 | — | 会话 ID（`thread_id`） |
 | `mailbox=<email>` | 否 | 当前用户 | 邮箱地址（`user_mailbox_id`） |
 | `html` | 否 | true | 是否返回 HTML 正文（`false` 仅返回纯文本，减少带宽） |
-|  | 否 | json | 输出格式：`json`（默认）/ `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | 否 | — | 仅打印请求，不执行 |
 
 ## 返回值
 

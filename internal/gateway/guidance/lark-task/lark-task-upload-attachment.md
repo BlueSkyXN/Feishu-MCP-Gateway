@@ -33,7 +33,7 @@ task.+upload-attachment {"resource_id": "4b113c53-a68b-419f-8bd0-c9c532a3285a", 
 1. Confirm the target task GUID (or applink) and the local file path with the user.
 2. Ensure the file is within the current working directory and its size is ≤ 50 MB; otherwise ask the user to move/split the file.
 3. Determine if this is a task agent: if yes, add `resource_type=task_delivery`.
-4. Execute `task.+upload-attachment`（resource_id="..."，file="..."）.
+4. Execute `task.+upload-attachment` (resource_id="...", file="...").
 5. Report the returned attachment record. The output exposes all fields returned by the API (e.g. `guid`, `name`, `size`, `url`, `uploader`, ...); always surface the attachment `guid` and, if present, the `url` so the user can jump to the attachment directly.
 
 ## Output

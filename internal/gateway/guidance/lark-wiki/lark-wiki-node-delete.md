@@ -1,10 +1,10 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-wiki` 参考文档转换；调用约定见 `wiki` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `wiki` 领域 `wiki.+node-delete`
+# `wiki` domain `wiki.+node-delete`
 
 Delete a wiki node (or pull a cloud doc out of Wiki). OpenAPI: `DELETE /open-apis/wiki/v2/spaces/:space_id/nodes/:node_token`.
 
-> ⚠️ **High-risk write & irreversible** — deletes the node and (by default) its whole subtree. Requires explicit 管理员预授权（high_risk_operations）; without it the CLI returns a `confirmation_required` error and nothing is deleted.
+> ⚠️ **High-risk write & irreversible** — deletes the node and (by default) its whole subtree. Requires explicit administrator pre-authorization (high_risk_operations); without it the CLI returns a `confirmation_required` error and nothing is deleted.
 
 - **Sync / async**: an empty `task_id` means the delete completed synchronously (`ready=true`). A non-empty `task_id` triggers bounded polling; if the window elapses the output carries `timed_out=true` and a `next_command`:
 
@@ -24,7 +24,6 @@ wiki.+node-delete {"node_token": "<token>", "obj_type": "wiki"}
 | `obj_type` | enum | Conditional | — | Required for a raw token (URL inputs auto-infer). `wiki` uses the resolved `node_token`; other types use the resolved `obj_token` and must match its document type |
 | `space_id` | string | No | — | Assert the resolved node belongs to this space; inferred when omitted |
 | `include_children` | bool | No | `true` | Cascade-delete the subtree (default). `include_children=false` lifts direct children up to the parent |
-| 管理员预授权（high_risk_operations） | bool | Yes (real delete) | — | Confirm the high-risk operation. Without it the CLI returns `confirmation_required` |
 
 The lookup sends only `token`, including when `space_id` is provided. Deletion uses the resolved token matching `obj_type`; a document-type mismatch is rejected before deletion.
 

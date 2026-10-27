@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # slides (v1)
 
@@ -97,11 +98,11 @@
 
 **CRITICAL — 生成任何 XML 之前，MUST 先用 Read 工具读取 xml/xml-schema-quick-ref.md（主题 `references-xml-xml-schema-quick-ref`），禁止凭记忆猜测 XML 结构。**
 
-**CRITICAL — 新建演示文稿或大幅改写页面时，MUST 先生成 `.lark-slides/plan/<deck-or-task-id>/slide_plan.json`，再生成 XML。先创建对应目录，规划层规则和中间产物生命周期见 planning-layer.md（主题 `planning-layer`）。仅替换一个标题、插入一个块等小型已有页编辑可豁免。**
+**CRITICAL — 新建演示文稿或大幅改写页面时，MUST 先生成 `.lark-slides/plan/<deck-or-task-id>/slide_plan.json`，再生成 XML。先创建对应目录，规划层规则和中间产物生命周期见 主题 `planning-layer`。仅替换一个标题、插入一个块等小型已有页编辑可豁免。**
 
-**CRITICAL — 新建演示文稿或大幅改写页面时，生成 XML 前 MUST 读取 visual-planning.md（主题 `visual-planning`），确保 `layout_type`、`visual_focus`、`text_density` 实际改变页面几何、主视觉和文本量。**
+**CRITICAL — 新建演示文稿或大幅改写页面时，生成 XML 前 MUST 读取 主题 `visual-planning`，确保 `layout_type`、`visual_focus`、`text_density` 实际改变页面几何、主视觉和文本量。**
 
-**CRITICAL — 新建演示文稿或大幅改写页面时，规划 `asset_need` MUST 遵循 asset-planning.md（主题 `asset-planning`）：只做元数据规划，必须有 `fallback_if_missing`，不得要求真实搜索、下载或上传素材。**
+**CRITICAL — 新建演示文稿或大幅改写页面时，规划 `asset_need` MUST 遵循 主题 `asset-planning`：只做元数据规划，必须有 `fallback_if_missing`，不得要求真实搜索、下载或上传素材。**
 
 **CRITICAL — 将完整 `<slide>` XML 提交给 `slides.+create`、`slides.+add-slide` 或 `slides.+update-slide` 之前，MUST 先把待提交 XML 保存到本地文件并运行唯一版式准出入口 `scripts/xml_lint.py`；`summary.error_count` 必须为 0 才能调用接口。**
 
@@ -115,9 +116,12 @@
 
 ## 身份选择
 
+- **应用身份**：仅在用户明确要求以应用身份操作，或需要让 bot 持有/创建资源时使用。使用 bot 身份时，要额外确认 bot 是否真的有目标演示文稿的访问权限。
+
 **执行规则**：
 
 2. 如果出现权限不足，先检查当前是否误用了 bot 身份；不要默认回退到 bot。
+3. 只有在用户明确要求"用应用身份 / bot 身份操作"，或当前工作流就是 bot 创建资源后再做协作授权时，才切换到 应用身份。
 
 ## 执行前必做
 
@@ -125,10 +129,10 @@
 
 高频只读：
 
-- xml/xml-schema-quick-ref.md（主题 `references-xml-xml-schema-quick-ref`）
-- planning-layer.md（主题 `planning-layer`）（新建 / 大幅改写）
-- visual-planning.md（主题 `visual-planning`）（新建 / 大幅改写）
-- asset-planning.md（主题 `asset-planning`）（新建 / 大幅改写）
+- xml/xml-schema-quick-ref.md (topic `references-xml-xml-schema-quick-ref`)
+- 主题 `planning-layer`（新建 / 大幅改写）
+- 主题 `visual-planning`（新建 / 大幅改写）
+- 主题 `asset-planning`（新建 / 大幅改写）
 - workflow/validation-xml.md（主题 `validation-xml`）（创建 / 大幅改写后）
 
 调用相关命令前必须读取相关的文档以了解命令的使用方式：
@@ -136,7 +140,7 @@
 - 创建：`cli/lark-slides-create.md`（主题 `lark-slides-create`）、`cli/lark-slides-add-slide.md`（主题 `lark-slides-add-slide`）（逐页添加 / 给已有 PPT 追加页面）
 - 删除页面：`cli/lark-slides-delete-slide.md`（主题 `lark-slides-delete-slide`）
 - 阅读：`cli/lark-slides-xml-presentations-get.md`（主题 `lark-slides-xml-presentations-get`）
-- 编辑：`workflow/slides-editing.md`（主题 `slides-editing`）、`cli/lark-slides-replace-slide.md`（主题 `lark-slides-replace-slide`）、`lark-slides-update-slide.md`（主题 `lark-slides-update-slide`）
+- 编辑：`workflow/slides-editing.md`（主题 `slides-editing`）、`cli/lark-slides-replace-slide.md`（主题 `lark-slides-replace-slide`）、主题 `lark-slides-update-slide`
 - 历史版本：`cli/lark-slides-history.md`（主题 `lark-slides-history`）
 - 截图：`cli/lark-slides-screenshot.md`（主题 `lark-slides-screenshot`）
 - 图片：`cli/lark-slides-media-upload.md`（主题 `lark-slides-media-upload`）
@@ -238,6 +242,8 @@ N. 结尾页：[结尾文案]
 
 知识库链接（`/wiki/TOKEN`）不能直接当 `xml_presentation_id`。使用 Slides shortcut 时直接传入链接，CLI 会查询节点、校验 `data.obj_type == "slides"` 并使用 `data.obj_token`。
 
+节点解析必须与后续 Slides 操作使用相同身份；下游明确使用 应用身份 时，这里也改为 应用身份。
+
 带 `presentation` 的 slides shortcut 都会自动解析 `/wiki/` URL 并校验 `obj_type`。
 
 ### 资源关系
@@ -256,7 +262,7 @@ Slides (演示文稿)
 
 ## Shortcuts
 
-Slides 相关操作使用 shortcut（`lark-cli slides +<verb> [flags]`）。
+Slides 相关操作使用 shortcut（`slides.+<verb> {参数}`）。
 
 | Shortcut | 说明 |
 |----------|------|

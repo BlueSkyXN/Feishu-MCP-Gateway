@@ -6,7 +6,7 @@ This reference is the shared annotation target for the IM feed-group (tag) APIs:
 
 > **Important:** The six raw commands (`create`, `update`, `delete`, `batch_query`, `batch_add_item`, `batch_remove_item`) take structured input through `params=<json>` and `data=<json>` rather than typed flags. The three read methods (`list`, `list_item`, `batch_query_item`) are exposed only as typed `+` shortcut wrappers — see [Shortcuts](#shortcuts). All methods are user-only; see [Common Notes](#common-notes).
 
-> **Picking a read method:** `batch_query` / `im.+feed-group-query-item`（网关不提供：仅支持用户身份） are lightweight ID lookups; `im.+feed-group-list`（网关不提供：仅支持用户身份） / `im.+feed-group-list-item`（网关不提供：仅支持用户身份） paginate the whole set and are much heavier. When you already hold the IDs (`group_id` from `create`, the `feed_id`s you passed to `batch_add_item`), prefer the lightweight lookup. Reserve the list methods for when you actually need to discover IDs you don't have.
+> **Picking a read method:** `batch_query` / `im.+feed-group-query-item` (not available in the gateway: user identity only) are lightweight ID lookups; `im.+feed-group-list` (not available in the gateway: user identity only) / `im.+feed-group-list-item` (not available in the gateway: user identity only) paginate the whole set and are much heavier. When you already hold the IDs (`group_id` from `create`, the `feed_id`s you passed to `batch_add_item`), prefer the lightweight lookup. Reserve the list methods for when you actually need to discover IDs you don't have.
 
 ## Command Overview
 
@@ -16,13 +16,13 @@ This reference is the shared annotation target for the IM feed-group (tag) APIs:
 | `feed.groups.update` | Update a feed group's name and/or rules |
 | `feed.groups.delete` | Delete one feed group |
 | `feed.groups.batch_query` | Look up feed groups by ID list |
-| `feed.groups.list` | List the caller's feed groups with optional time-range filter — **CLI: only via `im.+feed-group-list`（网关不提供：仅支持用户身份） shortcut** |
+| `feed.groups.list` | List the caller's feed groups with optional time-range filter — **CLI: only via `im.+feed-group-list` (not available in the gateway: user identity only) shortcut** |
 | `feed.groups.batch_add_item` | Add feed cards (chats) into a feed group |
 | `feed.groups.batch_remove_item` | Remove feed cards from a feed group |
-| `feed.groups.batch_query_item` | Look up feed cards inside a group by ID list — **CLI: only via `im.+feed-group-query-item`（网关不提供：仅支持用户身份） shortcut** |
-| `feed.groups.list_item` | List feed cards inside one feed group — **CLI: only via `im.+feed-group-list-item`（网关不提供：仅支持用户身份） shortcut** |
+| `feed.groups.batch_query_item` | Look up feed cards inside a group by ID list — **CLI: only via `im.+feed-group-query-item` (not available in the gateway: user identity only) shortcut** |
+| `feed.groups.list_item` | List feed cards inside one feed group — **CLI: only via `im.+feed-group-list-item` (not available in the gateway: user identity only) shortcut** |
 
-> HTTP method and path are not duplicated here. For the six raw methods, inspect them with `feishu_tools_describe` when needed; the three shortcut-only read methods (`list`, `list_item`, `batch_query_item`) use typed flags (see their `feishu_tools_describe`).
+> HTTP method and path are not duplicated here. For the six raw methods, inspect them with `feishu_tools_describe (operation_id="im.feed.groups.<method>")` when needed; the three shortcut-only read methods (`list`, `list_item`, `batch_query_item`) use typed flags (see their `feishu_tools_describe`).
 
 ## Shortcuts
 
@@ -30,11 +30,11 @@ Three typed `+` shortcuts cover the feed-group read paths. All are user-only.
 
 | Shortcut | Purpose | Notes |
 |---|---|---|
-| `im.+feed-group-list`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list`） | List your feed groups | Its `page_all` correctly merges the live and soft-deleted lists. No enrichment |
-| `im.+feed-group-list-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list-item`） | List the feed cards inside a group | Enriches each card with `chat_name` |
-| `im.+feed-group-query-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-query-item`） | Look up feed cards in a group by ID | Enriches each card with `chat_name` |
+| `im.+feed-group-list` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list`) | List your feed groups | Its `page_all` correctly merges the live and soft-deleted lists. No enrichment |
+| `im.+feed-group-list-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list-item`) | List the feed cards inside a group | Enriches each card with `chat_name` |
+| `im.+feed-group-query-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-query-item`) | Look up feed cards in a group by ID | Enriches each card with `chat_name` |
 
-The two `*-item` shortcuts resolve `chat_name` via a follow-up `chats/batch_query`, so they need `im:chat:read` in addition to `im:feed_group_v1:read`; `im.+feed-group-list`（网关不提供：仅支持用户身份） needs only `im:feed_group_v1:read`. All three are the **only** CLI surface for their methods — `list`, `list_item`, and `batch_query_item` have no raw command; full flags and response shapes live in the shortcut docs linked above.
+The two `*-item` shortcuts resolve `chat_name` via a follow-up `chats/batch_query`, so they need `im:chat:read` in addition to `im:feed_group_v1:read`; `im.+feed-group-list` (not available in the gateway: user identity only) needs only `im:feed_group_v1:read`. All three are the **only** CLI surface for their methods — `list`, `list_item`, and `batch_query_item` have no raw command; full flags and response shapes live in the shortcut docs linked above.
 
 ## Common Notes
 
@@ -51,11 +51,13 @@ The two `*-item` shortcuts resolve `chat_name` via a follow-up `chats/batch_quer
 
 ## Inspect Schema
 
-```text
-# im.feed.groups.batch_add_item（网关不提供：仅支持用户身份）
+```bash
+feishu_tools_describe（operation_id="im.feed.groups"）（网关目录中没有此操作）
+feishu_tools_describe（operation_id="im.feed.groups.create"）（网关不提供：仅支持用户身份） --format pretty
+feishu_tools_describe（operation_id="im.feed.groups.batch_add_item"）（网关不提供：仅支持用户身份） --format pretty
 ```
 
-> `list`, `list_item`, and `batch_query_item` have no raw method schema (they are shortcut-only). Inspect their flags with `im.+feed-group-list`（网关不提供：仅支持用户身份） / `im.+feed-group-list-item`（网关不提供：仅支持用户身份） / `im.+feed-group-query-item`（网关不提供：仅支持用户身份） instead.
+> `list`, `list_item`, and `batch_query_item` have no raw method schema (they are shortcut-only). Inspect their flags with `im.+feed-group-list` (not available in the gateway: user identity only) / `im.+feed-group-list-item` (not available in the gateway: user identity only) / `im.+feed-group-query-item` (not available in the gateway: user identity only) instead.
 
 ## create
 
@@ -216,7 +218,7 @@ Each element carries `group_id`, `type`, `name`, and (when defined) `rules`.
 
 ## list
 
-Shortcut-only: `im.+feed-group-list`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list`）. Lists the caller's feed groups, optionally filtered by an update-time window. Its `page_all` correctly merges the live (`groups`) and soft-deleted (`deleted_groups`) lists across pages. There is no raw command — flags and response shape are in the linked shortcut doc.
+Shortcut-only: `im.+feed-group-list` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list`). Lists the caller's feed groups, optionally filtered by an update-time window. Its `page_all` correctly merges the live (`groups`) and soft-deleted (`deleted_groups`) lists across pages. There is no raw command — flags and response shape are in the linked shortcut doc.
 
 ## batch_add_item
 
@@ -290,11 +292,11 @@ Identical shape to `batch_add_item` — `failed_items[]` lists rows that did not
 
 ## batch_query_item
 
-Shortcut-only: `im.+feed-group-query-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-query-item`）. Looks up feed cards in a group by an explicit ID list and enriches each with `chat_name`. There is no raw command — flags and response shape are in the linked shortcut doc.
+Shortcut-only: `im.+feed-group-query-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-query-item`). Looks up feed cards in a group by an explicit ID list and enriches each with `chat_name`. There is no raw command — flags and response shape are in the linked shortcut doc.
 
 ## list_item
 
-Shortcut-only: `im.+feed-group-list-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list-item`）. Lists the feed cards inside a group (paginated, `page_all` supported) and enriches each with `chat_name`. There is no raw command — flags and response shape are in the linked shortcut doc.
+Shortcut-only: `im.+feed-group-list-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list-item`). Lists the feed cards inside a group (paginated, `page_all` supported) and enriches each with `chat_name`. There is no raw command — flags and response shape are in the linked shortcut doc.
 
 ## Enums
 
@@ -409,9 +411,9 @@ Per-`type` required-field legend:
 
 The three read methods are shortcut-only:
 
-- `im.+feed-group-list`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list`） — `im:feed_group_v1:read`
-- `im.+feed-group-list-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-list-item`） / `im.+feed-group-query-item`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-group-query-item`） — `im:feed_group_v1:read` **plus** `im:chat:read` (they always resolve `chat_name`)
+- `im.+feed-group-list` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list`) — `im:feed_group_v1:read`
+- `im.+feed-group-list-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-list-item`) / `im.+feed-group-query-item` (not available in the gateway: user identity only) (topic `lark-im-feed-group-query-item`) — `im:feed_group_v1:read` **plus** `im:chat:read` (they always resolve `chat_name`)
 
 ## References
 
-- `im` 领域指南 — all IM commands
+- `im` domain指南 — all IM commands

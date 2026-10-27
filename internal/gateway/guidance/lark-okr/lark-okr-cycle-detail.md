@@ -23,8 +23,6 @@ okr.+cycle-detail {"cycle_id": "1234567890123456789"}
 |--------------|----|----------|-----------------------------------------------------------------------------------------------------------------------------|
 | `cycle_id` | 是  | —        | OKR 周期 ID（int64 类型）。从 `okr.+cycle-list` 获取。                                                                                     |
 | `style`    | 否  | `simple` | 输出风格：`simple`（半纯文本格式，不涉及字体/颜色等信息时推荐使用） \| `richtext`（原始 ContentBlock JSON）。请参考 ContentBlock 格式（主题 `lark-okr-contentblock`）。 |
-| dry-run（网关不提供，改为先读取核对）  | 否  | —        | 预览 API 调用而不实际执行。                                                                                                            |
-|    | 否  | `json`   | 输出格式。                                                                                                                       |
 
 ## 工作流程
 
@@ -83,7 +81,7 @@ okr.+cycle-detail {"cycle_id": "1234567890123456789"}
 - `style=simple`（默认）：`SemiPlainContent` 对象，包含 `text`、`mention`、`docs` 字段
 - `style=richtext`：JSON 字符串，为 OKR ContentBlock 富文本格式
 
-请参考 lark-okr-contentblock.md（主题 `lark-okr-contentblock`） 了解两种格式的详细信息。
+请参考 主题 `lark-okr-contentblock` 了解两种格式的详细信息。
 
 ## 参考
 

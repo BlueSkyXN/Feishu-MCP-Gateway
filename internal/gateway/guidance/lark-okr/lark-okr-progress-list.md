@@ -27,8 +27,6 @@ okr.+progress-list {"target_id": "9876543210987654321", "target_type": "key_resu
 | `department_id_type`  | 否  | `open_department_id` | 部门 ID 类型：`department_id` \| `open_department_id` |
 | `page_size`           | 否  | `100`              | 每页数量，范围 `1-100`。                           |
 | `page_token`          | 否  | `""`               | 上一次响应中的 `page_token`，留空表示第一页。        |
-| dry-run（网关不提供，改为先读取核对）             | 否  | —                  | 预览 API 调用而不实际执行。                       |
-|               | 否  | `json`             | 输出格式。                                        |
 
 ## 工作流程
 
@@ -63,7 +61,7 @@ okr.+progress-list {"target_id": "9876543210987654321", "target_type": "key_resu
 
 - `progress_list` — 进展记录数组
 - `has_more` 和 `page_token` 用于外部控制翻页；`has_more=true` 时，用 `page_token` 原样传入本次返回的 `page_token` 获取下一页。
-- `content` 字段是 JSON 字符串，为 OKR ContentBlock 富文本格式。请参考 lark-okr-contentblock.md（主题 `lark-okr-contentblock`） 了解详细信息。
+- `content` 字段是 JSON 字符串，为 OKR ContentBlock 富文本格式。请参考 主题 `lark-okr-contentblock` 了解详细信息。
 - `progress_rate.status` 返回可读字符串：`normal`（正常）、`overdue`（逾期）、`done`（已完成）。
 
 ## 与 `okr.+progress-get` 的区别
@@ -79,5 +77,5 @@ okr.+progress-list {"target_id": "9876543210987654321", "target_type": "key_resu
 
 - `okr` 领域指南 -- 所有 OKR 命令(shortcut 和 API 接口)
 - ContentBlock 格式（主题 `lark-okr-contentblock`） -- 进展内容使用的富文本格式
-- lark-okr-progress-get（主题 `lark-okr-progress-get`） -- 根据 ID 获取单条进展记录
-- lark-okr-progress-create（主题 `lark-okr-progress-create`） -- 创建进展记录
+- 主题 `lark-okr-progress-get` -- 根据 ID 获取单条进展记录
+- 主题 `lark-okr-progress-create` -- 创建进展记录

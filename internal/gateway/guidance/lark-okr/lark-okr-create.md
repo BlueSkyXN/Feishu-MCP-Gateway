@@ -23,8 +23,6 @@
 | `notes`        | 否  | —         | Objective 备注，仅 `level=objective` 支持。根据 `style` 指定格式，支持 `@文件路径` 或 `-` 从 stdin 读取。                               |
 | `category_id`  | 否  | —         | Objective 分类 ID，仅 `level=objective` 支持。通常不需要传入，见下方“分类提示”。                                                        |
 | `user_id_type` | 否  | `open_id` | 用户 ID 类型：`open_id` \| `union_id` \| `user_id`。影响 mention 中用户 ID 的解释方式。                                             |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —         | 预览 API 调用而不实际执行。                                                                                                   |
-|        | 否  | `json`    | 输出格式。                                                                                                              |
 
 ## 输入格式
 

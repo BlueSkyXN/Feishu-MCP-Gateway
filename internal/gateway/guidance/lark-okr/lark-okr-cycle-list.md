@@ -32,8 +32,6 @@ okr.+cycle-list {"user_id": "ou_xxx"}
 | `time_range`   | 否  | —         | 后置筛选条件：先按 `page_size`/`page_token` 请求一页，再在本地保留与该时间范围重叠的周期。格式：`YYYY-MM--YYYY-MM`（例如 `2025-01--2025-06`）。 |
 | `page_size`    | 否  | `100`     | 每页数量，范围 `1-100`。                                               |
 | `page_token`   | 否  | `""`      | 上一次响应中的 `page_token`，留空表示第一页。                            |
-| dry-run（网关不提供，改为先读取核对）      | 否  | —         | 预览 API 调用而不实际执行。                                                 |
-|        | 否  | `json`    | 输出格式。                                                            |
 
 ## 工作流程
 

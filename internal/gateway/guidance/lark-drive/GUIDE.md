@@ -5,6 +5,7 @@
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
 > - 标注“网关不提供”的操作不能调用；参数以 `feishu_tools_describe` 或具名工具 schema 为准。
+> - 操作结果中的 `next_command` 等后续命令是 CLI 写法，按上述规则换成对应的 operation_id 和参数再调用。
 
 # drive (v1)
 
@@ -17,19 +18,19 @@
 ## 快速决策
 
 - 用户要把**已有 Wiki 节点移出知识库，放到 Drive 文件夹或“我的空间”根目录**：切到 `wiki` 领域，使用 `wiki.+move-to-drive`；不要把 Wiki token 直接交给 `drive.+move`。这是会改变文档归属和权限继承的写操作，执行前确认源节点与目标位置。
-- 用户要**复制文档 / 创建副本 到云盘或者文件夹**时：已提供可直接使用的 URL 或 token，按 主题 `lark-drive-copy`（主题 `lark-drive-copy`） 使用 `drive.+copy`；仅提供标题时，先按 主题 `lark-drive-search`（主题 `lark-drive-search`） 使用 `drive.+search` 唯一定位源资源，再按 copy reference 复制。如果是要复制文档 / 创建副本到知识库，使用 `wiki.+node-copy`（见 `lark-wiki-node-copy.md`（主题 `lark-wiki-node-copy`））。
-- 用户要**识别飞书 / doubao 云空间 URL 的类型和 token**时，可以先按 URL 路径形态做轻量判断；当路径已明确指向 docx / sheet / bitable / slides / file / folder 等资源时，可直接提取对应 token/type。传入 wiki URL、需要识别标题或 canonical URL、URL/token 有歧义，或后续操作依赖底层真实资源时，再使用 `drive.+inspect`（url="<url>"） 进行识别；具体用法、失败处理和边界见 主题 `lark-drive-inspect`（主题 `lark-drive-inspect`）。
+- 用户要**复制文档 / 创建副本 到云盘或者文件夹**时：已提供可直接使用的 URL 或 token，按 主题 `lark-drive-copy` 使用 `drive.+copy`；仅提供标题时，先按 主题 `lark-drive-search` 使用 `drive.+search` 唯一定位源资源，再按 copy reference 复制。如果是要复制文档 / 创建副本到知识库，使用 `wiki.+node-copy`（见 主题 `lark-wiki-node-copy`）。
+- 用户要**识别飞书 / doubao 云空间 URL 的类型和 token**时，可以先按 URL 路径形态做轻量判断；当路径已明确指向 docx / sheet / bitable / slides / file / folder 等资源时，可直接提取对应 token/type。传入 wiki URL、需要识别标题或 canonical URL、URL/token 有歧义，或后续操作依赖底层真实资源时，再使用 `drive.+inspect`（url="<url>"） 进行识别；具体用法、失败处理和边界见 主题 `lark-drive-inspect`。
 - 高风险写操作（删除、公开权限修改、owner 转移、版本删除/回滚、批量移动/覆盖/同步）必须同时满足三个条件才执行：目标已解析为该操作可直接使用的执行对象，执行细节已明确到可直接调用命令（例如删除的 file-token/type、公开权限修改的共享范围、owner 转移的目标 owner、版本删除/回滚的 version id、移动/覆盖/同步的目标位置和冲突策略），且用户在本轮明确确认执行这些具体目标和执行细节。用户只说“删除没用的文件”“开放/共享给大家”“改成开放”“覆盖/移动这些”只表示目标状态；先只读发现并列出候选、权限档位或执行方案，停止等待用户确认。
-- 用户要**检查 / 治理文档权限、公开范围、链接分享、外部访问、复制下载权限、密级标签、owner 转移**，或要”权限风险报告、收紧权限、申请查看 / 编辑权限、转移 / 批量转移 owner”，必须先阅读 主题 `lark-drive-workflow`（主题 `lark-drive-workflow`），再按其中 `Workflow Registry` 进入 `permission_governance`（主题 `lark-drive-workflow-permission-governance`） workflow。
-- 用户明确要**移除单个云文档协作者权限**时，使用 `drive.+member-remove`；先阅读 主题 `lark-drive-member-remove`（主题 `lark-drive-member-remove`）。这是高风险写操作，真实执行必须确认准确的资源、成员 ID/type 和 wiki 权限范围，并显式传 管理员预授权（high_risk_operations）。
-- 用户要为指定飞书文档**设置 / 修改密级标签（secure label）**，或查询当前用户可用的密级标签，直接读取 主题 `lark-drive-secure-label`（主题 `lark-drive-secure-label`）；这是 Drive 文件治理能力。
-- 用户要**检查 / 治理文档权限、公开范围、链接分享、外部访问、复制下载权限、密级标签、owner 转移**，或要“权限风险报告、收紧权限、申请查看 / 编辑权限、转移 / 批量转移 owner”，必须先阅读 主题 `lark-drive-workflow`（主题 `lark-drive-workflow`），再按其中 `Workflow Registry` 进入 `permission_governance`（主题 `lark-drive-workflow-permission-governance`） workflow。
+- 用户要**检查 / 治理文档权限、公开范围、链接分享、外部访问、复制下载权限、密级标签、owner 转移**，或要”权限风险报告、收紧权限、申请查看 / 编辑权限、转移 / 批量转移 owner”，必须先阅读 主题 `lark-drive-workflow`，再按其中 `Workflow Registry` 进入 `permission_governance`（主题 `lark-drive-workflow-permission-governance`） workflow。
+- 用户明确要**移除单个云文档协作者权限**时，使用 `drive.+member-remove`；先阅读 主题 `lark-drive-member-remove`。这是高风险写操作，真实执行必须确认准确的资源、成员 ID/type 和 wiki 权限范围，并显式传 管理员预授权（high_risk_operations）。
+- 用户要为指定飞书文档**设置 / 修改密级标签（secure label）**，或查询当前用户可用的密级标签，直接读取 主题 `lark-drive-secure-label`；这是 Drive 文件治理能力。
+- 用户要**检查 / 治理文档权限、公开范围、链接分享、外部访问、复制下载权限、密级标签、owner 转移**，或要“权限风险报告、收紧权限、申请查看 / 编辑权限、转移 / 批量转移 owner”，必须先阅读 主题 `lark-drive-workflow`，再按其中 `Workflow Registry` 进入 `permission_governance`（主题 `lark-drive-workflow-permission-governance`） workflow。
 - 用户要**查询文件、文件夹或云文档自身的公开访问、分享、协作者管理、安全与评论权限设置**，优先使用 `drive.+permission-get-setting`；它只读取目标自身设置，不递归审计文件夹子文档权限。裸 token 必须显式传 `type`。
-- 用户要**按特定主题、关键词或内容线索跨容器查找资料，并统一收集到 Drive 文件夹或 Wiki 节点**，必须先阅读 主题 `lark-drive-workflow`（主题 `lark-drive-workflow`），再按其中 `Workflow Registry` 进入 `topic_move_collector`（主题 `lark-drive-workflow-topic-move-collector`） workflow。该 workflow 负责搜索召回、内容验证、相关性分类、移动计划、写前确认和结果验证；禁止直接从 `drive.+search` 或 `drive.+move` 开始。
-- 用户要**整理云盘 / 文件夹 / 文档库 / 知识库 / 个人文档库**，或要“盘点目录结构、找出未归档/临时/重复/空目录、生成整理方案”，必须先阅读 主题 `lark-drive-workflow`（主题 `lark-drive-workflow`），再按其中 `Workflow Registry` 进入 `knowledge_organize`（主题 `lark-drive-workflow-knowledge-organize`） workflow。默认只生成方案；创建目录、移动资源、申请权限都必须单独确认。
+- 用户要**按特定主题、关键词或内容线索跨容器查找资料，并统一收集到 Drive 文件夹或 Wiki 节点**，必须先阅读 主题 `lark-drive-workflow`，再按其中 `Workflow Registry` 进入 `topic_move_collector`（主题 `lark-drive-workflow-topic-move-collector`） workflow。该 workflow 负责搜索召回、内容验证、相关性分类、移动计划、写前确认和结果验证；禁止直接从 `drive.+search` 或 `drive.+move` 开始。
+- 用户要**整理云盘 / 文件夹 / 文档库 / 知识库 / 个人文档库**，或要“盘点目录结构、找出未归档/临时/重复/空目录、生成整理方案”，必须先阅读 主题 `lark-drive-workflow`，再按其中 `Workflow Registry` 进入 `knowledge_organize`（主题 `lark-drive-workflow-knowledge-organize`） workflow。默认只生成方案；创建目录、移动资源、申请权限都必须单独确认。
 - 按主题跨范围查找并集中归档，进入 `topic_move_collector`；对已知文件夹、文档库或知识库做目录盘点和结构重组，进入 `knowledge_organize`；只移动一个已明确资源时仍使用原子移动命令。
-- 用户要**搜文档 / Wiki / 电子表格 / 多维表格 / 云空间（云盘/云存储）对象**，优先使用 `drive.+search`；按标题定位和处理重复候选时遵循 主题 `lark-drive-search`（主题 `lark-drive-search`）。自然语言里"最近我编辑过的"、"我创建的"（→ `created_by_me`，原始创建者语义）、"我负责/owner 的"（→ `mine`，owner 语义）、"最近一周我打开过的 xxx"、"某人 owner 的 docx" 等直接映射到扁平 flag，避免手写嵌套 JSON。
-- 用户要对**文档评论**做任何操作（添加评论、列表 / 批量查询、回复、获取 / 更新 / 删除回复、解决 / 恢复、reaction），按下方 Shortcuts 表选择对应的 `drive +<verb>` 评论命令，执行前先阅读该命令的 ref。按评论定位文档正文位置见 主题 `lark-drive-comment-location`（主题 `lark-drive-comment-location`）。
+- 用户要**搜文档 / Wiki / 电子表格 / 多维表格 / 云空间（云盘/云存储）对象**，优先使用 `drive.+search`；按标题定位和处理重复候选时遵循 主题 `lark-drive-search`。自然语言里"最近我编辑过的"、"我创建的"（→ `created_by_me`，原始创建者语义）、"我负责/owner 的"（→ `mine`，owner 语义）、"最近一周我打开过的 xxx"、"某人 owner 的 docx" 等直接映射到扁平 flag，避免手写嵌套 JSON。
+- 用户要对**文档评论**做任何操作（添加评论、列表 / 批量查询、回复、获取 / 更新 / 删除回复、解决 / 恢复、reaction），按下方 Shortcuts 表选择对应的 `drive +<verb>` 评论命令，执行前先阅读该命令的 ref。按评论定位文档正文位置见 主题 `lark-drive-comment-location`。
 - 用户给出 doubao.com 的云空间资源 URL/token，或明确提到豆包里的 file/folder/docx/sheet/bitable/wiki 资源时，仍按资源类型、URL 路径和 token 路由到本 skill；不要因为域名不是飞书而回退到 WebFetch。
 - 用户要把本地 `.xlsx` / `.csv` / `.base` 导入成 Base / 多维表格 / bitable，第一步必须使用 `drive.+import`（type="bitable"）。
 - 用户要把本地 `.md` / `.docx` / `.doc` / `.txt` / `.html` 导入成在线文档，使用 `drive.+import`（type="docx"）。
@@ -41,14 +42,14 @@
 - 用户要在云空间（云盘/云存储）里新建文件夹，优先使用 `drive.+create-folder`。
 - 用户要查看或下载文件内容，或者查看文件可用预览格式并获取 PDF / HTML / 文本 / 图片等转换预览产物，使用 `drive.+preview`。`drive.+preview` 和 `drive.+download` 都支持 `file_token` / `url` / `wiki_token` 三选一（Wiki 会解析到底层 `file`）；但两者只处理 Drive **文件**，若目标是 docx/sheet/bitable/slides 等在线文档，改用 `drive.+export`。
 - 用户要获取某个文件的封面图，优先使用 `drive.+cover`；先 `list_only` 看规格，再选 `spec` 下载。
-- 用户要导出云文档时，优先使用 `drive.+export`（url="<文档 URL>"，file_extension="<格式>"）；详细参数、Wiki token 和错误码处理见 主题 `lark-drive-export`（主题 `lark-drive-export`）。
+- 用户要导出云文档时，优先使用 `drive.+export`（url="<文档 URL>"，file_extension="<格式>"）；详细参数、Wiki token 和错误码处理见 主题 `lark-drive-export`。
 - 用户要把本地文件上传到知识库 / 文档库里的某个 wiki 节点下时，仍然使用 `drive.+upload`（wiki_token="<wiki_token>"）；不要误切到 `wiki` 域命令。
 - `base` 领域 只负责导入完成后的 Base 内部操作（表、字段、记录、视图），不要在“本地文件 -> Base”这一步提前切到 `base` 领域。
 - 用户给的是 wiki URL / token，且后续还没明确底层资源类型时，先用 `drive.+inspect` 解包；`drive.+inspect` 失败后不要自动切到别的写接口继续尝试，先按错误提示处理权限、scope 或链接问题。
 - `drive.+inspect` / `drive.+upload` 遇到 `not found`、`permission denied`、`missing scope` 时，默认停止重试；只有 `rate limit` 或临时网络错误才适合有限重试。
 
 ## 修改标题
-- 用户要**重命名 / 改标题 / 改文件名**，使用 `drive.+update-title`，用法见 主题 `lark-drive-update-title`（主题 `lark-drive-update-title`）。
+- 用户要**重命名 / 改标题 / 改文件名**，使用 `drive.+update-title`，用法见 主题 `lark-drive-update-title`。
 
 ## 核心概念
 
@@ -92,7 +93,7 @@ drive.+inspect {"url": "https://xxx.feishu.cn/wiki/wikcnXXX"}
 
 ### 权限能力入口
 
-- 用户要管理 Drive 文档/文件协作者、公开权限、授权当前应用访问文档，或处理 `permission.public.patch` 的 `91009` / `91010` / `91011` / `91012` 错误时，先读 `lark-drive-permission-guide.md`（主题 `lark-drive-permission-guide`）。
+- 用户要管理 Drive 文档/文件协作者、公开权限、授权当前应用访问文档，或处理 `permission.public.patch` 的 `91009` / `91010` / `91011` / `91012` 错误时，先读 主题 `lark-drive-permission-guide`。
 - 用户要查询文件、文件夹或云文档自身的公开访问、分享、协作者管理、安全与评论权限设置，使用 `drive.+permission-get-setting`（主题 `lark-drive-permission-get-setting`）；如果要递归审计文件夹下子文档权限，再进入 `permission_governance`（主题 `lark-drive-workflow-permission-governance`） workflow。
 - 用户只是没有访问权限并希望向 owner 申请访问，优先使用 `drive.+apply-permission`（网关不提供：仅支持用户身份）（主题 `lark-drive-apply-permission`）。
 
@@ -106,7 +107,7 @@ drive.+inspect {"url": "https://xxx.feishu.cn/wiki/wikcnXXX"}
 
 ## Shortcuts（推荐优先使用）
 
-Shortcut 是对常用操作的高级封装（`lark-cli drive +<verb> [flags]`）。有 Shortcut 的操作优先使用。
+Shortcut 是对常用操作的高级封装（`drive.+<verb> {参数}`）。有 Shortcut 的操作优先使用。
 
 | Shortcut | 说明 |
 |----------|----------|
@@ -155,19 +156,19 @@ Shortcut 是对常用操作的高级封装（`lark-cli drive +<verb> [flags]`）
 ## API Resources
 
 ```bash
-# feishu_tools_describe
-lark-cli drive <resource> <method> [flags] # 调用 API
+feishu_tools_describe（operation_id="drive.<resource>.<method>"）   # 调用 API 前必须先查看参数结构
+drive.<resource>.<method> {参数} # 调用 API
 ```
 
 > **重要**：使用原生 API 时，必须先运行 `schema` 查看 `data` / `params` 参数结构，不要猜测字段格式。
 >
-> **高频原生命令：** 读取 Drive 文件夹清单时使用 `drive.files.list`，使用前先读 主题 `lark-drive-files-list`（主题 `lark-drive-files-list`），按模板通过 `params` 传参并手动处理分页；不要把 `--page-all` 输出直接交给 JSON 解析脚本。
+> **高频原生命令：** 读取 Drive 文件夹清单时使用 `drive.files.list`，使用前先读 主题 `lark-drive-files-list`，按模板通过 `params` 传参并手动处理分页；不要把 `--page-all` 输出直接交给 JSON 解析脚本。
 
 ### files
 
   - `copy` — 复制文件；优先使用 `drive.+copy`（主题 `lark-drive-copy`）
   - `create_folder` — 新建文件夹
-  - `list` — 获取文件夹下的清单；使用前阅读 主题 `lark-drive-files-list`（主题 `lark-drive-files-list`）
+  - `list` — 获取文件夹下的清单；使用前阅读 主题 `lark-drive-files-list`
   - `patch` — 修改文件标题；优先使用 `drive.+update-title`（主题 `lark-drive-update-title`） shortcut
 
 ### permission.members

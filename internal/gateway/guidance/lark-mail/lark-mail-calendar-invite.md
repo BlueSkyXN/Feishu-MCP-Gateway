@@ -26,4 +26,4 @@
 
 ## 读取日程邀请
 
-读取含日程邀请的邮件时，`calendar_event` 字段包含日程详情（`method`、`summary`、`start`、`end`、`organizer`、`attendees` 等）。详见 lark-mail-message（主题 `lark-mail-message`）。
+读取含日程邀请的邮件时，`calendar_event` 字段包含日程详情（`method`、`summary`、`start`、`end`、`organizer`、`attendees` 等）。详见 主题 `lark-mail-message`。

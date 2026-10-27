@@ -20,8 +20,6 @@ drive.+member-remove {"token": "<bare_token_or_url>", "type": "docx", "member_id
 | `member_type` | 是 | ID 类型：`email` / `openid` / `openchat` / `opendepartmentid` / `userid` / `unionid` / `groupid` / `appid` / `wikispaceid`。 |
 | `member_kind` | 条件必填 | 仅 `member_type=wikispaceid` 使用：未启用知识库成员分组时传 `wiki_space_member`，启用后根据权限传 `wiki_space_viewer` 或 `wiki_space_editor`。 |
 | `perm_type` | 否 | 仅 wiki 协作者使用：`container`（默认，当前页面及子页面）或 `single_page`（仅当前页面）。 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 只预览 DELETE URL、query 和 body，不调用接口。 |
-| 管理员预授权（high_risk_operations） | 真实执行时是 | 确认高风险权限移除操作。 |
 
 ## 输出
 

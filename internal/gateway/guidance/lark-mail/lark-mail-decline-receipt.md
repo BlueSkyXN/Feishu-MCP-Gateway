@@ -1,6 +1,6 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-mail` 参考文档转换；调用约定见 `mail` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `mail.+decline-receipt`（网关不提供：仅支持用户身份）
+# `mail.+decline-receipt` (not available in the gateway: user identity only)
 
 关闭收到邮件的已读回执请求 banner，**但不向发件人发送回执**。**本命令仅在对方邮件请求了已读回执（`READ_RECEIPT_REQUEST` 标签，系统 ID `-607`）时使用**。对齐飞书客户端上已读回执 banner 右侧的"不发送"按钮。
 
@@ -33,7 +33,6 @@ mail.+decline-receipt  # 网关不提供：仅支持用户身份
 |------|------|------|------|
 | `message_id=<id>` | 是 | — | 请求了已读回执的原邮件 message ID |
 | `mailbox=<email>` | 否 | `me` | 邮件归属的邮箱 |
-| dry-run（网关不提供，改为先读取核对） | 否 | — | 仅打印请求，不执行 |
 
 > 注意本命令没有 管理员预授权（high_risk_operations） —— 它只是移除一个本地 label，不对外发信，Risk 级别是 `write` 而非 `high-risk-write`。
 

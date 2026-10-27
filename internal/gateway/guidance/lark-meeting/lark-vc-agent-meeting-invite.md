@@ -4,6 +4,12 @@
 
 通过 Agent Bot API 邀请指定用户，或一键邀请符合条件的 Calendar 参会人。
 
+```text
+vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "SELECTED", "open_ids": ["ou_xxx", "ou_yyy"]}
+vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "ALL_SUGGESTED"}
+vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "ALL_SUGGESTED"}
+```
+
 ## 参数
 
 | 参数 | 必填 | 说明 |

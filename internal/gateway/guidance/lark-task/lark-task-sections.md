@@ -4,7 +4,7 @@
 
 ## Scope and Operation Guide
 
-This reference organizes Task `sections` workflows by Catalog method. It currently covers locating sections and listing their tasks. See the main Skill（`task` 领域指南） for group terminology and ownership routing. The current CLI Catalog/schema is authoritative for parameters, permissions, and response fields.
+This reference organizes Task `sections` workflows by Catalog method. It currently covers locating sections and listing their tasks. See the main Skill (`task` domain指南) for group terminology and ownership routing. The current CLI Catalog/schema is authoritative for parameters, permissions, and response fields.
 
 | User goal | Read |
 |----------|----------|
@@ -13,7 +13,7 @@ This reference organizes Task `sections` workflows by Catalog method. It current
 
 ## Shared Rules
 
-1. Follow the main Skill's discovery flow: run `feishu_tools_search`（domain="task"） and `feishu_tools_describe`, confirm the method, and read its schema before executing a native command.
+1. Follow the main Skill's discovery flow: run `feishu_tools_search` (domain="task") and `feishu_tools_describe`, confirm the method, and read its schema before executing a native command.
 3. For queries that support pagination, use `--page-all --page-limit 0` when a complete listing is required. This avoids the default page limit. If the query is interrupted or partially fails, report that results are incomplete; do not conclude that a section or task does not exist.
 
 ## sections.list
@@ -24,19 +24,19 @@ List sections in "My Tasks" or a specific tasklist, or resolve a section name to
 
 **List sections in "My Tasks"**
 
-```text
-# feishu_tools_describe（operation_id="task.sections.list"）
+```bash
+feishu_tools_describe（operation_id="task.sections.list"）
 ```
 
 **List sections in a specific tasklist**
 
-```text
-# feishu_tools_describe（operation_id="task.sections.list"）
+```bash
+feishu_tools_describe（operation_id="task.sections.list"）
 ```
 
 ### Parameters
 
-Read `feishu_tools_describe`（operation_id="task.sections.list"） for the full parameter structure. Choose the owning resource as follows:
+Read `feishu_tools_describe (operation_id="task.sections.list")` for the full parameter structure. Choose the owning resource as follows:
 
 - "My Tasks": use `my_tasks`; no tasklist GUID or `resource_id` is needed.
 - A specific tasklist: use `tasklist` and pass its GUID through `resource_id`.
@@ -54,13 +54,13 @@ List tasks in a selected section.
 
 ### Recommended Commands
 
-```text
-# feishu_tools_describe（operation_id="task.sections.tasks"）
+```bash
+feishu_tools_describe（operation_id="task.sections.tasks"）
 ```
 
 ### Parameters
 
-Read `feishu_tools_describe`（operation_id="task.sections.tasks"） for the full parameter structure. Pass the target section's GUID through `section_guid`.
+Read `feishu_tools_describe (operation_id="task.sections.tasks")` for the full parameter structure. Pass the target section's GUID through `section_guid`.
 
 ### Workflow
 

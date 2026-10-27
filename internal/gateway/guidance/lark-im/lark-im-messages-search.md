@@ -4,7 +4,7 @@
 
 Search Feishu messages across conversations. This shortcut automatically performs a multi-step workflow: search for message IDs, batch fetch message details, then enrich the results with chat context.
 
-By default each result message also carries a `reactions` block (counts + details from `im.reactions.batch_query`) when the server has reactions for it, and `update_time` for messages that were actually edited. With `page_all`, every page is enriched; pass `no_reactions` to skip the extra round-trip. See message enrichment（主题 `lark-im-message-enrichment`） for the full contract.
+By default each result message also carries a `reactions` block (counts + details from `im.reactions.batch_query`) when the server has reactions for it, and `update_time` for messages that were actually edited. With `page_all`, every page is enriched; pass `no_reactions` to skip the extra round-trip. See message enrichment (topic `lark-im-message-enrichment`) for the full contract.
 
 This skill maps to the shortcut: `im.+messages-search` (internally calls `POST /open-apis/im/v1/messages/search` + batched `GET /open-apis/im/v1/messages/mget`, then batch-fetches chat context).
 
@@ -81,8 +81,6 @@ im.+messages-search {"query": "test"}
 | `page_token=<token>` | No | Starting cursor, normally returned by a previous response |
 | `page_all` | No | Automatically paginate through all result pages (up to 40 pages) |
 | `page_limit=<n>` | No | Max pages to fetch when auto-pagination is enabled (default 20, max 40). Setting it explicitly also enables auto-pagination |
-|  | No | Output format: `json` (default) / `pretty` / `table` / `ndjson` / `csv` |
-| dry-run（网关不提供，改为先读取核对） | No | Print the request only, do not execute it |
 
 ## Core Constraints
 
@@ -150,7 +148,7 @@ im.+threads-messages-list {"thread": "<thread_id>"}
 
 ## Resource Rendering
 
-Search results reuse the same content formatter as other read commands. Image messages are rendered as placeholders such as `!Image`; `folder` messages in results are expanded one level (see `lark-im-chat-messages-list`（主题 `lark-im-chat-messages-list`） for the marker/download contract); resource binaries are **not** downloaded automatically.
+Search results reuse the same content formatter as other read commands. Image messages are rendered as placeholders such as `!Image`; `folder` messages in results are expanded one level (see topic `lark-im-chat-messages-list` for the marker/download contract); resource binaries are **not** downloaded automatically.
 
 Use `im.+messages-resources-download` if you need to fetch the underlying image or file bytes from a specific message.
 
@@ -159,6 +157,8 @@ Use `im.+messages-resources-download` if you need to fetch the underlying image 
 ### Query boundary for activity review
 
 Use `query` only for real message keywords. If the user asks for activity review such as "最近一周我和哪些 Bot 有过交互" or "整理我和某人的聊天记录", and the useful constraints are sender type, chat, person, or time range, keep `query=` and rely on those filters. Do not put generic instruction words such as "看看", "总结", "交互内容", or "聊天记录" into `query`; those words often over-constrain message search and hide the relevant messages.
+
+This guidance applies to both user and bot identity. If the user explicitly asks for application/bot identity, run `im.+messages-search`; for named-group history/listing intents where search is not needed, resolving the group with `im.+chat-search` and listing messages with `im.+chat-messages-list` (chat_id="<chat_id>") is still a good narrower path.
 
 ```text
 # Review recent bot interactions without forcing a keyword
@@ -171,7 +171,7 @@ For activity summaries, validate evidence by message IDs and chat context. The f
 
 ### Resolving chat_id from a chat name
 
-When the user refers to a chat by name and you need its `chat_id` for the `chat_id` filter, use `im.+chat-search`（主题 `lark-im-chat-search`） first:
+When the user refers to a chat by name and you need its `chat_id` for the `chat_id` filter, use `im.+chat-search` (topic `lark-im-chat-search`) first:
 
 ```text
 # Step 1: Find the chat_id by name
@@ -224,5 +224,5 @@ im.+messages-search {"query": "", "chat_id": "oc_xxx", "sender": "ou_me", "start
 
 ## References
 
-- `im` 领域指南 - all message-related commands
-- lark-im-threads-messages-list（主题 `lark-im-threads-messages-list`） - inspect thread replies
+- `im` domain指南 - all message-related commands
+- topic `lark-im-threads-messages-list` - inspect thread replies

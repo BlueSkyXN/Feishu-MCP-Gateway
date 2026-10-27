@@ -4,7 +4,7 @@
 
 Fetch message details in batch. Given a list of message IDs, this returns the full content for multiple messages in one call and automatically resolves sender names.
 
-By default the response also carries a `reactions` block (counts + details from `im.reactions.batch_query`) on every message that has reactions, and `update_time` on messages that were actually edited. Replies inside `thread_replies` participate in the same batched enrichment. Pass `no_reactions` to skip the extra round-trip. Pass `download_resources` to additionally download message resources (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` and attach a `resources` block — off by default, no extra requests when omitted. See message enrichment（主题 `lark-im-message-enrichment`） for the full contract.
+By default the response also carries a `reactions` block (counts + details from `im.reactions.batch_query`) on every message that has reactions, and `update_time` on messages that were actually edited. Replies inside `thread_replies` participate in the same batched enrichment. Pass `no_reactions` to skip the extra round-trip. Pass `download_resources` to additionally download message resources (image/file/audio/video/media + post-embedded, excluding stickers) into `./lark-im-resources/` and attach a `resources` block — off by default, no extra requests when omitted. See message enrichment (topic `lark-im-message-enrichment`) for the full contract.
 
 This skill maps to the shortcut: `im.+messages-mget` (internally calls `GET /open-apis/im/v1/messages/mget`).
 
@@ -49,7 +49,7 @@ Each message contains:
 | `sender` | Sender information (includes `name`) |
 | `content` | Message content |
 
-For `folder` messages, `content` carries a folder key; `mget` expands the folder one level, rendering first-level children inside the folder tag (to expand/download folder children yourself, follow the Folder resources note in `im` 领域指南):
+For `folder` messages, `content` carries a folder key; `mget` expands the folder one level, rendering first-level children inside the folder tag (to expand/download folder children yourself, follow the Folder resources note in `im` domain指南):
 
 ```
 <folder key="file_v3_...g" name="assets" child_count="5">
@@ -70,7 +70,7 @@ For `post` messages, the attachment zone (top-level `files` array) is rendered a
 
 Use  to see the full content without table truncation — note the content is the rendered text (including the `<file>`/`<folder>` lines above), not the raw post JSON.
 
-Downloading: `im.+messages-resources-download`（主题 `lark-im-messages-resources-download`） takes an explicit `message_id` + `file_key` and fetches `GET /messages/:id/resources/:file_key` — this works for standalone `file` message keys, top-level `post` attachment `files[]` entries, **and file keys rendered inside `<folder>...</folder>` (folder children are real files addressed by their own file_key)**. Two caveats:
+Downloading: `im.+messages-resources-download` (topic `lark-im-messages-resources-download`) takes an explicit `message_id` + `file_key` and fetches `GET /messages/:id/resources/:file_key` — this works for standalone `file` message keys, top-level `post` attachment `files[]` entries, **and file keys rendered inside `<folder>...</folder>` (folder children are real files addressed by their own file_key)**. Two caveats:
 - `download_resources` (the automatic enrichment flag on list/get commands) only auto-collects top-level single-file resources from the raw content — folder children are expanded at render time and are **not** auto-added to that worklist, so to download a folder child you pass its key explicitly to `im.+messages-resources-download`.
 - `is_folder` entries themselves (a folder, not a file) are not downloadable as a single resource.
 
@@ -118,4 +118,4 @@ im.+messages-mget {"message_ids": "om_aaa,om_bbb"}
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands

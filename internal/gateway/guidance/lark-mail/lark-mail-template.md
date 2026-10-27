@@ -29,9 +29,9 @@
 |---|------|----------|
 | Q1 to/cc/bcc | 全部 5 个 shortcut | 用户 `to/cc/bcc` 先覆盖草稿原有值，再与模板 tos/ccs/bccs **无去重追加** |
 | Q2 subject | `mail.+send`（网关不提供：仅支持用户身份） / `mail.+draft-create`（网关不提供：仅支持用户身份） | 用户 `subject` > 草稿 subject > 模板 subject |
-|  | `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） | 用户 `subject` 覆盖自动 Re:/Fw:；否则保持 Re:/Fw: + 原邮件 subject。**模板 subject 被忽略**（保留会话线索） |
+| 同上 | `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） | 用户 `subject` 覆盖自动 Re:/Fw:；否则保持 Re:/Fw: + 原邮件 subject。**模板 subject 被忽略**（保留会话线索） |
 | Q3 body | `mail.+send`（网关不提供：仅支持用户身份） / `mail.+draft-create`（网关不提供：仅支持用户身份） | 空草稿 body → 用模板；非空 HTML → `draftBody + <br><br> + tplContent`；非空 plain-text → `\n\n` 拼接 |
-|  | `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） | 模板内容注入 `<blockquote>` 之前；无 blockquote 则追加；plain-text 模板走 emlbuilder plain-text 追加 |
+| 同上 | `mail.+reply`（网关不提供：仅支持用户身份） / `mail.+reply-all`（网关不提供：仅支持用户身份） / `mail.+forward`（网关不提供：仅支持用户身份） | 模板内容注入 `<blockquote>` 之前；无 blockquote 则追加；plain-text 模板走 emlbuilder plain-text 追加 |
 | Q4 附件 | 全部 5 个 shortcut | 模板 inline（SMALL）由 CLI 走 `user_mailbox.template.attachments.download_url` 下载后以 MIME part 注入；SMALL 非 inline 同样注入；LARGE（`attachment_type=2`）不下载，只把 `file_key` 放到 `X-Lms-Large-Attachment-Ids` header 让服务端渲染下载卡片 |
 | Q5 cid 冲突 | inline 图片 | cid 由 UUID v4 生成（碰撞概率 ~ 2^-122），不显式检测 |
 

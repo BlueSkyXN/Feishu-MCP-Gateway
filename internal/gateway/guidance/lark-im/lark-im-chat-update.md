@@ -35,13 +35,6 @@ im.+chat-update {"chat_id": "oc_xxx", "name": "Test"}
 | `name=<name>` | Max 60 characters | Group name |
 | `description=<text>` | Max 100 characters | Group description |
 
-### Global Parameters
-
-| Parameter | Description |
-|------|------|
-|  | Output as JSON (default) |
-| dry-run（网关不提供，改为先读取核对） | Preview the request without executing it |
-
 ## Usage Scenarios
 
 ### Scenario 1: Rename a group and update its description
@@ -58,6 +51,7 @@ im.+chat-update {"chat_id": "oc_xxx", "name": "Q2 Project Team", "description": 
 | `name exceeds the maximum of 60 characters` | Group name too long | Shorten the name to 60 characters or fewer |
 | `description exceeds the maximum of 100 characters` | Group description too long | Shorten the description to 100 characters or fewer |
 | `at least one field must be specified to update` | No update field was provided | Specify at least one field to update |
+| Not in the group (232011) | The current user is not a member of the group | Use a member identity (app identity) or join the group first |
 
 ## AI Usage Guidance
 
@@ -65,8 +59,8 @@ im.+chat-update {"chat_id": "oc_xxx", "name": "Q2 Project Team", "description": 
 
 Infer the group owner from context whenever possible (for example, if a bot just created the group, the owner is the bot) and use the matching identity directly. If ownership is unclear, query the group first and confirm `owner_id`.
 
-Identity choice should follow Group Chat Identity Rules（主题 `lark-im-chat-identity`）: if the user explicitly specifies an identity, use it directly; otherwise infer the owner identity from context.
+Identity choice should follow Group Chat Identity Rules (topic `lark-im-chat-identity`): if the user explicitly specifies an identity, use it directly; otherwise infer the owner identity from context.
 
 ## References
 
-- `im` 领域指南 - all IM commands
+- `im` domain指南 - all IM commands

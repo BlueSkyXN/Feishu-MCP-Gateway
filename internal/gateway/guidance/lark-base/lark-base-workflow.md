@@ -5,7 +5,7 @@
 本文档是 Workflow 的入口指南，帮助选择步骤组合、理解创建/更新边界，并引导到 steps JSON SSOT。
 
 > **配套文档**:
-> - Workflow 的数据结构参考：lark-base-workflow-schema.md（主题 `lark-base-workflow-schema`）
+> - Workflow 的数据结构参考：主题 `lark-base-workflow-schema`
 > - 创建/更新时重点构造 `title`、`status` 和 `steps`；复杂度集中在 `steps[].type/data/next`
 
 ---
@@ -924,5 +924,5 @@
 
 ## 参考
 
-- lark-base-workflow-schema.md（主题 `lark-base-workflow-schema`） — 字段定义参考
+- 主题 `lark-base-workflow-schema` — 字段定义参考
 - 创建/更新前先确认真实表名、字段名和目标 workflow ID；`steps` 结构按 schema 构造，不凭自然语言猜 `type`

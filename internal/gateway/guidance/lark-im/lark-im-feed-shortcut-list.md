@@ -1,8 +1,8 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+feed-shortcut-list`（网关不提供：仅支持用户身份）
+# `im.+feed-shortcut-list` (not available in the gateway: user identity only)
 
-This skill maps to shortcut: `im.+feed-shortcut-list`（网关不提供：仅支持用户身份）. Underlying API: `GET /open-apis/im/v2/feed_shortcuts`.
+This skill maps to shortcut: `im.+feed-shortcut-list` (not available in the gateway: user identity only). Underlying API: `GET /open-apis/im/v2/feed_shortcuts`.
 
 ## What it does
 

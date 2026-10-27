@@ -1,8 +1,8 @@
 > 由 lark-cli `7f70de0666a2` 的 `lark-im` 参考文档转换；调用约定见 `im` 领域指南（`feishu_guide` 的 domain 参数）。
 
-# `im.+feed-shortcut-create`（网关不提供：仅支持用户身份）
+# `im.+feed-shortcut-create` (not available in the gateway: user identity only)
 
-This skill maps to shortcut: `im.+feed-shortcut-create`（网关不提供：仅支持用户身份）. Underlying API: `POST /open-apis/im/v2/feed_shortcuts`.
+This skill maps to shortcut: `im.+feed-shortcut-create` (not available in the gateway: user identity only). Underlying API: `POST /open-apis/im/v2/feed_shortcuts`.
 
 ## What it does
 
@@ -81,4 +81,4 @@ Example:
 - The shortcut list is **per user**: the call adds shortcuts for the currently authenticated user only.
 - Adding the same chat twice is **idempotent at the user level** (re-adding an existing shortcut is a no-op rather than an error).
 - Scripts should check the process exit code, top-level `ok`, and ledger counts. Partial failures intentionally keep machine-readable success and failure details on stdout.
-- To inspect the current shortcut list, use `im.+feed-shortcut-list`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-shortcut-list`）. To remove a shortcut, use `im.+feed-shortcut-remove`（网关不提供：仅支持用户身份）（主题 `lark-im-feed-shortcut-remove`）.
+- To inspect the current shortcut list, use `im.+feed-shortcut-list` (not available in the gateway: user identity only) (topic `lark-im-feed-shortcut-list`). To remove a shortcut, use `im.+feed-shortcut-remove` (not available in the gateway: user identity only) (topic `lark-im-feed-shortcut-remove`).

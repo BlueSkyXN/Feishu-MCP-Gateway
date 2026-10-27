@@ -10,9 +10,12 @@
 
 ## 命令
 
-```bash
+```text
+# 仅指定会议号（无密码）
+vc.+meeting-join {"meeting_number": "123456789"}
 
 # 发起日程会议（仅应用身份）
+vc.+meeting-join {"meeting_number": "123456789", "action": "start"}
 ```
 
 ## 参数
@@ -22,7 +25,7 @@
 | `meeting_number=<no>` | 是 | 会议号，必须为 **9 位纯数字** |
 | `password=<pw>` | 否 | 会议密码，仅在该会议设置了入会密码时传入 |
 | `call_id=<id>` | 否 | 从 `vc.bot.meeting_invited_v1` 邀请事件透传的 `call_id`，原样回传即可。Agent 主动入会或无邀请事件来源时不传 |
-| dry-run（网关不提供，改为先读取核对） | 否 | 预览 API 调用，不实际加入会议；会议号或身份不确定时先用它确认请求 |
+| `action=join|start` | 否 | 默认 `join`，保持普通入会链路；`start` 是日程发起专属参数，用同一 `bots/join` API 发起会议，且必须 应用身份 |
 
 ## 核心约束
 
@@ -55,6 +58,7 @@
 
 | 字段 | 说明 |
 |------|------|
+| `meeting.id` | 会议 ID（可后续传给 `vc.+meeting-leave`） |
 | `meeting.meeting_no` | 会议号（与入参一致） |
 | `meeting.topic` | 会议主题 |
 | `meeting.start_time` | 会议开始时间 |
@@ -82,6 +86,7 @@
 ## 提示
 
 - 仅在 Agent 需要**真实加入**会议（例如参会机器人、会中助手）时使用；只拉取会议数据不需要入会。
+- 入会会让机器人立即出现在参会列表；若用户要求退出 / 离开 / 结束参会，直接使用 `vc.+meeting-leave`（meeting_id="<meeting.id>"）。参数格式不确定时可选 dry-run（网关不提供，改为先读取核对） 预览，但不是必经步骤。
 - 执行成功后，立即记录返回的 `meeting.id`，用于后续 `vc.+meeting-leave` / `vc.+meeting-events`。
 
 ## 相关场景

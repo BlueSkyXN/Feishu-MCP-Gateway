@@ -58,7 +58,7 @@
 
 | 编辑子场景 | 下一步 |
 |-----------|--------|
-| 仅增删普通参会人/群组，不改时间，不涉及会议室 | 直接 `calendar.+update`（详见 lark-calendar-update.md（主题 `lark-calendar-update`）） |
+| 仅增删普通参会人/群组，不改时间，不涉及会议室 | 直接 `calendar.+update`（详见 主题 `lark-calendar-update`） |
 | 新增会议室，不改时间 | 基于已定位日程 start/end → 明确时间分支（主题 `lark-calendar-schedule-clear-time`） |
 | 只改时间，不涉及会议室 | 判断时间明确性 → 对应分支 |
 | 既改时间，又新增/更换会议室 | 先确定最终时间 → 再查会议室 → 落地 |
@@ -107,10 +107,10 @@ calendar.+update {"event_id": "<event_id>", "start": "<start>", "end": "<end>", 
 
 ## 参考
 
-- lark-calendar-schedule-clear-time.md（主题 `lark-calendar-schedule-clear-time`）
-- lark-calendar-schedule-fuzzy-time.md（主题 `lark-calendar-schedule-fuzzy-time`）
-- lark-calendar-room-find.md（主题 `lark-calendar-room-find`）
-- lark-calendar-suggestion.md（主题 `lark-calendar-suggestion`）
-- lark-calendar-create.md（主题 `lark-calendar-create`）
-- lark-calendar-update.md（主题 `lark-calendar-update`）
-- SKILL.md（`calendar` 领域指南）
+- topic `lark-calendar-schedule-clear-time`
+- topic `lark-calendar-schedule-fuzzy-time`
+- topic `lark-calendar-room-find`
+- topic `lark-calendar-suggestion`
+- topic `lark-calendar-create`
+- topic `lark-calendar-update`
+- SKILL.md (`calendar` domain指南)

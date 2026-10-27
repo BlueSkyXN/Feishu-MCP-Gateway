@@ -13,7 +13,7 @@
 
 ## 适用与消歧
 
-比较投资、资源、市场、产品、经营或供应选项并支持判断，但正文不要求具名决策者作出选择 / 批准，也不形成授权、资源拨付或执行承诺入口。`商业`、`市场分析`、`SWOT`单独只用于召回；回答研究问题走 主题 `research-report`（主题 `research-report`），纯指标解读走 主题 `data-report`（主题 `data-report`），命中上述 ask / 授权入口时走 Workplace Proposal，接口、不变量和实现取舍为主走 Technical RFC。
+比较投资、资源、市场、产品、经营或供应选项并支持判断，但正文不要求具名决策者作出选择 / 批准，也不形成授权、资源拨付或执行承诺入口。`商业`、`市场分析`、`SWOT`单独只用于召回；回答研究问题走 主题 `research-report`，纯指标解读走 主题 `data-report`，命中上述 ask / 授权入口时走 Workplace Proposal，接口、不变量和实现取舍为主走 Technical RFC。
 
 ## 子类型
 

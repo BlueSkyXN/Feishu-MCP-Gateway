@@ -42,8 +42,6 @@ im.+chat-members-list {"chat_id": "oc_xxx"}
 | `page_all` | No | - | Automatically walk every page (capped by `page_limit`) |
 | `page_limit=<n>` | No | default 10, `0` = unlimited | Max pages to fetch with `page_all` |
 | `page_delay=<ms>` | No | default 200, `0` = no delay | Delay between pages during `page_all` (throttle to avoid rate limits on large lists) |
-|  | No | - | Output as JSON |
-| dry-run（网关不提供，改为先读取核对） | No | - | Preview the request without executing it |
 
 ## Output Fields
 
