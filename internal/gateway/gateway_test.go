@@ -498,6 +498,89 @@ func TestCatalogAppIdentityAndHighRiskGates(t *testing.T) {
 	}
 }
 
+// 枚举值与参数类型一致，数组参数的枚举约束元素；否则该参数的任何取值都会被校验拒绝。
+func TestCatalogEnumsMatchDeclaredTypes(t *testing.T) {
+	c, err := LoadCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var walk func(id, path string, node any)
+	walk = func(id, path string, node any) {
+		switch v := node.(type) {
+		case map[string]any:
+			if values, ok := v["enum"].([]any); ok {
+				kind, _ := v["type"].(string)
+				for _, value := range values {
+					var match bool
+					switch kind {
+					case "integer":
+						f, ok := value.(float64)
+						match = ok && f == float64(int64(f))
+					case "number":
+						_, match = value.(float64)
+					case "boolean":
+						_, match = value.(bool)
+					case "string", "":
+						_, match = value.(string)
+					}
+					if !match {
+						t.Errorf("%s %s: 枚举值 %v 与类型 %q 不一致", id, path, value, kind)
+						break
+					}
+				}
+			}
+			for key, child := range v {
+				walk(id, path+"/"+key, child)
+			}
+		case []any:
+			for _, child := range v {
+				walk(id, path, child)
+			}
+		}
+	}
+	for _, op := range c.Operations {
+		walk(op.ID, "", op.InputSchema)
+	}
+}
+
+// sheets 的 JSON 参数按 lark-cli 的解析方式校验：properties 只传一部分，其余字段来自 rule_type、range 等平铺参数；
+// sheets、styles 接受 {"sheets": [...]} 外层对象或数组本身；枚举仍然生效。
+func TestSheetsJSONParametersAcceptCLIShapes(t *testing.T) {
+	c, err := LoadCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	url := "https://example.feishu.cn/sheets/shtXXX"
+	sheet := []any{map[string]any{"name": "明细", "columns": []any{"日期", "金额"}, "data": []any{[]any{"2024-01-15", 1234.5}}}}
+	cases := []struct {
+		id   string
+		args map[string]any
+		ok   bool
+	}{
+		{"sheets.+cond-format-create", map[string]any{"url": url, "sheet_id": "sh1", "rule_type": "duplicateValues", "ranges": `["A1:A100"]`, "properties": map[string]any{"style": map[string]any{"back_color": "#FFD7D7"}}}, true},
+		{"sheets.+filter-create", map[string]any{"url": url, "sheet_id": "sh1", "range": "A1:F100", "properties": map[string]any{"rules": []any{}}}, true},
+		{"sheets.+table-put", map[string]any{"url": url, "sheets": map[string]any{"sheets": sheet}}, true},
+		{"sheets.+table-put", map[string]any{"url": url, "sheets": sheet}, true},
+		{"sheets.+styles-put", map[string]any{"url": url, "styles": map[string]any{"styles": []any{map[string]any{"name": "明细", "cell_merges": []any{map[string]any{"range": "A1:B1"}}}}}}, true},
+		{"sheets.+cells-get", map[string]any{"url": url, "range": "A1:B2", "include": []any{"formula", "style"}}, true},
+		{"sheets.+cells-get", map[string]any{"url": url, "range": "A1:B2", "include": []any{"bogus"}}, false},
+		{"sheets.+chart-config-update", map[string]any{"url": url, "sheet_id": "sh1", "chart_id": "chrXXX", "x_axis_label_angle": -45.0}, true},
+		{"sheets.+chart-config-update", map[string]any{"url": url, "sheet_id": "sh1", "chart_id": "chrXXX", "x_axis_label_angle": 30.0}, false},
+	}
+	for _, tc := range cases {
+		op, ok := c.Operation(tc.id)
+		if !ok {
+			t.Fatalf("missing %s", tc.id)
+		}
+		if op.Risk != "read" {
+			tc.args["idempotency_key"] = "fixture"
+		}
+		if err := op.Validate(tc.args); (err == nil) != tc.ok {
+			t.Errorf("%s %v: want ok=%v, got %v", tc.id, tc.args, tc.ok, err)
+		}
+	}
+}
+
 func TestCLISubprocessEnvironmentAndMapping(t *testing.T) {
 	c := testConfig(t)
 	dir := t.TempDir()

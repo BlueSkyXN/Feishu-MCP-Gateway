@@ -81,7 +81,7 @@ python3 scripts/build_release.py /path/to/lark-cli --tag v0.3.0-dev --output loc
 
 复制 [示例配置](examples/config.json) 到 `local/config.json`。相对 `data_dir` 相对于配置文件目录解析。`cli_binary` 填受控 wrapper 的绝对路径，`cli_sha256` 填其 SHA-256。普通 lark-cli 二进制无法通过受控后端契约检查。
 
-`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张。0.3.0-dev 清理了目录中的描述文字，升级时需要更新此值。`--version` 同时输出版本、目录摘要和指南摘要：
+`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张。0.3.0-dev 清理了目录中的描述文字，并修正了 18 个 sheets 参数的校验，升级时需要更新此值。`--version` 同时输出版本、目录摘要和指南摘要：
 
 ```sh
 ./bin/feishu-mcp-gateway --version
