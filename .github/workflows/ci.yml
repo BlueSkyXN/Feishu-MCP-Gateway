@@ -1,0 +1,96 @@
+# PR 与 main 的检查：linux/amd64 上构建固定版本的受控后端，运行四项验证、后端核对和进程级 smoke。
+# 不使用密钥，不访问飞书。
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (linux/amd64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache-dependency-path: go.sum
+
+      - name: Fetch pinned lark-cli
+        run: |
+          commit=$(python3 -c 'import json; print(json.load(open("internal/gateway/catalog.json"))["source_commit"])')
+          git init -q "$RUNNER_TEMP/lark-cli"
+          git -C "$RUNNER_TEMP/lark-cli" fetch -q --depth 1 https://github.com/larksuite/cli.git "$commit"
+          git -C "$RUNNER_TEMP/lark-cli" checkout -q FETCH_HEAD
+          echo "LARK_CLI=$RUNNER_TEMP/lark-cli" >> "$GITHUB_ENV"
+
+      - name: Build controlled backend
+        run: python3 scripts/build_backend.py "$LARK_CLI" --test
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go test
+        run: go test -count=1 ./...
+
+      - name: go test -race
+        run: go test -race -count=1 ./...
+
+      - name: Build gateway
+        run: go build -trimpath -buildvcs=false -o bin/feishu-mcp-gateway ./cmd/gateway
+
+      - name: Backend contract
+        run: python3 scripts/verify_backend.py bin/lark-cli-gateway --output "$RUNNER_TEMP/backend-validation.json"
+
+      - name: Process smoke
+        run: python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway --output "$RUNNER_TEMP/process-smoke.json"
+
+      - name: Cross-build darwin/arm64
+        run: GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o "$RUNNER_TEMP/feishu-mcp-gateway-darwin-arm64" ./cmd/gateway
+
+      - name: Generated files match pinned lark-cli
+        run: |
+          if [ ! -f scripts/refresh_catalog.py ]; then
+            echo "::notice::scripts/refresh_catalog.py 不存在，跳过生成文件检查"
+            exit 0
+          fi
+          python3 scripts/refresh_catalog.py "$LARK_CLI"
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::生成文件与提交内容不一致：运行 scripts/refresh_catalog.py 后提交结果"
+            exit 1
+          fi
+
+  min-go:
+    name: Minimum Go version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.26'
+          cache-dependency-path: go.sum
+
+      # 未构建受控后端时，实际 wrapper 的集成测试会跳过。
+      - name: Build and test with Go 1.26
+        run: |
+          go version
+          go vet ./...
+          go test -count=1 ./...
