@@ -12,7 +12,7 @@
 - 599 个 Operation 均通过 schema 编译；包含 source 已公开的复杂 JSON 参数 schema。
 - Wiki 查询、Drive 文件列表和创建目录的 3 个 dry-run 通过。
 
-0.3.0-dev 重新导入后，目录的参数、风险、执行映射和资源绑定与 0.2.0-dev 逐项一致；变化只在 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文）。`catalog_revision` 因此改变。
+0.3.0-dev 重新导入后，目录的风险、执行映射和资源绑定与 0.2.0-dev 逐项一致。变化包括 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文），以及 13 个 sheets 操作的 18 个参数 schema：6 个枚举参数（`include` 2 个、坐标轴标签角度 4 个）原来拒绝任何取值，7 个 `properties` 与 5 个 `sheets`/`styles` 原来拒绝 lark-cli 接受的写法。受控后端的 dry-run 确认 lark-cli 接受部分 `properties`、外层对象或数组形式的 `sheets`/`styles`、逗号拼接的 `include` 与 -45 度角。`catalog_revision` 因此改变。
 
 以上是目录与适配合同检查，不能当作 598 项真实飞书逐项实测。端到端测试使用实际构建的 wrapper，运行以下 11 项：
 
@@ -29,7 +29,7 @@
 ## 用法知识与发现
 
 - 导入脚本从同一来源生成 228 个操作级指南、15 个领域指南与 412 个主题；对同一来源重复导入，生成文件逐字节一致。
-- 指南加载时与目录交叉校验：引用的操作、示例、主题、领域入口操作都必须存在。23 个示例的参数通过对应操作的 schema 校验。操作级指南中没有 CLI 登录、`--as` 身份切换或 `lark-cli` 命令残留；全部指南文件中没有 `--as` 参数、首格残缺的表格行和按 shell 区分写法的表格，`lark-cli` 原文残留 32 行，测试检查不超过此数。
+- 指南加载时与目录交叉校验：引用的操作、示例、主题、领域入口操作都必须存在。operations.json 的 24 个示例与指南代码块中的 999 条调用示例全部通过对应操作的 schema 校验（`<…>` 占位值只放宽类型、枚举与格式），参数中没有 `$'...'`、`$VAR` 残留。59 处 dry-run 预览示例改为说明注释，测试检查预览注释后不跟写入调用。操作级指南中没有 CLI 登录、`--as` 身份切换或 `lark-cli` 命令残留；全部指南文件中没有 `--as` 参数、首格残缺的表格行和按 shell 区分写法的表格，无法等价转换而保留原文的 `lark-cli` 命令 48 行，测试检查不超过此数。
 - 搜索按任务说法排序：17 条中英文说法的目标操作出现在前 3 或前 5 名，包括“读取文档”“send file”“多维表格 记录”“创建日程”“新建电子表格”“往表格追加一行”“append rows to sheet”“在知识库里找文档”“查看我明天的日程”；精确 ID 只返回该操作；分页不重复。
 - 搜索、describe、指南总览与 `feishu_context` 按提问者的操作策略收窄，与执行授权使用同一个判断函数；无提问者的发现按接入范围展示。
 - `feishu_guide` 只开放当前请求可见领域的指南与主题，分页边界正确；关闭领域的指南与主题返回 `domain_unavailable`。
@@ -55,11 +55,12 @@
 
 ## 执行结果
 
-测试原始结果保存在忽略的 `local/evidence/`：`test-0.3-review.jsonl`、`race-0.3-review.jsonl`、`test-0.3-review-amd64.jsonl`、`backend-validation.json` 和 `process-smoke-review.json`。
+测试原始结果保存在忽略的 `local/evidence/`：`test-0.3-review2.jsonl`、`race-0.3-review2.jsonl`、`test-0.3-review2-amd64.jsonl`、`backend-validation-review2.json`、`process-smoke-review2.json` 和 `refresh-review2-*.log`。
 
-- Go 常规测试与 race 回归：39 个顶层测试、45 个测试通过事件，无测试跳过，无数据竞争；vet 通过。
-- darwin/amd64（Rosetta 2）运行同一测试集：39 个顶层测试通过。超大 `offset` 的回归测试在修复前的代码上只在 amd64 失败，arm64 上通过。
+- Go 常规测试与 race 回归：42 个顶层测试、48 个测试通过事件，无测试跳过，无数据竞争；vet 通过。
+- darwin/amd64（Rosetta 2）运行同一测试集：42 个顶层测试通过。超大 `offset` 的回归测试在修复前的代码上只在 amd64 失败，arm64 上通过。
 - wrapper 的 race 测试、vet 与构建：通过。
+- `scripts/refresh_catalog.py` 从固定源码重新构建后端并导入，连续两次生成的目录、覆盖台账与指南逐字节一致。
 - `scripts/verify_backend.py`：598 项定义核对无差异，3 个 dry-run 通过，无真实请求。
 - 独立 Gateway 进程：配置检查、健康检查、旧版 MCP 初始化与 instructions、工具发现、应用身份上下文与可见领域、领域指南分页、文件创建、Resources 读取、认证下载、无认证拒绝及正常退出通过。
 - macOS arm64：Gateway 与 wrapper 已构建并用于上述检查；Gateway 二进制约 27 MB，比 0.2.0-dev 增加约 3.3 MB，主要是内嵌指南。
