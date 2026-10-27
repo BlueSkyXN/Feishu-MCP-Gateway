@@ -37,11 +37,42 @@ def field_schema(field):
             result.update(child)
     elif kind == 'array':
         result['items'] = {}
+    if kind == 'array' and 'enum' in result:
+        result['items']['enum'] = result.pop('enum')
     return result
 
 
 def file_ref():
     return {'type':'object','properties':{'file_id':{'type':'string','minLength':1}},'required':['file_id'],'additionalProperties':False}
+
+
+def partial_schema(schema):
+    """去掉对象的 required，递归到属性与组合子 schema；数组元素整体替换，保持严格。与 lark-cli 的 recursivePartialJSONSchema 一致。"""
+    if isinstance(schema, list):
+        for item in schema:
+            partial_schema(item)
+    elif isinstance(schema, dict):
+        schema.pop('required', None)
+        for key in ('properties', 'patternProperties', 'dependentSchemas', 'definitions', '$defs'):
+            for child in (schema.get(key) or {}).values():
+                partial_schema(child)
+        for key in ('additionalProperties', 'not', 'if', 'then', 'else', 'propertyNames', 'allOf', 'anyOf', 'oneOf'):
+            partial_schema(schema.get(key))
+
+
+def flag_input_schemas(name, schema):
+    """把 CLI 导出的 flag schema 换成用户输入的形状，与 lark-cli 的解析一致。
+
+    properties 的 schema 描述合并平铺 flag（如 --rule-type、--range）之后的最终属性，用户只传其中一部分，
+    lark-cli 在合并后才校验，因此这里递归去掉 required。sheets、styles 的文档写法是 {"sheets": [...]} 外层对象，
+    CLI 也接受数组本身；完整结构只放在外层写法里，避免工具定义重复。"""
+    if name == 'properties':
+        schema = json.loads(json.dumps(schema))
+        partial_schema(schema)
+        return [schema]
+    if name in ('sheets', 'styles') and schema.get('type') == 'array':
+        return [{'type':'object','properties':{name:schema},'required':[name]}, {'type':'array','description':'不带外层对象的写法，元素结构同上。'}]
+    return [schema]
 
 
 def controls(props, required, risk):
@@ -64,7 +95,10 @@ def shortcut_operation(row, source):
         kind={'string':'string','bool':'boolean','int':'integer','float64':'number','string_array':'array','string_slice':'array','int_array':'array'}[typ]
         schema={'type':kind,'description':field['Desc']}
         if kind=='array': schema['items']={'type':'integer' if typ=='int_array' else 'string'}
-        if field['Enum']: schema['enum']=field['Enum']
+        if field['Enum']:
+            # 导出的枚举是文本：数值参数转成数值，数组参数的枚举约束元素。
+            values=[int(x) for x in field['Enum']] if typ in ('int','int_array') else [float(x) for x in field['Enum']] if typ=='float64' else field['Enum']
+            (schema['items'] if kind=='array' else schema)['enum']=values
         input_sources=field['Input'] or []
         is_file=name in ('file','image','audio','video') or name.endswith('-file')
         is_output=name in ('output','output-path','output-dir','local-dir')
@@ -75,7 +109,7 @@ def shortcut_operation(row, source):
         json_value=typ=='string' and (json_schema is not None or name=='json' or name.endswith('-json'))
         if json_value:
             variants=[{'type':'string'}]
-            if json_schema: variants.append(json_schema)
+            if json_schema: variants.extend(flag_input_schemas(name, json_schema))
             else: variants.extend([{'type':'object'},{'type':'array'}])
             if is_file or 'file' in input_sources:variants.append(file_ref())
             schema={'anyOf':variants,'description':field['Desc']+'；可直接传 JSON 对象或数组。'}
