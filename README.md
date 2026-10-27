@@ -41,6 +41,8 @@
 
 需要 Go 1.26 或更新版本、Python 3，以及上述固定提交的已有 lark-cli 源码。构建脚本验证来源 Git 状态，不修改来源工作区。受控 wrapper 单独构建，避免把 Cobra 的进程全局状态放进多用户服务。
 
+PR 与 main 的推送由 GitHub Actions 在 linux/amd64 上运行下列检查；发布由手动触发的工作流生成草稿版本。见 [检查与发布](docs/RELEASE.md)。
+
 ```sh
 python3 scripts/build_backend.py /path/to/lark-cli --test
 go test ./...
