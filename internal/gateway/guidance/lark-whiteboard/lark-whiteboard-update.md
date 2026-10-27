@@ -43,6 +43,9 @@ Bob -> Alice: Hi
 EOF
 
 # 通过管道传递给命令
+cat diagram.puml | lark-cli whiteboard +update \
+  --whiteboard-token <画板Token> \
+  --input_format plantuml --source -\
 ```
 
 ### 示例 2：使用 Mermaid 代码更新画板（从文件读取）
@@ -66,6 +69,11 @@ whiteboard-cli 工具的具体用法请参考 § 渲染 & 写入画板（主题 
 
 ```bash
 # 使用 whiteboard-cli 生成 OpenAPI 格式并通过管道传递
+npx -y @larksuite/whiteboard-cli@^0.2.13 -i <产物文件> --to openapi --format json \
+  | lark-cli whiteboard +update \
+    --whiteboard-token <画板Token> \
+    --source - --input_format raw \
+    --idempotent-token <10+字符唯一串> \
 ```
 
 ### 示例 4：先生成产物文件，再从文件读取更新

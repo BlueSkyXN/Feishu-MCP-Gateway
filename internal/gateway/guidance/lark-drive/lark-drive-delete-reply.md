@@ -6,7 +6,7 @@
 
 ```text
 # 先预览（--dry-run 不需要 --yes）
-drive.+delete-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "comment_id": "<id>", "reply_id": "<id>"}
+# 网关不提供 dry-run 预览，此示例省略
 
 # 确认后真实删除（把 --dry-run 换成 --yes）
 drive.+delete-reply {"url": "https://example.larksuite.com/docx/<DOCX_TOKEN>", "comment_id": "<id>", "reply_id": "<id>"}

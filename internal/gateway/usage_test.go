@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/fs"
+	"maps"
 	"net/http/httptest"
 	"os"
 	"regexp"
@@ -84,9 +85,10 @@ func TestGuidanceIsConsistentWithCatalog(t *testing.T) {
 }
 
 // 指南正文不保留身份切换参数、CLI 全局 flag 的表格行和按 shell 区分的写法表。
-// 无法安全转换的 lark-cli 脚本片段保留原文，数量超过上限时检查 scripts/lark_guidance.py 的转换规则。
+// 无法等价转换的 lark-cli 命令保留原文（管道或 heredoc 输入、stdin、命令替换、无法映射的参数、命令模板与 CLI 输出示例），
+// 数量超过上限时检查 scripts/lark_guidance.py 的转换规则。
 func TestGuidanceTextHasNoCLIOnlyLeftovers(t *testing.T) {
-	const maxCLIResidue = 32
+	const maxCLIResidue = 48
 	identity := regexp.MustCompile(`--as\b`)
 	cli := regexp.MustCompile(`lark-cli [a-z]`)
 	rule := regexp.MustCompile(`^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$`)
@@ -134,6 +136,161 @@ func TestGuidanceTextHasNoCLIOnlyLeftovers(t *testing.T) {
 	}
 	if residue > maxCLIResidue {
 		t.Errorf("lark-cli 原文残留 %d 行，超过 %d；检查 scripts/lark_guidance.py 的转换规则", residue, maxCLIResidue)
+	}
+}
+
+// placeholderValue 匹配指南示例里的占位值，如 <doc_id>、<目标ID>、<sheet|bitable>。
+var placeholderValue = regexp.MustCompile(`^<[^<>"'=/\s]+>$`)
+
+// relaxPlaceholders 返回放宽后的 schema：取值为占位值的参数只要求存在，不检查类型、枚举与格式。
+func relaxPlaceholders(schema map[string]any, value any) map[string]any {
+	out := maps.Clone(schema)
+	switch v := value.(type) {
+	case map[string]any:
+		props, _ := schema["properties"].(map[string]any)
+		if props == nil {
+			return out
+		}
+		relaxed := maps.Clone(props)
+		for key, child := range v {
+			sub, ok := props[key].(map[string]any)
+			if !ok {
+				continue
+			}
+			if text, ok := child.(string); ok && placeholderValue.MatchString(text) {
+				relaxed[key] = map[string]any{}
+			} else {
+				relaxed[key] = relaxPlaceholders(sub, child)
+			}
+		}
+		out["properties"] = relaxed
+	case []any:
+		items, _ := schema["items"].(map[string]any)
+		for _, child := range v {
+			if items == nil {
+				break
+			}
+			if text, ok := child.(string); ok && placeholderValue.MatchString(text) {
+				items = map[string]any{}
+			} else {
+				items = relaxPlaceholders(items, child)
+			}
+		}
+		if items != nil {
+			out["items"] = items
+		}
+	}
+	return out
+}
+
+func walkStrings(value any, visit func(string)) {
+	switch v := value.(type) {
+	case string:
+		visit(v)
+	case map[string]any:
+		for _, child := range v {
+			walkStrings(child, visit)
+		}
+	case []any:
+		for _, child := range v {
+			walkStrings(child, visit)
+		}
+	}
+}
+
+// 指南代码块里的 `operation_id {…}` 行是 Agent 会照着调用的示例：参数要通过对应操作的 schema，
+// 字符串里不能残留 shell 写法（$'...'、$VAR）；`<…>` 占位值只放宽类型、枚举与格式检查。
+// 原示例是 dry-run 预览时，转换结果不能是一条真实写入。
+func TestGuidanceCodeExamplesMatchSchema(t *testing.T) {
+	cat, err := LoadCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	shellSyntax := regexp.MustCompile(`^\$['"A-Za-z_{(]`)
+	preview := regexp.MustCompile(`(?i)预览|preview|不实际执行|不真正执行|without (?:executing|creating)`)
+	confirmed := regexp.MustCompile(`确认后|真实|换成`)
+	examples := 0
+	err = fs.WalkDir(guidanceFS, "guidance", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") {
+			return err
+		}
+		b, err := guidanceFS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		fence, pendingPreview := false, ""
+		for i, raw := range strings.Split(string(b), "\n") {
+			// 引用块中的代码块带 > 前缀。
+			line := strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(raw), ">"))
+			if strings.HasPrefix(line, "```") {
+				fence, pendingPreview = !fence, ""
+				continue
+			}
+			if !fence || line == "" {
+				continue
+			}
+			if strings.HasPrefix(line, "#") {
+				pendingPreview = ""
+				if preview.MatchString(line) && !confirmed.MatchString(line) && !strings.Contains(line, "网关不提供 dry-run") {
+					pendingPreview = line
+				}
+				continue
+			}
+			id, rest, _ := strings.Cut(line, " ")
+			op, ok := cat.Operation(id)
+			previewComment := pendingPreview
+			pendingPreview = ""
+			if !ok {
+				continue
+			}
+			examples++
+			if previewComment != "" && op.Risk != "read" {
+				t.Errorf("%s:%d: 预览示例被转换成真实写入（%s）: %s", path, i+1, previewComment, line)
+			}
+			args := map[string]any{}
+			if rest = strings.TrimSpace(rest); strings.HasPrefix(rest, "{") {
+				if err := json.NewDecoder(strings.NewReader(rest)).Decode(&args); err != nil {
+					t.Errorf("%s:%d: 参数不是 JSON: %v", path, i+1, err)
+					continue
+				}
+			}
+			walkStrings(args, func(text string) {
+				if shellSyntax.MatchString(text) {
+					t.Errorf("%s:%d: 参数残留 shell 写法 %q", path, i+1, text)
+				}
+			})
+			if _, ok := args["idempotency_key"]; !ok && op.Risk != "read" {
+				args["idempotency_key"] = "example"
+			}
+			resolved, err := compileSchema(relaxPlaceholders(op.InputSchema, args))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := resolved.Validate(args); err != nil {
+				t.Errorf("%s:%d: %s 的示例参数不符合 schema: %v", path, i+1, id, err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if examples == 0 {
+		t.Fatal("没有找到代码块调用示例")
+	}
+	// 各条转换规则的代表结果。
+	for path, want := range map[string]string{
+		"guidance/lark-im/lark-im-messages-send.md":       `"text": "Line 1\nLine 2\n  indented line"`, // $'...' 按 bash 规则解码
+		"guidance/lark-doc/lark-doc-update.md":            `"content": "<p>新段落</p>"`,                   // 含 / 的文本不是文件
+		"guidance/lark-drive/lark-drive-delete-reply.md":  "# 网关不提供 dry-run 预览，此示例省略",
+		"guidance/lark-calendar/lark-calendar-create.md":  "`[文本](url)`", // 代码片段里的链接语法保留
+		"guidance/lark-doc/lark-doc-md.md":                "## 参数传递",     // shell 传参小节换成网关写法
+		"guidance/lark-sheets/lark-sheets-write-cells.md": `> sheets.+csv-put {"url": "...", "sheet_name": "Sheet1", "start_cell": "A1", "csv": "name,score\nalice,=SUM(B2:B10)"}`,
+	} {
+		b, err := guidanceFS.ReadFile(path)
+		if err != nil || !strings.Contains(string(b), want) {
+			t.Errorf("%s: 缺少转换结果 %s", path, want)
+		}
 	}
 }
 

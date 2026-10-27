@@ -237,6 +237,8 @@ drive.+task_result {"scenario": "wiki_delete_space", "task_id": "<TASK_ID>"}
 ```text
 # 1. 创建导入任务
 drive.+import {"file": {"file_id": "<file_id>"}, "type": "sheet"}
+# 若任务很快完成：直接返回 token / url
+# 若内置轮询超时：返回 ready=false、ticket 和 next_command
 
 # 2. 轮询导入结果
 drive.+task_result {"scenario": "import", "ticket": "<IMPORT_TICKET>"}
@@ -248,6 +250,8 @@ drive.+task_result {"scenario": "import", "ticket": "<IMPORT_TICKET>"}
 ```text
 # 1. 移动文件夹
 drive.+move {"file_token": "<FOLDER_TOKEN>", "type": "folder", "folder_token": "<TARGET_FOLDER_TOKEN>"}
+# 已完成时返回 ready=true，无需继续查询
+# 若内置轮询结束仍未完成：返回 ready=false、task_id 和 next_command
 
 # 2. 仅在 ready=false 时继续查询
 drive.+task_result {"scenario": "task_check", "task_id": "<TASK_ID>"}
@@ -258,6 +262,8 @@ drive.+task_result {"scenario": "task_check", "task_id": "<TASK_ID>"}
 ```text
 # 1. 把 Drive 文档迁入 Wiki（异步任务可能返回 task_id）
 wiki.+move {"obj_type": "docx", "obj_token": "<DOC_TOKEN>", "target_space_id": "<TARGET_SPACE_ID>"}
+# 若内置轮询窗口内完成：直接返回 ready=true 和 wiki_token
+# 若轮询窗口结束仍未完成：返回 ready=false、task_id、timed_out=true 和 next_command
 
 # 2. 续跑查询 Wiki 移动结果（next_command 即下面这条）
 ```
@@ -265,6 +271,9 @@ wiki.+move {"obj_type": "docx", "obj_token": "<DOC_TOKEN>", "target_space_id": "
 ### 配合 `wiki.+move-to-drive` 使用
 
 ```bash
+# 1. 把 Wiki 节点移到 Drive 文件夹；省略 --folder-token 表示当前身份的“我的空间”根目录
+# 若轮询窗口内完成：直接返回 ready=true、obj_token、obj_type 和 url
+# 若轮询窗口结束仍未完成：返回 ready=false、完整 task_id、timed_out=true 和 next_command
 
 # 2. 使用完整 task_id 和相同身份续跑
 ```
@@ -274,6 +283,8 @@ wiki.+move {"obj_type": "docx", "obj_token": "<DOC_TOKEN>", "target_space_id": "
 ```text
 # 1. 删除知识空间（高风险写操作，必须显式带 --yes；接口可能同步返回空 task_id，也可能返回异步 task_id）
 wiki.+delete-space {"space_id": "<SPACE_ID>"}
+# 若同步返回：直接 ready=true
+# 若轮询窗口结束仍未完成：返回 ready=false、task_id、timed_out=true 和 next_command
 
 # 2. 续跑查询 Wiki 删除结果（next_command 即下面这条）
 ```
@@ -283,9 +294,14 @@ wiki.+delete-space {"space_id": "<SPACE_ID>"}
 ```text
 # 1. 发起导出
 drive.+export {"token": "<SOURCE_DOC_TOKEN>", "doc_type": "docx", "file_extension": "pdf"}
+# 若轮询窗口内完成：直接下载本地文件
+# 若内置轮询结束仍未完成：返回 ready=false、ticket 和 next_command
 
 # 2. 继续查询导出结果
 drive.+task_result {"scenario": "export", "ticket": "<EXPORT_TICKET>", "file_token": "<SOURCE_DOC_TOKEN>"}
+
+# 如果返回 rate_limit / 99991400：至少等待 1 分钟后重试同一条 +task_result；
+# 若仍限频，以 1 分钟为起点继续指数退避。
 
 # 3. 拿到 file_token 后下载
 drive.+export-download {"file_token": "<EXPORTED_FILE_TOKEN>"}

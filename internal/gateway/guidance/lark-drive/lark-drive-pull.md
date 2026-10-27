@@ -46,6 +46,7 @@ drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists
 # 云端有多个同名二进制文件时，显式下载全部并用稳定 hash 后缀改名
 drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "on_duplicate_remote": "rename"}
 
+# 文件级镜像：下载新文件 + 删除云端没有的本地文件（不删空目录）
 # （--delete-local 必须搭配 --yes，否则会被 Validate 直接拒绝）
 drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "delete_local": true}
 ```
@@ -64,7 +65,7 @@ drive.+pull {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "delete_lo
 - **只下载 Drive `type=file` 的二进制文件**。在线文档（`docx` / `sheet` / `bitable` / `mindnote` / `slides`）和快捷方式（`shortcut`）会被跳过 —— 它们没有等价的本地二进制可写盘，否则会变成产生噪声的"假"下载。
 - 子文件夹会递归遍历；rel_path 形如 `sub1/sub2/file.txt`，本地缺失的父目录会被自动创建。
 - 已存在的本地文件按 `if_exists` 决定 `overwrite` / `smart` / `skip`。其中 **`smart` 是推荐的重复同步模式**：只要本地 mtime 在远端时间精度下已经等于或晚于远端 `modified_time`，就跳过下载；时间戳缺失/非法时会退回安全路径继续下载，不会盲跳。想做 `keep-both` 这类的仍需自己改名再 pull。
-- 云端同名冲突默认失败；只有“冲突全是 `type=file`”且传了 `on_duplicate_remote=rename|newest|oldest` 时才会继续。
+- 云端同名冲突默认失败；只有“冲突全是 `type=file`”且传了 `on_duplicate_remote rename|newest|oldest` 时才会继续。
 
 ## `delete_local` 的安全行为
 

@@ -91,10 +91,10 @@ _创建/更新/部分删除的迷你图属性_
 
 ```text
 # 列出整张子表的所有迷你图组
-sheets.+sparkline-list {"url": "...", "sheet_id": "$SID"}
+sheets.+sparkline-list {"url": "...", "sheet_id": "<SID>"}
 
 # 钉到单组：返回该组每一项的 sparkline_id（update 必需）
-sheets.+sparkline-list {"url": "...", "sheet_id": "$SID", "group_id": "grpA"}
+sheets.+sparkline-list {"url": "...", "sheet_id": "<SID>", "group_id": "grpA"}
 ```
 
 ### `sheets.+sparkline-create`
@@ -102,7 +102,7 @@ sheets.+sparkline-list {"url": "...", "sheet_id": "$SID", "group_id": "grpA"}
 > `properties` 顶层只有 `config`（同组共享样式，如 `line_width` / `points` / `extremum_max` / `extremum_min`）和 `sparklines`（迷你图项数组）两个字段。`sparklines[i]` 每项必须含 `position`（落点 cell，`row` + `col`）+ `source`（数据 A1 范围，与 `source_range` 二选一）；create 时 `sparkline_id` 可省略，由系统生成。
 
 ```text
-sheets.+sparkline-create {"url": "...", "sheet_id": "$SID", "properties": {"file_id": "<file_id>"}}
+sheets.+sparkline-create {"url": "...", "sheet_id": "<SID>", "properties": {"file_id": "<file_id>"}}
 ```
 
 `sparkline.json` 示例（在 F 列嵌入两行折线迷你图，数据分别来自 A2:E2 和 A3:E3）：
@@ -121,14 +121,9 @@ sheets.+sparkline-create {"url": "...", "sheet_id": "$SID", "properties": {"file
 
 > 两步式：先 `sheets.+sparkline-list`（group_id="<id>"） 拿当前组的 `sparkline_id` 列表，再构造 `properties.sparklines[]`——**每项必须带 `sparkline_id`**。只改样式可只传 `properties.config`（不带 `sparklines`，整组样式覆盖式更新）。
 
-```bash
+```text
 # 假设 +sparkline-list 已返回 group_id=grpA，组内 sparkline_id=sl_1 / sl_2
-sheets.+sparkline-update {"url": "\"...\"", "sheet_id": "\"$SID\"", "group_id": "\"grpA\"", "properties": "'{"}
-  "sparklines": [
-    {"sparkline_id":"sl_1","source":"'Sheet1'!A2:A20"},
-    {"sparkline_id":"sl_2","source":"'Sheet1'!B2:B20"}
-  ]
-}'
+sheets.+sparkline-update {"url": "...", "sheet_id": "<SID>", "group_id": "grpA", "properties": {"sparklines": [{"sparkline_id": "sl_1", "source": "Sheet1!A2:A20"}, {"sparkline_id": "sl_2", "source": "Sheet1!B2:B20"}]}}
 ```
 
 ### `sheets.+sparkline-delete`
@@ -137,7 +132,7 @@ sheets.+sparkline-update {"url": "\"...\"", "sheet_id": "\"$SID\"", "group_id": 
 
 ```text
 # 删整组
-sheets.+sparkline-delete {"url": "...", "sheet_id": "$SID", "group_id": "grpA"}
+sheets.+sparkline-delete {"url": "...", "sheet_id": "<SID>", "group_id": "grpA"}
 ```
 
 ### Validate / DryRun / Execute 约束

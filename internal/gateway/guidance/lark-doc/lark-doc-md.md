@@ -49,13 +49,9 @@
 
 自行构造 Markdown 内容写入时同理：如字面文本 `a]b` 应写为 `a\]b`，`C:\Users` 应写为 `C:\\Users`。
 
-## Shell 传参
-- **首选文件传参**：`content` 支持 `{"file_id": …}`（读文件）和 `-`（读 stdin），彻底绕开 shell 转义；多行、含特殊字符、长文本强烈推荐。字面量以 `@` 开头时用 `@@` 转义（`pattern` 不支持 `{"file_id": …}`）
-- **默认用单引号 `'...'`**：完全字面量，`$`、``` ``、`\`、`>`、`\<b>` 等全部原样保留
-- **双引号 `"..."`**：会展开 `$变量`、反引号和 `$(...)` 命令替换，`\` 仍参与转义，易踩坑
-- **`$'...'` ANSI-C 引号**：按 C 转义解析，`\n`=换行、`\\`=单个 `\`；**zsh 下未知转义（如 `\<`）的 `\` 会被吞**，要保留字面 `\` 必须写 `\\`。只在确实需要 `\n`/`\t` 时用
-- **多行内容**：用 `<<'EOF'` heredoc，EOF 必须带引号，否则仍展开 `$`
-- **`\n` 在 `'...'` 和 `"..."` 里都是字面量**，不是换行；要真换行用 `$'...\n...'` 或 heredoc
+## 参数传递
+- 网关参数是 JSON，不经过 shell：多行内容在 JSON 字符串里用 `\n` 换行，`$`、反引号和引号按字面传递。
+- 长文本或以 `@` 开头的内容，先用 `feishu_file_create` 保存，再把 `{"file_id": …}` 传给 `content`；`pattern` 只接受文本。
 
 ## 图片语法
 
@@ -67,7 +63,7 @@ Markdown 格式支持通过 URL 插入网络图片，图片将自动从 HTTP 下
 - URL 支持 `http://` 和 `https://` 协议
 - 对应的 XML 格式为：`<img href="https://example.com/photo.png"/>`
 
-本地图片使用 `!alt`（路径含空格时写作 `![alt](<@./images/product shot.png>)`）；路径必须位于当前工作目录内，`alt` 会作为 caption。附件使用 `<source path="@./files/report.pdf"/>`
+本地图片使用 `![alt](@./images/photo.png)`（路径含空格时写作 `![alt](<@./images/product shot.png>)`）；路径必须位于当前工作目录内，`alt` 会作为 caption。附件使用 `<source path="@./files/report.pdf"/>`
 
 目前不支持将 Base64 Data URI（如 `data:image/png;base64,...`）直接作为 Markdown 图片地址传入；如仅有 Base64 数据，请先解码为本地图片文件，再使用上述 `{"file_id": …}` 路径上传。
 

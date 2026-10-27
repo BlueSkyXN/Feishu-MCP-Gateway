@@ -62,7 +62,7 @@ drive.+import {"file": {"file_id": "<file_id>"}, "type": "bitable", "folder_toke
 drive.+import {"file": {"file_id": "<file_id>"}, "type": "bitable", "target_token": "<BASE_TOKEN>"}
 
 # 预览底层调用链（上传 -> 创建任务 -> 轮询）
-drive.+import {"file": {"file_id": "<file_id>"}, "type": "docx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

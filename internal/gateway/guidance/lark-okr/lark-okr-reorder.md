@@ -8,14 +8,8 @@
 
 ```bash
 # 调整 Objective 顺位
-okr.+reorder {"cycle_id": "7000000000000000001", "level": "objective", "ops": "'["}
-    {"id": "7000000000000000002", "position": 2},
-    {"id": "7000000000000000003", "position": 1}
 
 # 调整 KR 顺位（需指定 --objective-id）
-okr.+reorder {"cycle_id": "7000000000000000001", "level": "key-result", "objective_id": "7000000000000000002", "ops": "'["}
-    {"id": "7000000000000000004", "position": 1},
-    {"id": "7000000000000000005", "position": 2}
 
 # 从文件读取 ops
 ```

@@ -8,7 +8,7 @@ Manage task reminders. Set new reminders or remove existing ones. Note that sett
 
 ## Recommended Commands
 
-```text
+```bash
 # Set a reminder (e.g., 30 minutes before due)
 task.+reminder {"task_id": "<task_guid>", "set": "30"}
 
@@ -16,7 +16,7 @@ task.+reminder {"task_id": "<task_guid>", "set": "30"}
 task.+reminder {"task_id": "<task_guid>", "set": "1h"}
 
 # Remove all reminders
-task.+reminder {"task_id": "<task_guid>", "remove": true}
+lark-cli task +reminder --task-id "<task_guid>" --remove "true"
 ```
 
 ## Parameters

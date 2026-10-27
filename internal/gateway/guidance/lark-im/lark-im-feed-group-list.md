@@ -13,6 +13,9 @@
 ## Usage
 
 ```bash
+# First page
+
+# Auto-paginate through all your feed groups (both live and deleted)
 
 # Within an update-time window
 ```

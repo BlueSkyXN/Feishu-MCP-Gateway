@@ -114,7 +114,7 @@ base.+app-block-get-data {"app_token": "<app_token>", "base_token": "<base_token
 ## 重命名应用
 
 ```text
-drive.files.patch {"file_token": "<app_token>", "type": "bitable", "data": {"new_title": "新名称"}}
+drive.files.patch {"params": {"file_token": "<app_token>", "type": "bitable"}, "data": {"new_title": "新名称"}}
 ```
 
 BaseApp 与 Base 在 Drive 文件接口中都使用 `type=bitable`。`new_title` 只更新应用标题，不会重命名它引用的 Base，也不会修改 Page 或 Block。
@@ -173,7 +173,7 @@ base.+app-page-delete {"app_token": "<app_token>", "page_id": "<page_id>"}
 
 ## 列表组件
 
-创建列表时使用 `type=list` 与 `sub_type=standard|grouped|collapsible|card|detail`。省略 `sub_type` 时默认 `standard`。
+创建列表时使用 `type=list` 与 `sub_type standard|grouped|collapsible|card|detail`。省略 `sub_type` 时默认 `standard`。
 
 ```text
 base.+app-block-create {"app_token": "<app_token>", "page_id": "<page_id>", "name": "待处理订单", "type": "list", "sub_type": "standard", "data_config": "{\"base_token\":\"<base_token>\",\"table_name\":\"订单\"}"}

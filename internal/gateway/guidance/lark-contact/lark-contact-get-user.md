@@ -5,6 +5,7 @@
 按 ID 取用户基本信息(姓名等)。
 
 ```text
+# 取自己
 
 # bot 按 ID 取他人
 contact.+get-user {"user_id": "ou_xxx"}

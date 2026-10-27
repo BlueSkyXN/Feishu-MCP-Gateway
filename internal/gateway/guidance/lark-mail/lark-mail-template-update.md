@@ -20,6 +20,13 @@
 ## 命令
 
 ```bash
+# 查看当前状态（不修改）
+
+# 打印 patch 骨架并保存
+
+# 用扁平 flag 改 subject + cc
+
+# 用 patch 文件做结构化更新（支持 is_plain_text_mode 翻回 false 等 tri-state 场景）
 
 # 追加新附件
 ```

@@ -75,7 +75,7 @@ set -euo pipefail
 
 block_ids=(cht_block_1 cht_block_2)
 for block_id in "${block_ids[@]}"; do
-  base.+dashboard-block-get-data {"base_token": "bascn***************CtadY", "block_id": "$block_id"}
+  base.+dashboard-block-get-data {"base_token": "bascn***************CtadY", "block_id": "<block_id>"}
 done
 ```
 
@@ -685,7 +685,7 @@ base.+dashboard-block-get-data {"base_token": "xxx", "block_id": "chtxxxxxxxx"}
 可用来确认最终会调用的接口路径：
 
 ```text
-base.+dashboard-block-get-data {"base_token": "bascn_example_token", "block_id": "chtxxxxxxxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 你应能看到类似：

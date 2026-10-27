@@ -6,7 +6,7 @@
 
 ## 类型映射
 
-- 图表：`type=column|bar|line|pie|ring|area|combo|scatter|funnel|wordCloud|radar|statistics`
+- 图表：`type column|bar|line|pie|ring|area|combo|scatter|funnel|wordCloud|radar|statistics`
 - 富文本：`type=text`（与 Dashboard 文本组件同名同义）
 - 列表：`type list sub_type standard|grouped|collapsible|card|detail`
 - 列表省略 `sub_type` 时默认 `standard`

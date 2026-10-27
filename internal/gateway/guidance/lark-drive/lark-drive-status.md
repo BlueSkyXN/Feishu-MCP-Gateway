@@ -30,7 +30,7 @@ drive.+status {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx"}
 drive.+status {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "quick": true}
 
 # 只看判定为 modified 的项（exact=hash 不一致；quick=mtime 不一致）（结合 --jq 过滤）
-drive.+status {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx"}
+drive.+status {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx"}  # 原命令用 jq 筛选输出；网关直接返回 JSON
 ```
 
 ## 参数

@@ -27,9 +27,15 @@
 # 1. 当前时间的日程
 calendar.+agenda {"start": "<now>", "end": "<now>"}
 
+# 2. 用户已加入的视频会议
+
+# 3. 步骤 1 每个日程回查关联 meeting_id
+#    输出是 event_id → meeting_id 映射；后续所有交叉都按 meeting_id 匹配
 #    （vc +meeting-list-active / vc +detail 结果的 id 字段即 meeting_id，无 event_id）
 calendar.+meeting  # 网关不提供：仅支持用户身份
 
+# 4. 判定视频会议是否仍在进行
+#    仅对「步骤 3 非空 meeting_id 且不在步骤 2 里」的调用
 #    end_time 为空或 <= start_time → 仍在进行；否则已结束
 vc.+detail {"meeting_ids": "<meeting_id1>,<meeting_id2>"}
 ```
@@ -52,6 +58,7 @@ vc.+detail {"meeting_ids": "<meeting_id1>,<meeting_id2>"}
 calendar.+agenda {"start": "<future_start>", "end": "<future_end>"}
 calendar.+search-event {"query": "<keyword>", "start": "<future_start>", "end": "<future_end>"}
 
+# 禁用：vc +search 对未来返回空，容易被误判「没有会议」
 # lark-cli vc +search --start <future> --end <future>   ← 不要这样做
 ```
 
@@ -70,6 +77,8 @@ vc.+search {"start": "<past_start>", "end": "<past_end>"}
 # 2. 过去的日程
 calendar.+agenda {"start": "<past_start>", "end": "<past_end>"}
 
+# 3. 步骤 2 每个日程回查 meeting_id，构建 meeting_id → event_id 映射
+#    遍历步骤 1 每条结果，用其 id 字段（即 meeting_id）查此映射：
 #    命中 → 日程视频会议；未命中 → 无日程的即时会议
 calendar.+meeting  # 网关不提供：仅支持用户身份
 ```

@@ -1,6 +1,6 @@
 > 由 Feishu-MCP-Gateway 从 lark-cli `7f70de0666a2` 的 `lark-calendar` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -20,6 +20,7 @@
 **对话人称映射**：「我」= 登录用户，「你」= 应用（bot）；作为字段取值的人称（参会人、会议 owner 等）不参与身份判定，如「你创建日程，邀请我、会议 owner 为我」→ 应用身份 创建，登录用户仅作参会人与会议 owner。
 
 ```text
+# 用户本人日程 → user
 # bot 自建或参与的日程 → bot
 calendar.+agenda
 ```
@@ -59,6 +60,10 @@ calendar.+get {"calendar_id": "<calendar_id>", "event_id": "<event_id>"}
 仅返回基础字段（`event_id`/`summary`/`start`/`end` 等），需要详情请走 `calendar.+get`。
 
 ```text
+# query 按关键词 可选
+# start/end 按时间范围（ISO 8601 或 YYYY-MM-DD）可选
+# attendee-ids 按参会人（自动识别 ou_ 用户 / oc_ 群聊 / omm_ 会议室前缀）可选
+# page-token 分页游标，用于继续翻页 可选
 # page-size 每页数量，默认 30 可选
 calendar.+search-event {"query": "周会", "start": "2026-04-20", "end": "2026-04-27", "attendee_ids": "ou_user1,oc_chat1,omm_room1", "page_token": "<page_token>", "page_size": "30"}
 ```
@@ -79,6 +84,7 @@ calendar.+delete {"calendar_id": "<calendar_id>", "event_id": "<event_id>", "not
 默认查询当天。结果应整理为按日期分组、按开始时间升序的易读时间线。
 
 ```text
+# start/end 时间范围（ISO 8601 / YYYY-MM-DD / Unix 秒），均可选；默认当天
 # calendar-id 日历 ID（默认primary）可选
 calendar.+agenda {"start": "2026-03-10", "end": "2026-03-17", "calendar_id": "<calendar_id>"}
 ```
@@ -92,6 +98,14 @@ calendar.+agenda {"start": "2026-03-10", "end": "2026-03-17", "calendar_id": "<c
 `calendar.+freebusy` 一个入口承担四种视角：几何计算类（`busy` / `free` / `common_free`）走自动合并；事件维度类（`raw_busy`）保留每条上游日程 + `rsvp_status`。
 
 ```text
+# start/end 时间范围（ISO 8601 / YYYY-MM-DD / Unix 秒），均可选；默认当天
+# user-id 目标用户 open_id，可重复或用逗号分隔；默认当前登录用户，bot 身份必须显式传至少一个
+# type 视角四选一（默认 busy）：
+#   busy         每个 user 合并后的忙碌区间（找空档、看忙碌时段）
+#   raw_busy     每个 user 的原始日程块 + rsvp_status（数会议、看每个会的 rsvp）
+#   free         每个 user 在时间窗内的空闲区间（可带 --min-duration 过滤）
+#   common_free  所有 user 的共同空闲区间（可带 --min-duration 过滤）
+# min-duration 仅对 free / common_free 生效；Go duration 格式，例如 30m、1h、90m
 
 # 查询忙碌时间段（去重并合并相邻/重叠段）
 calendar.+freebusy {"start": "2026-03-11", "end": "2026-03-11", "user_id": ["ou_a", "ou_b"], "type": "busy"}
@@ -186,11 +200,12 @@ calendar.<resource>.<method> {参数}
 # 查询用户主日历
 calendar.calendars.primary
 
+# 获取日程分享链接（分享给他人/群前必须先拿到）
 # 返回形如 {{domain}}/calendar/share?token=<token> 的分享链接，不是 applink；直接把该链接发给对方（对方可凭链接中的 token 走 +join-event 加入）
-calendar.events.share_info {"calendar_id": "<calendar_id>", "event_id": "<event_id>"}
+calendar.events.share_info {"params": {"calendar_id": "<calendar_id>", "event_id": "<event_id>"}}
 
 # 删除日程
-calendar.events.delete {"calendar_id": "<calendar_id>", "event_id": "<event_id>"}
+calendar.events.delete {"params": {"calendar_id": "<calendar_id>", "event_id": "<event_id>"}}
 ```
 
 > `calendar_id` 可以直接传 `primary`，代表当前调用身份的主日历 ID。
@@ -206,6 +221,7 @@ calendar.events.delete {"calendar_id": "<calendar_id>", "event_id": "<event_id>"
 ## 常用其他域命令
 
 ```bash
+# 批量搜索多个用户，更多参数详见 lark-contact
 
 # 搜索群聊，更多参数详见 lark-im
 ```

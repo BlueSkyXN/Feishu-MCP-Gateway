@@ -59,7 +59,7 @@ im.+messages-search {"query": "test", "page_all": true}
 im.+messages-search {"query": "test", "page_limit": 5}
 
 # Preview the request without executing it
-im.+messages-search {"query": "test"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters
@@ -148,7 +148,7 @@ im.+threads-messages-list {"thread": "<thread_id>"}
 
 ## Resource Rendering
 
-Search results reuse the same content formatter as other read commands. Image messages are rendered as placeholders such as `!Image`; `folder` messages in results are expanded one level (see topic `lark-im-chat-messages-list` for the marker/download contract); resource binaries are **not** downloaded automatically.
+Search results reuse the same content formatter as other read commands. Image messages are rendered as placeholders such as `![Image](img_xxx)`; `folder` messages in results are expanded one level (see topic `lark-im-chat-messages-list` for the marker/download contract); resource binaries are **not** downloaded automatically.
 
 Use `im.+messages-resources-download` if you need to fetch the underlying image or file bytes from a specific message.
 

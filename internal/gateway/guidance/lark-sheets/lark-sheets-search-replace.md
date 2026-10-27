@@ -75,7 +75,7 @@ _公共四件套 · 系统：dry-run（网关不提供，改为先读取核对�
 sheets.+cells-search {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "find": "张三"}
 
 # 正则 + 范围限定
-sheets.+cells-search {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "find": "^[A-Z]{2}-\\d{4}$", "regex": true, "range": "A2:A1000"}
+sheets.+cells-search {"spreadsheet_token": "shtXXX", "sheet_id": "<SID>", "find": "^[A-Z]{2}-\\d{4}$", "regex": true, "range": "A2:A1000"}
 ```
 
 输出契约（envelope.data）：
@@ -88,18 +88,19 @@ sheets.+cells-search {"spreadsheet_token": "shtXXX", "sheet_id": "$SID", "find":
 
 示例：
 
-```text
+```bash
 # 先 dry-run 预览
-sheets.+cells-replace {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "find": "v1", "replacement": "v2"}
+# 网关不提供 dry-run 预览，此示例省略
 
 # 确认后执行
 sheets.+cells-replace {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "find": "v1", "replacement": "v2"}
 
 # 正则捕获组：把 "2026-03" 重排成 "03/2026"（$1/$2 引用 --find 的捕获组）
-sheets.+cells-replace {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_name": "Sheet1", "regex": true, "find": "(\\d{4})-(\\d{2})", "replacement": "$2/$1"}
+lark-cli sheets +cells-replace --url "https://example.feishu.cn/sheets/shtXXX" \
+  --sheet-name "Sheet1" --regex --find "(\\d{4})-(\\d{2})" --replacement "$2/$1" --dry-run
 ```
 
-> `sheets.+cells-replace` 虽然 Risk = write，但范围大或正则写错可能批量修改大量非目标单元格。**建议工作流**：先 `sheets.+cells-search` 看匹配数，再 `sheets.+cells-replace` 预览，最后真正执行。
+> `sheets.+cells-replace` 虽然 Risk = write，但范围大或正则写错可能批量修改大量非目标单元格。**建议工作流**：先 `sheets.+cells-search` 看匹配数，再 `sheets.+cells-replace`（网关不提供 dry-run 预览） 预览，最后真正执行。
 
 ### Validate / DryRun / Execute 约束
 

@@ -16,6 +16,7 @@
 ## 命令
 
 ```bash
+# 通过 URL 申请（type 自动从 URL 推断）
 
 # 通过 bare token + 显式 --type
 ```

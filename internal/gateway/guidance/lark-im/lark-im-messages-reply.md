@@ -65,39 +65,40 @@ This makes `markdown` the simplest path for lightweight formatted replies.
 - Code blocks are preserved as code blocks.
 - Excess blank lines are compressed.
 - Already-uploaded `img_xxx` image keys are the most reliable Markdown image input.
-- Local paths (e.g. `!x`) are **not** supported directly in `markdown` and will not be auto-uploaded.
+- Local paths (e.g. `![x](./a.png)`) are **not** supported directly in `markdown` and will not be auto-uploaded.
 - Remote URLs (`https://...`) will be auto-downloaded and uploaded at runtime; if the download or upload fails, the image is removed with a warning.
 
 If you need a title, multiple locales, cards, unsupported rich structures, or byte-for-byte post JSON control, use `msg_type post content ...`.
 
 ### Image Constraint for `markdown`
 
-When using `markdown` with images, prefer pre-uploading via `images.create` and referencing `!alt` for predictable results. Remote URLs may work but are not guaranteed.
+When using `markdown` with images, prefer pre-uploading via `images.create` and referencing `![alt](img_xxx)` for predictable results. Remote URLs may work but are not guaranteed.
 
 **Steps:**
 
 ```text
 # 1. Upload image to get image_key
-im.images.create {"data": {"image_type": "message"}, "file": "./diagram.png"}
+im.images.create {"data": {"image_type": "message"}, "files": {"image": {"file_id": "<file_id>"}}}
+# Returns: {"image_key":"img_v3_xxxx"}
 
 # 2. Use image_key in --markdown reply
-im.+messages-reply {"message_id": "om_xxx", "markdown": "$## Result\\n\\n![diagram](img_v3_xxxx)\\n\\nSee above for details."}
+im.+messages-reply {"message_id": "om_xxx", "markdown": "## Result\n\n![diagram](img_v3_xxxx)\n\nSee above for details."}
 ```
 
 ## Preserving Formatting
 
-If the reply contains multiple lines, code blocks, indentation, tabs, or a lot of escaping, prefer `$'...'` for either `markdown` or `text`.
+If the reply contains multiple lines, code blocks, indentation, tabs, or a lot of escaping, write line breaks as `\n` inside the JSON string for either `markdown` or `text`.
 
 ### When formatting must be preserved
 
-Use `text` plus `$'...'`:
+Use `text`:
 
 ```text
-im.+messages-reply {"message_id": "om_xxx", "text": "$Received\\nI will check this today.\\nOwner: alice"}
+im.+messages-reply {"message_id": "om_xxx", "text": "Received\nI will check this today.\nOwner: alice"}
 ```
 
 ```text
-im.+messages-reply {"message_id": "om_xxx", "text": "$```sql\\nselect * from jobs;\\n```"}
+im.+messages-reply {"message_id": "om_xxx", "text": "```sql\nselect * from jobs;\n```"}
 ```
 
 This keeps the reply as plain text instead of converting it to a `post`.
@@ -106,7 +107,7 @@ This keeps the reply as plain text instead of converting it to a `post`.
 
 ```text
 # Reply with a formatted update
-im.+messages-reply {"message_id": "om_xxx", "markdown": "$## Reply\\n\\n- item 1\\n- item 2"}
+im.+messages-reply {"message_id": "om_xxx", "markdown": "## Reply\n\n- item 1\n- item 2"}
 
 # Reply with a plain one-line message
 im.+messages-reply {"message_id": "om_xxx", "text": "Received"}
@@ -121,15 +122,15 @@ im.+messages-reply {"message_id": "om_xxx", "content": "{\"text\":\"Received\"}"
 im.+messages-reply {"message_id": "om_xxx", "text": "bot reply"}
 
 # Reply with preserved multi-line text
-im.+messages-reply {"message_id": "om_xxx", "text": "$Line 1\\nLine 2\\n  indented line"}
+im.+messages-reply {"message_id": "om_xxx", "text": "Line 1\nLine 2\n  indented line"}
 
 # Reply inside the thread (message appears in the target thread)
 im.+messages-reply {"message_id": "om_xxx", "text": "Let's discuss this", "reply_in_thread": true}
 
 # Reply with Markdown containing an image (must pre-upload via images.create)
-im.images.create {"data": {"image_type": "message"}, "file": "./screenshot.png"}
+im.images.create {"data": {"image_type": "message"}, "files": {"image": {"file_id": "<file_id>"}}}
 # Use the returned image_key
-im.+messages-reply {"message_id": "om_xxx", "markdown": "$## Screenshot\\n\\n![screenshot](img_v3_xxxx)\\n\\nConfirmed."}
+im.+messages-reply {"message_id": "om_xxx", "markdown": "## Screenshot\n\n![screenshot](img_v3_xxxx)\n\nConfirmed."}
 
 # If you need exact post structure, send JSON directly
 im.+messages-reply {"message_id": "om_xxx", "msg_type": "post", "content": "{\"zh_cn\":{\"title\":\"Reply\",\"content\":[[{\"tag\":\"text\",\"text\":\"Detailed content\"}]]}}"}
@@ -150,7 +151,13 @@ im.+messages-reply {"message_id": "om_xxx", "audio": {"file_id": "<file_id>"}}
 im.+messages-reply {"message_id": "om_xxx", "text": "Received", "idempotency_key": "my-unique-id"}
 
 # Preview the request without executing it
-im.+messages-reply {"message_id": "om_xxx", "markdown": "$## Test\\n\\nhello"}
+# 网关不提供 dry-run 预览，此示例省略
+
+# ===== Interactive Card =====
+# 🚫 STOP — before constructing ANY interactive card JSON, you MUST read
+#    card/lark-im-card-create.md and follow its workflow. Do NOT
+#    hand-write or copy a card payload. The JSON passed to --content must be
+#    the OUTPUT of that workflow. This is non-negotiable.
 
 # Once the workflow has produced the card JSON, reply with it:
 im.+messages-reply {"message_id": "om_xxx", "msg_type": "interactive", "content": "<card_json_from_workflow>"}
@@ -183,10 +190,10 @@ im.+messages-reply {"message_id": "om_xxx", "msg_type": "interactive", "content"
 ## Common Mistakes
 
 - Choosing `text` for headings, lists, links, summaries, or investigation notes. Use `markdown`.
-- Choosing `markdown` when you actually need exact plain text. If exact line breaks, spacing, logs, code, or literal Markdown characters matter, use `text`, usually with `$'...'`.
+- Choosing `markdown` when you actually need exact plain text. If exact line breaks, spacing, logs, code, or literal Markdown characters matter, use `text`.
 - Assuming `markdown` supports every Markdown feature. It is converted into a Feishu `post` payload and normalized first.
-- Putting local image paths inside Markdown like `!x`. `markdown` does not auto-upload those paths.
-- **Using local file paths inside Markdown image syntax** (e.g. `!x`) with `markdown`. Local paths are not auto-uploaded and will not render as an image. Pre-upload via `images.create` to get an `image_key` instead.
+- Putting local image paths inside Markdown like `![x](./a.png)`. `markdown` does not auto-upload those paths.
+- **Using local file paths inside Markdown image syntax** (e.g. `![x](./a.png)`) with `markdown`. Local paths are not auto-uploaded and will not render as an image. Pre-upload via `images.create` to get an `image_key` instead.
 - Using `content` without making the JSON match the effective `msg_type`.
 - Explicitly setting `msg_type` to something that conflicts with `text`, `markdown`, or media flags.
 - Mixing `text`, `markdown`, or `content` with media flags in one command.

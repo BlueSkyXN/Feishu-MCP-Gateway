@@ -9,9 +9,12 @@ Add a member to a wiki space. OpenAPI: `POST /open-apis/wiki/v2/spaces/:space_id
 ## Usage
 
 ```text
+# Add a user as a regular member
+
+# Personal library (resolves my_library to the per-user real space first)
 
 # Preview the call chain without writing
-wiki.+member-add {"space_id": "<space_id>", "member_id": "<id>", "member_type": "openid", "member_role": "admin"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Flags

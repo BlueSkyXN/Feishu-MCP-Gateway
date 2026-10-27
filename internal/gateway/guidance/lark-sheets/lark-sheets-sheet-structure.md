@@ -160,41 +160,43 @@ _公共四件套 · 系统：dry-run（网关不提供，改为先读取核对�
 
 ```text
 # 在第 10 行前插 3 行，继承上方样式
-sheets.+dim-insert {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_id": "$SID", "position": "10", "count": 3, "inherit_style": "before"}
+sheets.+dim-insert {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_id": "<SID>", "position": "10", "count": 3, "inherit_style": "before"}
 
 # 在 C 列前插 2 列
-sheets.+dim-insert {"url": "...", "sheet_id": "$SID", "position": "C", "count": 2}
+sheets.+dim-insert {"url": "...", "sheet_id": "<SID>", "position": "C", "count": 2}
 ```
 
 ### `sheets.+dim-delete`
 
 ```text
 # 删除第 5-7 行
-sheets.+dim-delete {"url": "...", "sheet_id": "$SID", "range": "5:7"}
+sheets.+dim-delete {"url": "...", "sheet_id": "<SID>", "range": "5:7"}
 
 # 删除 D-F 列
-sheets.+dim-delete {"url": "...", "sheet_id": "$SID", "range": "D:F"}
+sheets.+dim-delete {"url": "...", "sheet_id": "<SID>", "range": "D:F"}
 
+# 删除多个散布区间（如按查重结果删行）：--ranges 一次批量交付（fail-fast，失败后先回读再补发；CLI 逆序保索引）。
+# CLI 自动按位置从大到小逆序执行——正序会因前面的行被删导致后续索引前移错位；
 # 无需自行排序，也不要为此拼 +batch-update 的子操作数组
-sheets.+dim-delete {"url": "...", "sheet_id": "$SID", "ranges": "[\"5:5\",\"8:8\",\"11:13\"]"}
+sheets.+dim-delete {"url": "...", "sheet_id": "<SID>", "ranges": "[\"5:5\",\"8:8\",\"11:13\"]"}
 ```
 
 ### `sheets.+dim-hide` / `sheets.+dim-unhide`
 
 ```text
-sheets.+dim-hide {"url": "...", "sheet_id": "$SID", "range": "5:7"}
-sheets.+dim-unhide {"url": "...", "sheet_id": "$SID", "range": "5:7"}
-sheets.+dim-hide {"url": "...", "sheet_id": "$SID", "range": "C:F"}
+sheets.+dim-hide {"url": "...", "sheet_id": "<SID>", "range": "5:7"}
+sheets.+dim-unhide {"url": "...", "sheet_id": "<SID>", "range": "5:7"}
+sheets.+dim-hide {"url": "...", "sheet_id": "<SID>", "range": "C:F"}
 ```
 
 ### `sheets.+dim-move`
 
 ```text
 # 把第 3-7 行移到第 12 行前
-sheets.+dim-move {"url": "...", "sheet_id": "$SID", "source_range": "3:7", "target": "12"}
+sheets.+dim-move {"url": "...", "sheet_id": "<SID>", "source_range": "3:7", "target": "12"}
 
 # 把 C-F 列移到 H 列前
-sheets.+dim-move {"url": "...", "sheet_id": "$SID", "source_range": "C:F", "target": "H"}
+sheets.+dim-move {"url": "...", "sheet_id": "<SID>", "source_range": "C:F", "target": "H"}
 ```
 
 ### `sheets.+rows-resize` / `sheets.+cols-resize`
@@ -209,10 +211,10 @@ sheets.+dim-move {"url": "...", "sheet_id": "$SID", "source_range": "C:F", "targ
 
 ```text
 # 冻结前 1 行 + 前 2 列（一次给全）
-sheets.+dim-freeze {"url": "...", "sheet_id": "$SID", "rows": 1, "cols": 2}
+sheets.+dim-freeze {"url": "...", "sheet_id": "<SID>", "rows": 1, "cols": 2}
 
 # 解除行冻结但保住列：把要保留的轴一并写出
-sheets.+dim-freeze {"url": "...", "sheet_id": "$SID", "rows": 0, "cols": 2}
+sheets.+dim-freeze {"url": "...", "sheet_id": "<SID>", "rows": 0, "cols": 2}
 ```
 
 ### `sheets.+dim-group` / `sheets.+dim-ungroup`（大纲）

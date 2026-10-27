@@ -7,6 +7,11 @@
 ## 推荐命令
 
 ```bash
+# 在指定周期下创建一个 Objective（默认 simple 风格）
+
+# 在已有 Objective 下创建一个 KR
+
+# 使用 richtext 风格创建 Objective（完整 ContentBlock JSON）
 
 # 预览 API 调用而不实际执行
 ```

@@ -13,7 +13,7 @@ Delete a wiki node (or pull a cloud doc out of Wiki). OpenAPI: `DELETE /open-api
 ```text
 
 # Preview the call chain without deleting
-wiki.+node-delete {"node_token": "<token>", "obj_type": "wiki"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Flags

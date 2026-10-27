@@ -14,7 +14,7 @@ okr.+comment-list {"target_type": "objective", "target_id": "2345678901234567890
 okr.+comment-list {"target_type": "progress", "target_id": "3456789012345678901", "page_size": 100, "page_token": "7000000000000000002"}
 
 # 以 richtext 输出 KeyResult 评论，但是仅预览请求，不实际获取。
-okr.+comment-list {"target_type": "key_result", "target_id": "4567890123456789012", "style": "richtext"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

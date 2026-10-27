@@ -1,6 +1,6 @@
 > 由 Feishu-MCP-Gateway 从 lark-cli `7f70de0666a2` 的 `lark-sheets` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -41,7 +41,7 @@
 1. **最小改动**：用户没点名要删 / 改名 / 隐藏时，已有 Sheet 一张不动；补齐只写空格，未要求调整的值 / 结构 / 格式不动。
 2. **目标子表与回读断言**：先确认真实末行与目标区域；未点名子表时只从 `resource_type=sheet && is_hidden=false` 的可见网格候选里选，唯一才自动使用，多张不得按 index 猜。涉及"所有 / 每个 sheet"（跨表汇总、批量清洗、合并多张子表）时先 `sheets.+workbook-info` 列全再逐个处理，别只做前几张。写后用 `sheets.+csv-get` / `sheets.+cells-get` / `+<对象>-list` 验首、中、末及用户点名项——返回 `ok` 只表示请求成功。纯 CSV 回写前去掉 `annotated_csv` 的 `[row=N]` 前缀，`cells-get` 的样式字段与值分开处理，公式必须回读 `formula`。**样式同样要回读**：写过边框 / 底色 / 字体色 / 数字格式 / 行高列宽 / 冻结的，收尾用 `sheets.+cells-get`（include=["style"]） 或 `sheets.+sheet-info` 抽查目标区域首、中、末格确认属性真的在——写入返回 `ok` 不代表样式落上了；缺的整份重发（样式是幂等盖章，重发无副作用）。
 3. **公式闭环**：可推导值写落格公式，不用静态值代替——用 Python 算好数值再写进单元格，交付的是改输入不重算的死表；Python 只用于推导和验证，落进单元格的必须是引用其他格的公式。写前确认字段语义、阈值边界（以上/至少=`>=`，超过/大于=`>`）、单位/时区和完整源范围，选首中末、空值、边界及一条可手算记录作哨兵；写后逐段 `sheets.+formula-verify`（exit_on_error=true），各段 `status='success'` 且哨兵值正确才算完成（AI 公式例外：异步计算，改用 `sheets.+formula-verify`（ai_only=true） 对整个写入区间做一次异步状态检查，不用 `sheets.+cells-get` 轮询结果，`failed` 清零后即使仍有 pending 也可交付并说明）；试错 3 次仍失败可降级静态值，交付说明写明「静态值 + 失败原因 + 不随源数据更新」。
-4. **完整继承样式**：新增行列时禁止只读值只写值——原表字体、对齐、底色（含奇偶行交替）、四边框都延续到新区域。**物理插入行 / 列**用 `sheets.+dim-insert`（inherit_style="before|after"）（原生继承，比补刷可靠）；**往已有空白区域扩写**（如在数据右侧加新列）用 `sheets.+range-copy`（paste_type="formats"） 先铺样式再写值；两者都表达不了的非规则样式，才用 `sheets.+cells-get`（include=["style"]） 读源区样式随值写回。无论走哪条路径，插入后都另查行高列宽（行高不随样式继承，插行填长文本前补 `sheets.+rows-resize`）、合并与跨列标题并补齐。详见 主题 `lark-sheets-write-cells`。
+4. **完整继承样式**：新增行列时禁止只读值只写值——原表字体、对齐、底色（含奇偶行交替）、四边框都延续到新区域。**物理插入行 / 列**用 `+dim-insert inherit_style before|after`（原生继承，比补刷可靠）；**往已有空白区域扩写**（如在数据右侧加新列）用 `sheets.+range-copy`（paste_type="formats"） 先铺样式再写值；两者都表达不了的非规则样式，才用 `sheets.+cells-get`（include=["style"]） 读源区样式随值写回。无论走哪条路径，插入后都另查行高列宽（行高不随样式继承，插行填长文本前补 `sheets.+rows-resize`）、合并与跨列标题并补齐。详见 主题 `lark-sheets-write-cells`。
 5. **原子操作**：排序用 `sheets.+range-sort`，`range` 覆盖完整记录宽度，排序列只写进 `sort_keys`；删除记录用 `sheets.+dim-delete`，清空内容 / 格式才用 `sheets.+cells-clear`；禁止读值后用 `sheets.+csv-put` 覆盖来模拟排序 / 删除。仅跨类型且有顺序依赖时才用 high-risk `sheets.+batch-update`。
 6. **标色分流**：数据变化后应自动重算的高亮 / 标红用条件格式，已确定结果的固定标注用静态样式，装饰性美化按视觉规范。两条路径取色字段用同一判据：用户中文语境下的"标红 / 染色 / 标记"指**单元格背景色**，"文字红 / 字体红 / 把字变红"才用字体色，默认无说明时选背景色。条件格式建完先 `sheets.+cond-format-list` 验规则与范围，再 `sheets.+cond-format-result-get` 抽查哨兵格命中样式。
 7. **产物可核对**：用户点名的 sheet 名与数量、表头、标题、图例、文件名、口径逐字保留；回复中每项“已完成”都能定位到产物，缺口逐项声明。
@@ -68,10 +68,10 @@ reference 分两组：先读**通用方法与规范**（横切所有任务的样
 | --- | --- |
 | Lark Sheet Formula Verify（主题 `lark-sheets-formula-verify`） | 公式写入 / 批量填充 / `copy_to_range` 扩展 / 导入含公式工作簿后的完成检查。普通公式按本次新增或修改范围逐段扫描，合并编译失败与 7 类运行错误；`partial` 继续拆分，全部 `status='success'` 后完成。AI 公式用 `ai_only` 对整个写入区间做一次异步状态检查，pending 可说明后交付。 |
 | Lark Sheet Workbook（主题 `lark-sheets-workbook`） | 管理飞书表格的工作簿结构（子表列表及元数据）。当用户提到"看看这个表格有什么"、"表格结构"、"有哪些 sheet"、"新建一个 sheet"、"删除这个工作表"、"重命名"、"复制一份"、"移动到前面"时使用。 |
-| Lark Sheet Sheet Structure（主题 `lark-sheets-sheet-structure`） | 管理飞书表格的子表结构与布局：查看行高列宽、隐藏、合并、冻结与分组，并执行插入/删除/移动行列等物理结构操作。数据分组统计走 lark-sheets-pivot-table。普通表尾追加优先用 lark-sheets-write-cells 的 `sheets.+table-put`（mode="append"） 自动定位末行；只有用户明确要求物理插入行列、继承模板结构或扩容布局时才先用本 reference。 |
+| Lark Sheet Sheet Structure（主题 `lark-sheets-sheet-structure`） | 管理飞书表格的子表结构与布局：查看行高列宽、隐藏、合并、冻结与分组，并执行插入/删除/移动行列等物理结构操作。数据分组统计走 lark-sheets-pivot-table。普通表尾追加优先用 lark-sheets-write-cells 的 `sheets.+table-put` 自动定位末行；只有用户明确要求物理插入行列、继承模板结构或扩容布局时才先用本 reference。 |
 | Lark Sheet Read Data（主题 `lark-sheets-read-data`） | 读取飞书表格中的单元格数据。当用户需要"看看数据"、"分析数据"、"统计/汇总"时使用；也适用于需要查看公式、样式、批注等详细信息的场景。 |
 | Lark Sheet Search & Replace（主题 `lark-sheets-search-replace`） | 在飞书表格中搜索和替换文本，支持限定范围、大小写匹配、精确匹配、正则表达式。当用户需要"查找"、"搜索"、"定位"某个值，或"替换"、"批量修改文本"、"把 A 改成 B"时使用。不要用于理解表格结构（应读取数据）、不要用于数据分析（应读取数据后计算）、不要把用户操作动作中的关键词（如"汇总金额""统计数量"）当作搜索词。 |
-| Lark Sheet Write Cells（主题 `lark-sheets-write-cells`） | 向飞书表格指定区域批量写入值、公式、样式、批注或单元格图片。纯文本可用 `sheets.+csv-put`；金额、百分比、日期、布尔、计数和后续参与聚合的列用 `sheets.+table-put` 并显式声明 dtypes/formats；公式或富字段用 `sheets.+cells-set`。追加数据可直接使用 `sheets.+table-put`（mode="append"）；只有明确需要物理插行/列时才先走 lark-sheets-sheet-structure。公式落表后必须运行 lark-sheets-formula-verify。 |
+| Lark Sheet Write Cells（主题 `lark-sheets-write-cells`） | 向飞书表格指定区域批量写入值、公式、样式、批注或单元格图片。纯文本可用 `sheets.+csv-put`；金额、百分比、日期、布尔、计数和后续参与聚合的列用 `sheets.+table-put` 并显式声明 dtypes/formats；公式或富字段用 `sheets.+cells-set`。追加数据可直接使用 `sheets.+table-put`；只有明确需要物理插行/列时才先走 lark-sheets-sheet-structure。公式落表后必须运行 lark-sheets-formula-verify。 |
 | Lark Sheet Range Operations（主题 `lark-sheets-range-operations`） | 对飞书表格中指定区域执行结构性操作（不涉及写入单元格数据值）。适用场景：清除内容或格式（"清空"、"删除内容"、"去掉格式"）、合并/取消合并单元格、调整行高列宽（"加宽列"、"自适应列宽"）、移动/复制/填充/排序数据（"移动数据"、"复制到"、"自动填充"、"按某列排序"）。写入单元格数据请使用 lark-sheets-write-cells。 |
 | Lark Sheet Styles Put（主题 `lark-sheets-styles-put`） | 把一份声明式视觉规格（样式/边框/合并/行高列宽/冻结）一次性应用到已有飞书表格的多个子表，整份规格一次提交。当任务是对存量表做美化收尾、批量刷样式、统一版式时使用。样式取值标准见 lark-sheets-visual-standards；建新表带样式走 lark-sheets-workbook（`sheets.+workbook-create` `styles`）、写数据同步带样式走 lark-sheets-write-cells（`sheets.+table-put` `styles`），三者共用同一份 `styles` 词汇。仅针对飞书表格。 |
 | Lark Sheet Batch Update（主题 `lark-sheets-batch-update`） | 将多个飞书表格写入操作合并为一次批量执行，按顺序依次完成。适合需要连续执行多个写入操作的场景（如先修改结构再写入数据）。 |

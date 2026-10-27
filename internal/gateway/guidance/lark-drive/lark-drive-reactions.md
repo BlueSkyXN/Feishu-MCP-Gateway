@@ -55,7 +55,9 @@ drive.+react-reply {"url": "<DOC_URL>", "reply_id": "<REPLY_ID>", "emoji": "THUM
 drive.+react-reply {"url": "<WIKI_URL>", "reply_id": "<REPLY_ID>", "emoji": "DONE", "action": "delete"}
 
 # 原生命令兜底（注意：原生路径没有本地枚举校验）
-lark-cli drive file.comment.reply.reactions update_reaction    --params '{"file_token":"<DOC_TOKEN>","file_type":"docx"}'    --data '{"action":"add","reply_id":"<REPLY_ID>","reaction_type":"THUMBSUP"}'
+lark-cli drive file.comment.reply.reactions update_reaction \
+  --params '{"file_token":"<DOC_TOKEN>","file_type":"docx"}' \
+  --data '{"action":"add","reply_id":"<REPLY_ID>","reaction_type":"THUMBSUP"}'
 ```
 
 > [!CAUTION]

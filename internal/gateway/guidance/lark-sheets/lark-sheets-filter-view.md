@@ -95,10 +95,10 @@ _create / update 的视图属性_
 
 ```text
 # 列出某个 sheet 的全部筛选视图
-sheets.+filter-view-list {"url": "...", "sheet_id": "$SID"}
+sheets.+filter-view-list {"url": "...", "sheet_id": "<SID>"}
 
 # 按 view_id 精确定位
-sheets.+filter-view-list {"url": "...", "sheet_id": "$SID", "view_id": "vAbcde1234"}
+sheets.+filter-view-list {"url": "...", "sheet_id": "<SID>", "view_id": "vAbcde1234"}
 ```
 
 ### `sheets.+filter-view-create`
@@ -106,7 +106,7 @@ sheets.+filter-view-list {"url": "...", "sheet_id": "$SID", "view_id": "vAbcde12
 `range`（必填）/ `view_name`（可选）是独立 flag；`rules` 走 `properties`：
 
 ```text
-sheets.+filter-view-create {"url": "...", "sheet_id": "$SID", "view_name": "活跃用户", "range": "A1:F1000", "properties": {"rules": [{"column_index": "C", "conditions": [{"type": "number", "compare_type": "greaterThan", "values": [100]}]}]}}
+sheets.+filter-view-create {"url": "...", "sheet_id": "<SID>", "view_name": "活跃用户", "range": "A1:F1000", "properties": {"rules": [{"column_index": "C", "conditions": [{"type": "number", "compare_type": "greaterThan", "values": [100]}]}]}}
 ```
 
 **`conditions[].type` × `compare_type` 取值**（`type` 决定可用的 `compare_type`；两者均必填）：

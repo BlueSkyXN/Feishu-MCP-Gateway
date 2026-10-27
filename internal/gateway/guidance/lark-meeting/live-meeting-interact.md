@@ -11,6 +11,7 @@
 没有 `meeting_id` 时，按用户需要的视角查询：
 
 ```text
+# 当前登录用户正在参加的会议
 
 # 目标用户正在参加、且应用机器人也在会中的会议
 vc.+meeting-list-active {"user_id": "<open_id>"}

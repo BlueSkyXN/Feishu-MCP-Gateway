@@ -60,9 +60,9 @@ docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard
 逐张上传，收集每个 media token：
 
 ```text
-docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}
-docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}
-docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}
+docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}  # → <media_token_1>
+docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}  # → <media_token_2>
+docs.+media-upload {"file": {"file_id": "<file_id>"}, "parent_type": "whiteboard", "parent_node": "<whiteboard_token>"}  # → <media_token_3>
 ```
 
 ### 4. 在 DSL 中引用

@@ -46,7 +46,7 @@
 | `options` | `[{text:"S2", color:"blue"}]`（颜色枚举见 `../resource/colors.md`，文本勿过长） |
 | `persons` | `"ou_xxx"` 或 `["ou_a","ou_b"]` |
 | `date` | `1699341315000`（毫秒时间戳，按本地时区显示） |
-| `markdown` | `"!img"` 完整 Markdown |
+| `markdown` | `"![img](img_key)"` 完整 Markdown |
 
 ## 嵌套 / 易错点
 

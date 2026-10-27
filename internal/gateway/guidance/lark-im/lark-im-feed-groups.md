@@ -66,27 +66,9 @@ Create a new feed group. Returns the new `group_id` on success.
 > **Prefer `type=normal`.** Use `type=rule` only when membership must be derived automatically, and keep the rule set small and precise — see the guidance under [Common Notes](#common-notes).
 
 ```bash
+# Normal (empty) group
 
 # Rule-based group: auto-add p2p chats with "release" in their name
-    "feed_group_creator":{
-      "type":"rule",
-      "name":"Auto: release chats",
-      "rules":{
-        "rules":[
-          {
-            "condition":{
-              "match_type":"match_all",
-              "condition_items":[
-                {"type":"chat_type","operator":"is","chat_type":"p2p"},
-                {"type":"keyword","operator":"contain","keyword":"release"}
-              ]
-            },
-            "action":"add"
-          }
-        ]
-      }
-    }
-  }'
 ```
 
 ### Request
@@ -120,13 +102,9 @@ Update a feed group's name and/or rules. The `update_fields` array tells the ser
 > **Scope each update to what actually changed.** If you only need to rename, pass `update_fields:[1]` so the rules are left untouched. When you do change rules, the same guidance under [Common Notes](#common-notes) applies to the resulting set.
 
 ```bash
+# Rename only
 
 # Replace rules only (rules array uses the feed_group_rules shape — see that section)
-    "feed_group_updater":{
-      "rules":{"rules":[]},
-      "update_fields":[2]
-    }
-  }'
 ```
 
 ### Request
@@ -224,14 +202,6 @@ Shortcut-only: `im.+feed-group-list` (not available in the gateway: user identit
 
 Add feed cards (chats) into one feed group. Partial failures are reported in `failed_items`.
 
-```bash
-    "items":[
-      {"feed_id":"oc_xxx","feed_type":"chat"},
-      {"feed_id":"oc_yyy","feed_type":"chat"}
-    ]
-  }'
-```
-
 ### Request
 
 | Source | Field | Required | Description |
@@ -267,13 +237,6 @@ Add feed cards (chats) into one feed group. Partial failures are reported in `fa
 ## batch_remove_item
 
 Remove feed cards from one feed group. Same request and response shape as `batch_add_item`.
-
-```bash
-    "items":[
-      {"feed_id":"oc_xxx","feed_type":"chat"}
-    ]
-  }'
-```
 
 ### Request
 

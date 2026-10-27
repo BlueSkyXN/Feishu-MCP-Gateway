@@ -18,8 +18,13 @@
 ## 示例
 
 ```bash
+# 读取全文并保存，用于创建后验证
+
+# 读取单页以获取 block_id
 
 # 读取单页，同时记录 revision_id 用于后续乐观锁
+  --presentation "$PRES_ID" --slide-id "$SID" \
+  --jq '.data.revision_id')
 ```
 
 JSON 输出中，全文 XML 位于 `.data.xml_presentation.content`，单页 XML 位于 `.data.slide.content`；二者的 `.data.revision_id` 都可用于后续写操作。

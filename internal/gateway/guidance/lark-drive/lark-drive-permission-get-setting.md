@@ -7,6 +7,7 @@
 ## 命令
 
 ```bash
+# 通过 URL 自动推断 type
 
 # 通过 bare token 显式指定 type
 ```

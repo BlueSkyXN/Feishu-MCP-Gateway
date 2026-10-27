@@ -16,6 +16,7 @@
 ## 命令
 
 ```bash
+# 发起撤回
 
 # 查询撤回进度
 ```
@@ -41,6 +42,10 @@ feishu_tools_describe（operation_id="mail.user_mailbox.sent_messages.get_recall
 ## 典型流程
 
 ```bash
+# 1. 发送结果中确认可撤回
+# data.recall_available == true
+
+# 2. 用户确认要撤回后发起
 
 # 3. 查询最终结果
 ```

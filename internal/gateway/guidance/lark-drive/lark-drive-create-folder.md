@@ -14,7 +14,7 @@ drive.+create-folder {"name": "周报归档"}
 drive.+create-folder {"folder_token": "<PARENT_FOLDER_TOKEN>", "name": "2026-W16"}
 
 # 预览底层调用
-drive.+create-folder {"folder_token": "<PARENT_FOLDER_TOKEN>", "name": "分析资料"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 返回值

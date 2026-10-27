@@ -5,12 +5,13 @@
 直接更新目标（Objective）或关键结果（Key Result）的指标当前值，无需手动查询指标 ID。
 
 > **查询指标：** 如需查看指标详情，请使用原生 API：
-> - 目标指标：`okr.objective.indicators.list`（objective_id="<id>"）
-> - KR 指标：`okr.key_result.indicators.list`（key_result_id="<id>"）
+> - 目标指标：`okr.objective.indicators.list`（params={"objective_id": "<id>"}）
+> - KR 指标：`okr.key_result.indicators.list`（params={"key_result_id": "<id>"}）
 
 ## 推荐命令
 
 ```bash
+# 更新 Objective 的指标值
 
 # 更新 Key Result 的指标值
 ```

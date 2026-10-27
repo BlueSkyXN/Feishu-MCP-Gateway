@@ -66,7 +66,7 @@ contact.+search-user  # 网关不提供：仅支持用户身份
 contact.+search-user  # 网关不提供：仅支持用户身份
 
 # 与 --query / --user-ids 互斥
-contact.+search-user  # 网关不提供：仅支持用户身份
+contact.+search-user  # 网关不提供：仅支持用户身份  # ❌ exit 2
 ```
 
 约束:

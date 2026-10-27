@@ -16,6 +16,9 @@ Lists **one page** of the **current user's** feed shortcuts.
 ## Commands
 
 ```bash
+# First page (the only call most users ever need — --page-token omitted)
+
+# Continue from the previous response's page_token
 
 # Skip detail enrichment when only IDs are needed; avoids the extra im:chat:read lookup
 ```

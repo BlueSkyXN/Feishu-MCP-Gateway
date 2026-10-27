@@ -31,18 +31,18 @@
 
 ### 命令
 
-```text
-okr.objective.indicators.list {"objective_id": "<目标ID>"}
+```bash
+lark-cli okr objective.indicators list --objective-id "<目标ID>" [flags]
 ```
 
 ### 常用示例
 
 ```text
 # 获取目标的量化指标
-okr.objective.indicators.list {"objective_id": "7000000000000000001"}
+okr.objective.indicators.list {"params": {"objective_id": "7000000000000000001"}}
 
 # 指定用户 ID 类型
-okr.objective.indicators.list {"objective_id": "7000000000000000001", "user_id_type": "user_id"}
+okr.objective.indicators.list {"params": {"objective_id": "7000000000000000001", "user_id_type": "user_id"}}
 ```
 
 ### 参数
@@ -120,15 +120,15 @@ okr.objective.indicators.list {"objective_id": "7000000000000000001", "user_id_t
 
 ### 命令
 
-```text
-okr.key_result.indicators.list {"key_result_id": "<关键结果ID>"}
+```bash
+lark-cli okr key_result.indicators list --key-result-id "<关键结果ID>" [flags]
 ```
 
 ### 常用示例
 
 ```text
 # 获取关键结果的量化指标
-okr.key_result.indicators.list {"key_result_id": "7652569715131075780"}
+okr.key_result.indicators.list {"params": {"key_result_id": "7652569715131075780"}}
 ```
 
 ### 参数
@@ -150,26 +150,25 @@ okr.key_result.indicators.list {"key_result_id": "7652569715131075780"}
 ### 命令
 
 ```text
-okr.indicators.patch {"indicator_id": "<指标ID>", "data": "<JSON>"}
+okr.indicators.patch {"params": {"indicator_id": "<指标ID>"}, "data": "<JSON>"}
 ```
 
 ### 常用示例
 
 ```bash
 # 更新指标的当前值（手动更新方式）
-okr.indicators.patch {"indicator_id": "ind-123", "data": {"current_value": 75.5, "current_value_calculate_type": 0}}
+okr.indicators.patch {"params": {"indicator_id": "ind-123"}, "data": {"current_value": 75.5, "current_value_calculate_type": 0}}
 
 # 更新指标状态为"有风险"（需 status_calculate_type=0）
-okr.indicators.patch {"indicator_id": "ind-123", "data": {"indicator_status": 1, "status_calculate_type": 0}}
+okr.indicators.patch {"params": {"indicator_id": "ind-123"}, "data": {"indicator_status": 1, "status_calculate_type": 0}}
 
 # 更新关键结果指标的目标值和单位
-okr.indicators.patch {"indicator_id": "\"ind-456\"", "data": "'{"}
-    "target_value": 100,
-    "unit": {"unit_type": 0, "unit_value": "PERCENT"}
-  }'
+okr.indicators.patch {"params": {"indicator_id": "ind-456"}, "data": {"target_value": 100, "unit": {"unit_type": 0, "unit_value": "PERCENT"}}}
 
 # 从文件读取请求体
-okr.indicators.patch {"indicator_id": "ind-123", "data": "<内容>"}
+lark-cli okr indicators patch \
+  --indicator-id "ind-123" \
+  --data @indicator_update.json
 ```
 
 ### 参数
@@ -220,7 +219,7 @@ okr.indicators.patch {"indicator_id": "ind-123", "data": "<内容>"}
 
 1. **查询关键结果的指标**（获取 `indicator_id` 和当前配置）
 ```text
-   okr.key_result.indicators.list {"key_result_id": "7652569715131075780"}
+   okr.key_result.indicators.list {"params": {"key_result_id": "7652569715131075780"}}
 ```
 
 2. **检查指标配置**，确认：
@@ -229,22 +228,22 @@ okr.indicators.patch {"indicator_id": "ind-123", "data": "<内容>"}
 
 3. **更新指标**
 ```text
-   okr.indicators.patch {"indicator_id": "ind-123", "data": {"current_value": 65.0, "current_value_calculate_type": 0, "indicator_status": 1, "status_calculate_type": 0}}
+   okr.indicators.patch {"params": {"indicator_id": "ind-123"}, "data": {"current_value": 65.0, "current_value_calculate_type": 0, "indicator_status": 1, "status_calculate_type": 0}}
 ```
 
 4. **验证更新结果**
 ```text
-   okr.key_result.indicators.list {"key_result_id": "7652569715131075780"}
+   okr.key_result.indicators.list {"params": {"key_result_id": "7652569715131075780"}}
 ```
 
 ### 场景：修改关键结果指标的目标值和单位
 
 ```text
 # 1. 查询获取 indicator_id
-okr.key_result.indicators.list {"key_result_id": "7652569715131075780"}
+okr.key_result.indicators.list {"params": {"key_result_id": "7652569715131075780"}}
 
 # 2. 更新目标值和单位
-okr.indicators.patch {"indicator_id": "7652569715131075781", "data": {"target_value": 500, "unit": {"unit_type": 0, "unit_value": "YUAN"}}}
+okr.indicators.patch {"params": {"indicator_id": "7652569715131075781"}, "data": {"target_value": 500, "unit": {"unit_type": 0, "unit_value": "YUAN"}}}
 ```
 
 ## 参考

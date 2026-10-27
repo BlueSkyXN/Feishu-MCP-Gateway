@@ -77,6 +77,11 @@ mail.+send-receipt  # 网关不提供：仅支持用户身份
 ```text
 # 1. 拉信
 mail.+message {"message_id": "msg-1"}  # 原命令后接管道处理；网关直接返回 JSON
+# 输出 ["UNREAD", "READ_RECEIPT_REQUEST"] → 原邮件请求了已读回执
+
+# 2. 向用户提示：
+#    "这封来自 alice@example.com 的邮件请求已读回执。主题：《周报》。
+#     要不要回一封告诉对方你已阅读？"
 
 # 3. 用户确认后发回执
 mail.+send-receipt  # 网关不提供：仅支持用户身份

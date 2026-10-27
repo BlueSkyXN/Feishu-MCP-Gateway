@@ -145,6 +145,9 @@ mail.+send  # 网关不提供：仅支持用户身份
 ```text
 # 方式 A: 创建草稿
 mail.+send  # 网关不提供：仅支持用户身份
+# → 返回 draft_id
+
+# 向用户确认 "当前收件人 alice@example.com，主题「收到」。如果你想先看效果，也可以先去飞书邮件里打开草稿查看详情。确认发送吗？"
 
 # 用户确认后发送
 mail.user_mailbox.drafts.send  # 网关不提供：仅支持用户身份
@@ -157,6 +160,9 @@ mail.+send  # 网关不提供：仅支持用户身份
 ```text
 # Step 1: 创建草稿（定时发送也走草稿流程）
 mail.+send  # 网关不提供：仅支持用户身份
+# → 返回 draft_id
+
+# Step 2: 向用户确认 "邮件草稿已创建：收件人 alice@example.com，主题「周报」，定时 <目标时间> 发送。确认吗？"
 
 # Step 3: 用户确认后定时发送（send_time 为 Unix 时间戳，需至少当前时间 + 5 分钟）
 mail.user_mailbox.drafts.send  # 网关不提供：仅支持用户身份

@@ -236,25 +236,21 @@ _一个或多个子表的 typed 数据，每个数组元素写入一张子表；
 
 > ⚠️ **`title` 必填，且不会从数据里推断**：它是这张表在云空间里的名字，漏了会在建表之前就失败（`required flag(s) "title" not set`），数据一行都不会写。子表名写在 `sheets` 的 `name` 字段里，两者是两码事——`title=2026年Q3销售分析` 配 `sheets` 里的 `"name": "明细"`。
 
-```bash
+```text
+# 1) untyped：--values（一个二维数组，表头并入第一行；值原样写、类型由飞书自动识别，
 #    日期会落成文本，配 --styles 控制格式）
 sheets.+workbook-create {"title": "销售", "values": "[[\"门店\",\"销售额\"],[\"北京\",259874]]"}
 
+# 2) typed JSON：--sheets（一步建表 + 类型保真）。date 列落成真日期（可排序/透视）、
 #    number 不丢精度、string 列保前导零（如订单号 00123）；多子表一次建。
-sheets.+workbook-create {"title": "\"交易\"", "sheets": "'{"}
-  "sheets":[
-    {"name":"明细",
-     "columns":["日期","金额","单号"],
-     "dtypes":{"日期":"datetime64[ns]","金额":"float64","单号":"object"},
-     "formats":{"金额":"#,##0.00"},
-     "data":[["2024-01-15",1234.5,"00123"]]}
-  ]}'
+sheets.+workbook-create {"title": "交易", "sheets": {"sheets": [{"name": "明细", "columns": ["日期", "金额", "单号"], "dtypes": {"日期": "datetime64[ns]", "金额": "float64", "单号": "object"}, "formats": {"金额": "#,##0.00"}, "data": [["2024-01-15", 1234.5, "00123"]]}]}}
 ```
 
 `sheets` 协议与 `sheets.+table-put` 完全同构（字段含义见 lark-sheets-write-cells 的 `sheets.+table-put`，大 payload 走 stdin / `{"file_id": …}`）。关键差异：**新建工作簿的默认子表会被复用为第一个子表**（重命名后承载数据），不会残留空 `Sheet1`；其余子表按需新建。它把 `sheets.+table-put` 单独做不到的"建表 + typed 写入"合到一条命令，是「pandas 算完直接落地一张带真日期的新表」的首选。回读校验用 `sheets.+table-get`（与 `sheets` 同构、可 round-trip）。
 
 > 💡 pandas DataFrame 走 `sheets` 时直接 `from lark_sheets_df import df_to_sheet`（`scripts/lark_sheets_df.py`，与 `sheets.+table-put` 共用同一份 helper），多子表场景 helper 优势更明显：
 > ```python
+> import sys; sys.path.insert(0, "scripts")  # cwd 不在 skill 根时改成 scripts/ 的实际路径
 > from lark_sheets_df import df_to_sheet
 >
 > payload = {"sheets": [df_to_sheet(income, "Income Statement"),
@@ -271,57 +267,15 @@ sheets.+workbook-create {"title": "\"交易\"", "sheets": "'{"}
 
 同一单元格命中多个 `cell_styles` 项时，后面的操作继续合并覆盖已传字段。`cell_merges` / `row_sizes` / `col_sizes` 在内容写入后顺序执行。
 
-```bash
+```text
 # 3) untyped：仍用 {"styles":[...]}，只有一个子表样式项（name 忽略）；range 覆盖 --values 初始区域
-sheets.+workbook-create {"title": "\"销售\"", "values": "'[[\"门店\",\"销售额\"],[\"北京\",259874],[\"上海\",198320]]'", "styles": "'{"}
-    "styles":[
-      {"name":"Sheet1","cell_styles":[
-        {"range":"A1:B1","font_weight":"bold","background_color":"#f5f5f5","horizontal_alignment":"center","vertical_alignment":"middle"},
-        {"range":"B2:B3","number_format":"#,##0"}
-      ]}
-    ]
-  }'
+sheets.+workbook-create {"title": "销售", "values": "[[\"门店\",\"销售额\"],[\"北京\",259874],[\"上海\",198320]]", "styles": {"styles": [{"name": "Sheet1", "cell_styles": [{"range": "A1:B1", "font_weight": "bold", "background_color": "#f5f5f5", "horizontal_alignment": "center", "vertical_alignment": "middle"}, {"range": "B2:B3", "number_format": "#,##0"}]}]}}
 
 # 4) typed 单子表：--styles.styles[0].name 必须对应 --sheets.sheets[0].name
-sheets.+workbook-create {"title": "\"交易\"", "sheets": "'{"}
-  "sheets":[
-    {"name":"明细",
-     "columns":["日期","金额"],
-     "dtypes":{"日期":"datetime64[ns]","金额":"float64"},
-     "formats":{"金额":"#,##0.00"},
-     "data":[["2024-01-15",1234.5]]}
-  ]}' --styles '{
-    "styles":[
-      {"name":"明细",
-       "cell_styles":[
-        {"range":"A1:B1","font_weight":"bold","background_color":"#f5f5f5",
-          "border_styles":{"bottom":{"style":"solid","weight":"thin","color":"#000000"}}},
-        {"range":"A2:A2","number_format":"yyyy-mm-dd"},
-        {"range":"B2:B2","number_format":"#,##0.00","font_color":"#0f7b0f"}
-       ],
-       "cell_merges":[{"range":"A1:B1"}],
-       "col_sizes":[{"range":"A:B","type":"pixel","size":120}],
-       "row_sizes":[{"range":"1:1","type":"pixel","size":28}]}
-    ]
-  }'
+sheets.+workbook-create {"title": "交易", "sheets": {"sheets": [{"name": "明细", "columns": ["日期", "金额"], "dtypes": {"日期": "datetime64[ns]", "金额": "float64"}, "formats": {"金额": "#,##0.00"}, "data": [["2024-01-15", 1234.5]]}]}, "styles": {"styles": [{"name": "明细", "cell_styles": [{"range": "A1:B1", "font_weight": "bold", "background_color": "#f5f5f5", "border_styles": {"bottom": {"style": "solid", "weight": "thin", "color": "#000000"}}}, {"range": "A2:A2", "number_format": "yyyy-mm-dd"}, {"range": "B2:B2", "number_format": "#,##0.00", "font_color": "#0f7b0f"}], "cell_merges": [{"range": "A1:B1"}], "col_sizes": [{"range": "A:B", "type": "pixel", "size": 120}], "row_sizes": [{"range": "1:1", "type": "pixel", "size": 28}]}]}}
 
 # 5) typed 多子表：styles 数组和 sheets 数组长度、顺序、name 都必须一致
-sheets.+workbook-create {"title": "\"经营看板\"", "sheets": "'{"}
-  "sheets":[
-    {"name":"收入","columns":["月份","收入"],"dtypes":{"收入":"int64"},"formats":{"收入":"#,##0"},"data":[["2026-05",1200000]]},
-    {"name":"成本","columns":["月份","成本"],"dtypes":{"成本":"int64"},"formats":{"成本":"#,##0"},"data":[["2026-05",730000]]}
-  ]}' --styles '{
-    "styles":[
-      {"name":"收入","cell_styles":[
-        {"range":"A1:B1","font_weight":"bold","background_color":"#f0f7ff"},
-        {"range":"B2:B2","font_color":"#0f7b0f"}
-      ]},
-      {"name":"成本","cell_styles":[
-        {"range":"A1:B1","font_weight":"bold","background_color":"#fff7ed"},
-        {"range":"B2:B2","font_color":"#b42318"}
-      ]}
-    ]
-  }'
+sheets.+workbook-create {"title": "经营看板", "sheets": {"sheets": [{"name": "收入", "columns": ["月份", "收入"], "dtypes": {"收入": "int64"}, "formats": {"收入": "#,##0"}, "data": [["2026-05", 1200000]]}, {"name": "成本", "columns": ["月份", "成本"], "dtypes": {"成本": "int64"}, "formats": {"成本": "#,##0"}, "data": [["2026-05", 730000]]}]}, "styles": {"styles": [{"name": "收入", "cell_styles": [{"range": "A1:B1", "font_weight": "bold", "background_color": "#f0f7ff"}, {"range": "B2:B2", "font_color": "#0f7b0f"}]}, {"name": "成本", "cell_styles": [{"range": "A1:B1", "font_weight": "bold", "background_color": "#fff7ed"}, {"range": "B2:B2", "font_color": "#b42318"}]}]}}
 ```
 
 > ⚠️ **`sheets.+workbook-create` 是把内存里的数据写成新表；要把已有的本地 Excel/CSV 文件原样导入成新表，用 `sheets.+workbook-import`**（见下），不要先在本地读出文件再 `sheets.+workbook-create` 重灌。
@@ -361,7 +315,7 @@ sheets.+workbook-export {"url": "...", "output_path": "./report.xlsx"}
 sheets.+workbook-export {"url": "...", "output_path": "./downloads/"}
 
 # 4) csv 模式必须传 --sheet-id（API 一次只导一张子表）
-sheets.+workbook-export {"url": "...", "file_extension": "csv", "sheet_id": "$SID", "output_path": "./sheet.csv"}
+sheets.+workbook-export {"url": "...", "file_extension": "csv", "sheet_id": "<SID>", "output_path": "./sheet.csv"}
 ```
 
 > ⚠️ **默认不下载**：省略 `output_path` 时只创建并轮询导出任务。普通在线交付不得为了内部验证主动导出；只有用户明确要求本地 xlsx / 下载 / 打印时才给 `output_path` 并验收。验收时确认文件存在、可重开，并核对公式错误值、样式和对象。
@@ -385,7 +339,7 @@ sheets.+sheet-create {"url": "https://example.feishu.cn/sheets/shtXXX", "title":
 ### `sheets.+sheet-rename`
 
 ```text
-sheets.+sheet-rename {"url": "...", "sheet_id": "$SID", "title": "汇总"}
+sheets.+sheet-rename {"url": "...", "sheet_id": "<SID>", "title": "汇总"}
 ```
 
 ### `sheets.+sheet-move`
@@ -398,7 +352,7 @@ standalone 路径在缺 `source_index` / 只给 `sheet_name` 时会自动发起�
 
 ```text
 # --title 省略时由服务端生成副本名
-sheets.+sheet-copy {"url": "...", "sheet_id": "$SID", "title": "副本"}
+sheets.+sheet-copy {"url": "...", "sheet_id": "<SID>", "title": "副本"}
 ```
 
 > 💡 `sheets.+sheet-copy` 连**公式 / 合并 / 分组底色 / 列宽 / 条件格式**一起整表复制。"照一张现成子表批量造结构相同的新子表"（如参考模板给每份数据各建一张同构子表）时，先 `sheets.+sheet-copy` 复制模板再用 `+cells-*` 只改数据，比从零 `sheets.+sheet-create` + 重建公式 / 样式省一大截，也天然满足"公式 / 分组 / 颜色照搬"。要把本地文件 / 数据并入**已有工作簿**当子表时走它（或 `sheets.+sheet-create`），别用 `sheets.+workbook-import` / `sheets.+workbook-create`——那两条只会新建独立表。
@@ -406,23 +360,23 @@ sheets.+sheet-copy {"url": "...", "sheet_id": "$SID", "title": "副本"}
 ### `sheets.+sheet-hide` / `sheets.+sheet-unhide`
 
 ```text
-sheets.+sheet-hide {"url": "...", "sheet_id": "$SID"}
-sheets.+sheet-unhide {"url": "...", "sheet_id": "$SID"}
+sheets.+sheet-hide {"url": "...", "sheet_id": "<SID>"}
+sheets.+sheet-unhide {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### `sheets.+sheet-set-tab-color`
 
 ```text
 # Hex 色值；传空字符串 "" 清除标签色
-sheets.+sheet-set-tab-color {"url": "...", "sheet_id": "$SID", "color": "#FF0000"}
+sheets.+sheet-set-tab-color {"url": "...", "sheet_id": "<SID>", "color": "#FF0000"}
 ```
 
 ### `sheets.+sheet-show-gridline` / `sheets.+sheet-hide-gridline`
 
 ```text
 # 切换子表网格线显隐；二态语义在命令名里，无需额外参数（同 +sheet-hide/+sheet-unhide）
-sheets.+sheet-show-gridline {"url": "...", "sheet_id": "$SID"}
-sheets.+sheet-hide-gridline {"url": "...", "sheet_id": "$SID"}
+sheets.+sheet-show-gridline {"url": "...", "sheet_id": "<SID>"}
+sheets.+sheet-hide-gridline {"url": "...", "sheet_id": "<SID>"}
 ```
 
 ### Validate / DryRun / Execute 约束

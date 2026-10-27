@@ -17,7 +17,7 @@ okr.+progress-update {"progress_id": "1234567890123456789", "content": "{\"block
 okr.+progress-update {"progress_id": "1234567890123456789", "content": {"file_id": "<file_id>"}}
 
 # 预览 API 调用而不实际执行
-okr.+progress-update {"progress_id": "1234567890123456789", "content": "{\"text\":\"test\"}"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

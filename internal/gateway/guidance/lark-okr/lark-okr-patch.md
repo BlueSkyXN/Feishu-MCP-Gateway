@@ -17,7 +17,7 @@ okr.+patch {"level": "key-result", "target_id": "2345678901234567890", "score": 
 okr.+patch {"level": "objective", "target_id": "1234567890123456789", "style": "richtext", "content": "{\"blocks\":[{\"block_element_type\":\"paragraph\",\"paragraph\":{\"elements\":[{\"paragraph_element_type\":\"textRun\",\"text_run\":{\"text\":\"更新后的目标内容\"}}]}}]}", "notes": "{\"blocks\":[{\"block_element_type\":\"paragraph\",\"paragraph\":{\"elements\":[{\"paragraph_element_type\":\"textRun\",\"text_run\":{\"text\":\"更新后的备注\"}}]}}]}", "score": "0.5", "deadline": "1735776000000"}
 
 # 预览 API 调用而不实际执行
-okr.+patch {"level": "objective", "target_id": "1234567890123456789", "content": "{\"text\":\"测试更新\"}"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

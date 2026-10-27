@@ -23,7 +23,7 @@ mail.+thread-modify {"mailbox": "shared@example.com", "thread_ids": ["<thread_id
 mail.+thread-modify {"mailbox": "user@example.com", "thread_ids": ["<thread_id>"], "add_folder": "archive"}
 
 # Dry Run：只预览请求，不执行
-mail.+thread-modify {"thread_ids": ["<thread_id>"], "add_label_ids": ["custom_label_id"]}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

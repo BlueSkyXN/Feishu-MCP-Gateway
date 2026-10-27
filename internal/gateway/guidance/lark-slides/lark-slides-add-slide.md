@@ -11,9 +11,18 @@
 ## 命令
 
 ```text
+# 追加到末尾（XML 直接作为参数）
+
+# XML 从文件读（推荐：避免 shell 转义和长参数截断）
+
+# XML 从 stdin 读
+
+# 插到某页之前
+
+# wiki 链接（CLI 自动通过 node_by_token 接口解析，并校验 obj_type=slides）
 
 # 预览请求，不实际写入
-slides.+add-slide {"presentation": "$PRES_ID", "slide": {"file_id": "<file_id>"}}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

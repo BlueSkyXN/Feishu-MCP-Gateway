@@ -23,6 +23,8 @@
 PRES_ID="xml_presentation_id_here"
 SID="slide_id_here"
 
+# 1. 读原页，从 XML 里挑出要改的块的 3 位 short id（如 bUn / bab）
+
 # 2. 用 +replace-slide 直接改那个块（不需要搬原 XML）
 ```
 
@@ -35,6 +37,9 @@ SID="slide_id_here"
 `revision_id` 默认 `-1`，表示基于当前最新版执行。传具体版本号时，服务端以该版本为 base 应用变更：
 
 ```bash
+# 读时拿当前 revision_id
+  --presentation "$PRES_ID" --slide-id "$SID" \
+  --jq '.data.revision_id')
 
 # 写时传该版本号，服务端以此为 base
 ```
@@ -71,7 +76,7 @@ SID="slide_id_here"
 | `insertion` | 是 | 要插入的完整 XML 片段 |
 | `insert_before_block_id` | 否 | 插到这个块之前；省略（不提供此字段）则追加到页面末尾 |
 
-> **`<img>` 必须用 `file_token`**，不能用外链 URL——先 `slides.+media-upload`（file={"file_id": "<file_id>"}，presentation="$PRES_ID"） 拿 token。
+> **`<img>` 必须用 `file_token`**，不能用外链 URL——先 `slides.+media-upload`（file={"file_id": "<file_id>"}，presentation="<PRES_ID>"） 拿 token。
 
 ### 批量 parts
 
@@ -84,8 +89,10 @@ SID="slide_id_here"
 `parts` 支持 `{"file_id": …}`（读文件）和 `-`（stdin）作为值来源，适合批量 XML 场景：
 
 ```bash
+# 从文件读
 
 # 从 stdin 读
+  --parts -
 ```
 
 ## 错误排查

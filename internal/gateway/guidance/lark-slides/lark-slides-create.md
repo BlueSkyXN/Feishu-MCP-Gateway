@@ -23,15 +23,19 @@
 
 ## 命令
 
-```text
+```bash
 # 创建空白 PPT
 slides.+create {"title": "项目汇报"}
+
+# 创建 PPT + 添加页面：每页一个 XML 文件，重复 --slide，顺序即页序
+
+# 已有组装好的 JSON 数组：从文件或 stdin 读
 
 # 以应用身份创建（自动授权当前用户）
 slides.+create {"title": "项目汇报"}
 
 # 预览（不执行）
-slides.+create {"title": "项目汇报", "slide": ["<内容>"]}
+lark-cli slides +create --title "项目汇报" --slide @./slide-01.xml --dry-run
 ```
 
 ## 返回值

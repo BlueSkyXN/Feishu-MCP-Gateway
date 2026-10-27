@@ -17,6 +17,11 @@
 ## 命令
 
 ```bash
+# 纯 HTML 模板
+
+# 带 HTML 内嵌图片 + 非 inline 附件
+
+# 从文件加载正文
 
 # Dry Run
 ```

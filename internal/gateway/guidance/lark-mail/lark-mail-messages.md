@@ -31,7 +31,7 @@ mail.+messages {"mailbox": "user@example.com", "message_ids": "<id1>,<id2>"}
 mail.+messages {"message_ids": "<id1>,<id2>"}
 
 # Dry Run
-mail.+messages {"message_ids": "<id1>,<id2>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

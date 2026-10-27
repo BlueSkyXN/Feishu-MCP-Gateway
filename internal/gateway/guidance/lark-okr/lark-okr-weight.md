@@ -8,14 +8,8 @@
 
 ```bash
 # 调整 Objective 权重（部分指定，剩余自动分配）
-okr.+weight {"cycle_id": "7000000000000000001", "level": "objective", "weights": "'["}
-    {"id": "7000000000000000002", "weight": 0.6},
-    {"id": "7000000000000000003", "weight": 0.3}
 
 # 调整 KR 权重（全部指定，和为 1）
-okr.+weight {"cycle_id": "7000000000000000001", "level": "key-result", "objective_id": "7000000000000000002", "weights": "'["}
-    {"id": "7000000000000000004", "weight": 0.6},
-    {"id": "7000000000000000005", "weight": 0.4}
 
 # 从文件读取 weights
 ```

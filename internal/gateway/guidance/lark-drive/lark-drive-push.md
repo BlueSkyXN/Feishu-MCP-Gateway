@@ -36,6 +36,7 @@
 ## 命令
 
 ```text
+# 基础用法 —— 把本地 ./repo 推送到云端 fldcXXX
 # 默认 --if-exists=skip：已经存在的远端文件保持不动，只新增、不覆盖。
 drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx"}
 
@@ -48,6 +49,9 @@ drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists
 # 云端已有多个同名二进制文件时，显式选择一个远端目标再覆盖
 drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists": "overwrite", "on_duplicate_remote": "newest"}
 
+# 文件级镜像同步：上传 / 覆盖 + 删除本地不存在的远端文件
+# （--delete-remote 必须搭配 --yes，否则会被 Validate 直接拒绝；
+#   且 Validate 阶段会动态检查 space:document:delete scope，缺权限会立刻失败，
 #   不会出现"上传成功了但是后面删除阶段挂了"的半同步状态）
 drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists": "overwrite", "delete_remote": true}
 ```
@@ -66,7 +70,7 @@ drive.+push {"local_dir": "./repo", "folder_token": "fldcnxxxxxxxxx", "if_exists
 - **只上传 / 覆盖 / 删除 Drive `type=file`**。在线文档（`docx` / `sheet` / `bitable` / `mindnote` / `slides`）和快捷方式（`shortcut`）即使在同一 rel_path 下出现，也不会被覆盖或删除 —— 它们没有等价的本地二进制。
 - **本地目录结构整体被镜像**：所有子目录（含**空目录**）会按需在 Drive 上 `create_folder`；同名远端目录复用其 token，不重建。空目录不计入 `summary.uploaded`，但会在 `items[]` 里以 `folder_created` 形式留痕。
 - 已存在的远端文件按 `if_exists` 决定 `overwrite` / `smart` / `skip`。其中 `smart` 是**增量优化模式**：只要远端 `modified_time` 在同等时间精度下已经等于或晚于本地 mtime，就跳过上传；时间戳缺失/非法时会退回安全路径继续上传，不会盲跳。**但如果远端更旧，`smart` 会继续走和 `overwrite` 相同的覆盖路径，因此也继承同样的 rollout / version 返回 caveat。** 想做 `keep-both` 这类的仍需自行改名再 push。
-- 云端同名冲突默认失败；只有“冲突全是 `type=file`”且传了 `on_duplicate_remote=newest|oldest` 时才会选择一个远端文件继续。启用 `delete_remote` 时，未被选中的 duplicate sibling 也会被删除，最终远端只保留一个被选中的文件副本；只有在 `if_exists=overwrite` 成功时，才能保证该副本内容与本地对齐。
+- 云端同名冲突默认失败；只有“冲突全是 `type=file`”且传了 `on_duplicate_remote newest|oldest` 时才会选择一个远端文件继续。启用 `delete_remote` 时，未被选中的 duplicate sibling 也会被删除，最终远端只保留一个被选中的文件副本；只有在 `if_exists=overwrite` 成功时，才能保证该副本内容与本地对齐。
 
 ## 覆盖语义
 

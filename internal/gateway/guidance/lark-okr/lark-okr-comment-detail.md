@@ -14,7 +14,7 @@ okr.+comment-detail {"cycle_id": "1234567890123456789"}
 okr.+comment-detail {"cycle_id": "1234567890123456789", "style": "richtext"}
 
 # 预览聚合查询的 API 调用，不实际执行。
-okr.+comment-detail {"cycle_id": "1234567890123456789"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

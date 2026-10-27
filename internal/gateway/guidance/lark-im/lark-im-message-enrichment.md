@@ -31,7 +31,7 @@ When enabled:
 - **Fail-silent isolation**: a single resource that fails to download is flagged `"error": true` with one stderr line (`warning: resource_download_failed: <message_id>/<key>: ...`); the main message and the other resources are unaffected.
 - Output paths are confined to `./lark-im-resources/` by the same guards as `im.+messages-resources-download` (topic `lark-im-messages-resources-download`) (abnormal `file_key` with path separators / `..` / absolute paths is rejected).
 
-Use `download_resources` when you want the binaries on disk in one pass; otherwise the message content keeps the inline resource markers (e.g. `!Image`, `<file .../>`, `<audio key="..." duration="Xs"/>`) and you can fetch individual resources later with `im.+messages-resources-download` (topic `lark-im-messages-resources-download`).
+Use `download_resources` when you want the binaries on disk in one pass; otherwise the message content keeps the inline resource markers (e.g. `![Image](img_xxx)`, `<file .../>`, `<audio key="..." duration="Xs"/>`) and you can fetch individual resources later with `im.+messages-resources-download` (topic `lark-im-messages-resources-download`).
 
 ## Scope requirement
 

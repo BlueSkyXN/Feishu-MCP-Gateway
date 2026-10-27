@@ -305,6 +305,9 @@ mail.user_mailbox.drafts.send  # 网关不提供：仅支持用户身份
 ```bash
 # 1. 查看草稿，确认是否有引用区
 mail.+draft-edit  # 网关不提供：仅支持用户身份
+# 返回包含：
+#   has_quoted_content: true  ← 说明有引用区，应使用 set_reply_body
+#   body_html_summary: "<div>原有回复内容</div>..."
 
 # 2. 使用 set_reply_body 编辑正文（value 只传用户撰写内容，不含引用区）
 cat > ./patch.json << 'EOF'
@@ -322,6 +325,11 @@ mail.+draft-edit  # 网关不提供：仅支持用户身份
 ```bash
 # 1. 查看草稿以获取附件定位信息
 mail.+draft-edit  # 网关不提供：仅支持用户身份
+# 返回包含：
+#   projection.attachments_summary (普通附件):
+#     [{"part_id":"1.3","filename":"report.pdf","content_type":"application/pdf"}]
+#   projection.large_attachments_summary (超大附件):
+#     [{"token":"12101...","filename":"video.mov","size_bytes":314572800}]
 
 # 2. 编写补丁文件。普通附件用 part_id（或 cid），超大附件用 token
 cat > ./patch.json << 'EOF'

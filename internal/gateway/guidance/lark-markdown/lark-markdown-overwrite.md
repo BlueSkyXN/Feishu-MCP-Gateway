@@ -20,10 +20,13 @@ markdown.+overwrite {"file_token": "boxcnxxxx", "name": "NEW-README.md", "conten
 markdown.+overwrite {"file_token": "boxcnxxxx", "content": {"file_id": "<file_id>"}}
 
 # 用 stdin 覆盖
-printf '# Updated\n' |    lark-cli markdown +overwrite      --file-token boxcnxxxx      --content -
+printf '# Updated\n' | \
+  lark-cli markdown +overwrite \
+    --file-token boxcnxxxx \
+    --content -
 
 # 预览底层请求
-markdown.+overwrite {"file_token": "boxcnxxxx", "content": "# Updated"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

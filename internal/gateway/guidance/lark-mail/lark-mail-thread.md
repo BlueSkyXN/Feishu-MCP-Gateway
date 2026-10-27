@@ -25,7 +25,7 @@ mail.+thread {"mailbox": "user@example.com", "thread_id": "<thread-id>"}
 mail.+thread {"thread_id": "<thread-id>"}
 
 # Dry Run
-mail.+thread {"thread_id": "<thread-id>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

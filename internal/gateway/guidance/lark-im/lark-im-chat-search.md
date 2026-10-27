@@ -38,7 +38,7 @@ im.+chat-search {"query": "project", "page_all": true}
 im.+chat-search {"query": "project"}
 
 # Preview the request without executing it
-im.+chat-search {"query": "project"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters
@@ -103,14 +103,14 @@ im.+chat-search {"query": "design review"}
 
 ```bash
 CHAT_ID=$(lark-cli im +chat-search --query "project" --format json | jq -r '.data.chats[0].chat_id')
-im.+chat-messages-list {"chat_id": "$CHAT_ID"}
+im.+chat-messages-list {"chat_id": "<CHAT_ID>"}
 ```
 
 ### Scenario 3: Search a chat and send a message
 
 ```bash
 CHAT_ID=$(lark-cli im +chat-search --query "daily report" --format json | jq -r '.data.chats[0].chat_id')
-im.+messages-send {"chat_id": "$CHAT_ID", "text": "Today's progress update"}
+im.+messages-send {"chat_id": "<CHAT_ID>", "text": "Today's progress update"}
 ```
 
 ## Common Errors and Troubleshooting

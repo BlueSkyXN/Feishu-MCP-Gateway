@@ -45,8 +45,9 @@
 # 🟢 推荐：从剪切板直接插入（无需先存盘）
 docs.+media-insert {"doc": "doxcnXXX", "from_clipboard": true}
 
+# 从本地文件插入
 # 除了上传本地文件，还可以在 `docs +update` 时直接通过网络 URL 插入图片，无需先下载到本地：
-docs.+update {"doc": "<doc_id>", "command": "block_insert_after", "block_id": "目标 block_id", "content": {"file_id": "<file_id>"}}
+docs.+update {"doc": "<doc_id>", "command": "block_insert_after", "block_id": "目标 block_id", "content": "<img href=\"https://example.com/photo.png\"/>"}
 
 # 插入图片（默认）
 docs.+media-insert {"doc": "doxcnXXX", "file": {"file_id": "<file_id>"}}
@@ -54,6 +55,7 @@ docs.+media-insert {"doc": "doxcnXXX", "file": {"file_id": "<file_id>"}}
 # doc 支持直接传 docx URL（自动提取 document_id）
 docs.+media-insert {"doc": "https://xxx.feishu.cn/docx/doxcnXXX", "from_clipboard": true}
 
+# 如果上一步是 create-doc，优先传返回值里的 doc_id
 # 不要把 /wiki/... 形式的 doc_url 直接传给 docs +media-insert
 docs.+media-insert {"doc": "doxcnReturnedByCreateDoc", "file": {"file_id": "<file_id>"}}
 

@@ -53,10 +53,18 @@ create/update 可选 `position`，用 12 列栅格坐标精确指定单个组件
 ```text
 # 第 1 步：创建空白仪表盘
 base.+dashboard-create {"base_token": "xxx", "name": "销售数据分析"}
+# 记录返回的 dashboard_id
 
 # 第 2 步：获取数据源信息
 base.+table-list {"base_token": "xxx"}
 base.+field-list {"base_token": "xxx", "table_id": "<table_id>"}
+
+# 第 3 步：规划应该创建哪些组件（根据用户需求确定组件类型和数量）
+# 例如：总销售额（指标卡）、月度趋势（折线图）、负责人 Top N（排行榜）
+
+# 第 4 步：顺序创建每个组件（必须串行执行，不能并发）
+# 重要：创建组件前，先确定 dashboard_id、组件 name/type 和真实表字段
+# 再阅读 lark-base-dashboard-block-config.md 了解 data_config 结构、组件类型和 filter 规则
 
 # 第 1 个组件
 base.+dashboard-block-create {"base_token": "xxx", "dashboard_id": "blk_xxx", "name": "总销售额", "type": "statistics", "data_config": "{\"table_name\":\"订单表\",\"series\":[{\"field_name\":\"金额\",\"rollup\":\"SUM\"}]}"}
@@ -64,9 +72,14 @@ base.+dashboard-block-create {"base_token": "xxx", "dashboard_id": "blk_xxx", "n
 # 第 2 个组件（等上一个完成后再执行）
 base.+dashboard-block-create {"base_token": "xxx", "dashboard_id": "blk_xxx", "name": "月度趋势", "type": "line", "data_config": "{\"table_name\":\"订单表\",\"series\":[{\"field_name\":\"金额\",\"rollup\":\"SUM\"}],\"group_by\":[{\"field_name\":\"月份\",\"mode\":\"integrated\"}]}"}
 
+# 继续创建其他组件...
+
 # 排行榜组件：省略 limit_size 和 sort 时分别默认 10、value desc
 base.+dashboard-block-create {"base_token": "xxx", "dashboard_id": "blk_xxx", "name": "负责人销售额 Top 10", "type": "ranking", "data_config": "{\"table_name\":\"订单表\",\"series\":[{\"field_name\":\"金额\",\"rollup\":\"SUM\"}],\"group_by\":[{\"field_name\":\"负责人\"}]}"}
 
+# 第 5 步：组件创建完成后，可按需使用 arrange 智能重排（未使用 --position 时可选）
+# 默认布局可能不够美观，arrange 会根据组件数量和类型自动优化布局
+# 若任一组件使用了显式 --position，跳过此步骤；除非用户明确同意放弃精确布局
 # 若用户没有要求美化/重排，也可跳过；这不影响仪表盘和组件是否已创建成功
 base.+dashboard-arrange {"base_token": "xxx", "dashboard_id": "blk_xxx"}
 ```
@@ -76,7 +89,9 @@ base.+dashboard-arrange {"base_token": "xxx", "dashboard_id": "blk_xxx"}
 ```text
 # 第 1 步：列出仪表盘，定位到当前仪表盘
 base.+dashboard-list {"base_token": "xxx"}
+# 获取目标 dashboard_id
 
+# 第 2 步：根据用户诉求规划组件类型和数据源
 # 建议先查看当前仪表盘已有组件，避免重复创建，或作为参考
 base.+dashboard-get {"base_token": "xxx", "dashboard_id": "blk_xxx"}
 
@@ -84,6 +99,8 @@ base.+dashboard-get {"base_token": "xxx", "dashboard_id": "blk_xxx"}
 base.+table-list {"base_token": "xxx"}
 base.+field-list {"base_token": "xxx", "table_id": "<table_id>"}
 
+# 第 4 步：顺序创建每个新组件（必须串行执行，不能并发）
+# 重要：先确定 dashboard_id、组件 name/type 和真实表字段
 # 再阅读 lark-base-dashboard-block-config.md 了解 data_config 结构
 base.+dashboard-block-create {"base_token": "xxx", "dashboard_id": "blk_xxx", "name": "新组件名", "type": "column", "data_config": "{...}"}
 ```
@@ -100,16 +117,21 @@ base.+dashboard-list {"base_token": "xxx"}
 
 # 第 2 步：列出组件，获取到目标组件
 base.+dashboard-block-list {"base_token": "xxx", "dashboard_id": "blk_xxx"}
+# 获取目标 block_id
+# 提示：查看已有组件可作为参考，或检查是否重复创建相似组件
 
 # 第 3 步：获取组件当前详情
 base.+dashboard-block-get {"base_token": "xxx", "dashboard_id": "blk_xxx", "block_id": "chtxxxxxxxx"}
 
+# 第 4 步：根据用户编辑诉求准备更新
 # 如果编辑诉求涉及数据源变更，需要先获取数据源信息
 base.+table-list {"base_token": "xxx"}
 base.+field-list {"base_token": "xxx", "table_id": "<table_id>"}
 
+# 第 5 步：执行更新
+# 重要：先读取当前 block 的 name/type/data_config
 # 再阅读 lark-base-dashboard-block-config.md 了解 data_config 更新规则
-base.+dashboard-block-update {"base_token": "xxx", "dashboard_id": "blk_xxx", "block_id": "chtxxxxxxxx", "data_config": "{...}", "position": "{...}"}
+base.+dashboard-block-update {"base_token": "xxx", "dashboard_id": "blk_xxx", "block_id": "chtxxxxxxxx", "data_config": "{...}", "position": "{...}"}  # 可选，只在需要调整布局时传
 
 # 排行榜只修改 Top N；不会覆盖分组、指标、筛选或排序
 base.+dashboard-block-update {"base_token": "xxx", "dashboard_id": "blk_xxx", "block_id": "chtxxxxxxxx", "data_config": "{\"limit_size\":20}"}
@@ -152,6 +174,8 @@ base.+dashboard-arrange {"base_token": "xxx", "dashboard_id": "blk_xxx"}
 ```text
 # 第 1 步：列出仪表盘，定位到当前仪表盘
 base.+dashboard-list {"base_token": "xxx"}
+
+# 第 2 步：根据用户诉求查看详情
 
 # 方式 A：查看仪表盘整体情况（包含所有组件列表）
 base.+dashboard-get {"base_token": "xxx", "dashboard_id": "blk_xxx"}

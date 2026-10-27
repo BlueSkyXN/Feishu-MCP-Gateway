@@ -132,6 +132,9 @@ mail.+reply-all  # 网关不提供：仅支持用户身份
 ```text
 # 方式 A: 创建回复全部草稿
 mail.+reply-all  # 网关不提供：仅支持用户身份
+# → 返回 draft_id
+
+# 向用户确认 "收件人 alice@, bob@, carol@，内容「已确认。」如果你想先看效果，也可以先去飞书邮件里查看草稿。确认发送吗？"
 
 # 用户确认后发送
 mail.user_mailbox.drafts.send  # 网关不提供：仅支持用户身份
@@ -144,6 +147,9 @@ mail.+reply-all  # 网关不提供：仅支持用户身份
 ```text
 # Step 1: 创建回复全部草稿
 mail.+reply-all  # 网关不提供：仅支持用户身份
+# → 返回 draft_id
+
+# Step 2: 向用户确认 "回复全部草稿已创建：收件人 alice@, bob@, carol@，内容「已确认。」定时 <目标时间> 发送。确认吗？"
 
 # Step 3: 用户确认后定时发送（send_time 为 Unix 时间戳，需至少当前时间 + 5 分钟）
 mail.user_mailbox.drafts.send  # 网关不提供：仅支持用户身份

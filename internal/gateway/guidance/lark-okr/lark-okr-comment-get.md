@@ -14,7 +14,7 @@ okr.+comment-get {"comment_id": "7000000000000000001"}
 okr.+comment-get {"comment_id": "7000000000000000001", "style": "richtext"}
 
 # 预览获取评论的 API 调用，不实际执行。
-okr.+comment-get {"comment_id": "7000000000000000001"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

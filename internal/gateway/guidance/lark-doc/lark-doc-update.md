@@ -16,10 +16,10 @@ docs.+fetch {"doc": "文档URL或token", "scope": "keyword", "keyword": "key1|ke
 docs.+update {"doc": "xx", "command": "str_replace", "pattern": "旧内容", "content": "新内容"}
 
 # 替换单个 block，或同父连续范围内的 block
-docs.+update {"doc": "xx", "command": "block_replace", "block_id": "blkTarget", "content": {"file_id": "<file_id>"}}
-docs.+update {"doc": "xx", "command": "block_replace", "start_block_id": "blkFirst", "end_block_id": "blkLast", "content": {"file_id": "<file_id>"}}
+docs.+update {"doc": "xx", "command": "block_replace", "block_id": "blkTarget", "content": "<p>新段落</p>"}
+docs.+update {"doc": "xx", "command": "block_replace", "start_block_id": "blkFirst", "end_block_id": "blkLast", "content": "<p></p>"}
 
-docs.+update {"doc": "xx", "command": "block_insert_after", "block_id": "blkAnchor", "content": {"file_id": "<file_id>"}}
+docs.+update {"doc": "xx", "command": "block_insert_after", "block_id": "blkAnchor", "content": "<h2>新章节</h2><p>章节内容</p>"}
 
 # 删除单个 block 或范围内的 block
 docs.+update {"doc": "xx", "command": "block_delete", "block_id": "blkA"}

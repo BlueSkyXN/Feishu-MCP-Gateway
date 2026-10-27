@@ -75,7 +75,11 @@
 | 饼图 | `720 × 440` |
 
 ```bash
-python3 scripts/lark_chart_size_advisor.py "<表格 URL 或 spreadsheet token>"    --worksheet-id "<reference_id>"    --chart-type column --data-range "'Sheet1'!A1:C10"    --dim1-index 1 --dim2-indexes 2,3    --data-labels value --legend-position bottom --title "销售额对比"
+python3 scripts/lark_chart_size_advisor.py "<表格 URL 或 spreadsheet token>" \
+  --worksheet-id "<reference_id>" \
+  --chart-type column --data-range "'Sheet1'!A1:C10" \
+  --dim1-index 1 --dim2-indexes 2,3 \
+  --data-labels value --legend-position bottom --title "销售额对比"
 ```
 
 运行建议器时，参数必须与后续创建保持一致：创建命令显式设置 `aggregate_categories` 时传入同一值，组合图同步传入 `series_types`；创建命令不传 `data_labels` 时，建议器也按 `none` 估算，需要标签时两边都显式传入同一值。将返回的 `data.create_flags.width` / `height` 原样用于创建命令（包括 dry-run（网关不提供，改为先读取核对）），不要凭经验改小；`data.minimum_size` 仅表示兜底下限。若 `data.size_alone_is_insufficient=true`，先按 `data.layout_advice` 调整图表结构或标签策略，再用新配置重新计算尺寸。建议器只负责创建前预估，图表创建后仍须运行质量检查器。
@@ -104,7 +108,7 @@ python3 scripts/lark_chart_size_advisor.py "<表格 URL 或 spreadsheet token>" 
 **多图表需求**：当用户同时提到多种分析（如"统计占比 + 对比数量"），必须创建多个图表，每个对应一种类型，不要只做一个。
 
 **常见配置错误（必须注意）**：
-- **图表类型选择错误**：用户说"堆积柱形图 / 百分比堆积"时，用 `sheets.+chart-create-basic`（stack="normal|percent"） 或 `sheets.+chart-config-update`（stack="normal|percent"）；用户说"占比 / 比例"时，优先考虑饼图或百分比堆积图。注意 `column` 是纵向柱形图、`bar` 是横向条形图，"对比 / 各 XX" 类纵向柱默认用 `column`；面积图原生支持 `snapshot.plotArea.plot.type="area"`，别因速查表没列就判"不支持"。
+- **图表类型选择错误**：用户说"堆积柱形图 / 百分比堆积"时，用 `+chart-create-basic stack normal|percent` 或 `+chart-config-update stack normal|percent`；用户说"占比 / 比例"时，优先考虑饼图或百分比堆积图。注意 `column` 是纵向柱形图、`bar` 是横向条形图，"对比 / 各 XX" 类纵向柱默认用 `column`；面积图原生支持 `snapshot.plotArea.plot.type="area"`，别因速查表没列就判"不支持"。
 - **数据标签开关**：普通基础图先按拟开启 `data_labels=value` 运行尺寸建议器，再用建议宽高创建；不要仅凭数据点或系列数预先传 `none`。若使用建议尺寸后仍过密，依次改为关键点 / 末值 / 异常值的稀疏标签、Top-N 或拆图；用户明确要求隐藏全部标签时才传 `none`。已有图用 `sheets.+chart-config-update`，不要为常用标签配置构造原始 `labels` 对象。高级配置中 `plotArea.plot.labels` 对象的存在性即开关：创建时关闭标签应省略该字段，更新时删除已有全局标签传 `labels: null`，不能用全部字段置为 `false` 代替。多个系列的数据标签展示要求不同时，禁止传全局 `data_labels`，应在创建后读取完整 `plotArea.plot.series`，仅给需要标签的系列设置 `labels`，再用 `sheets.+chart-update` 整段回写该数组。
 - **辅助线与单点标签**：用户要求基准线、目标线、阈值线、平均线或上下限时，先在源数据旁新增一列重复目标值作为辅助线；如果只需要在线尾或某个关键位置显示一个标签，再新增一列稀疏标点数据，仅在目标行写入同一数值，其余单元格保持真正空白。数据准备完成后创建组合图：辅助值列用 `line`，稀疏标点列用 `scatter`，省略全局 `data_labels`，并传 `aggregate_categories=false` 关闭“汇总相同类别”；已有图用 `sheets.+chart-config-update`（aggregate_categories=false）。随后读取完整系列数组，只给稀疏标点系列设置数值标签，辅助线系列必须省略 `labels`；原数据系列是否设置标签按用户要求决定。不得用重复值辅助线的全系列标签模拟单点标签，也不得用 0 代替空白标点，否则聚合会把空标点物化为每个类别的数据点，导致标签重复出现。
 - **常量系列标签**：目标线、阈值线和上下限等重复常量系列默认不显示逐点标签；名称和值放在系列名、图例、标题或单个稀疏标记中。创建后若质量检查器提示“常量系列重复标签”，移除该系列标签或改成只有一个非空点的稀疏标记。
@@ -340,7 +344,7 @@ sheets.+chart-create-basic {"url": "...", "sheet_name": "Sheet1", "chart_type": 
 sheets.+chart-create-basic {"url": "...", "sheet_name": "Sheet1", "chart_type": "combo", "data_range": "'Sheet1'!A1:D7", "dim1_index": 1, "dim2_indexes": "2,3,4", "series_types": "line,line,scatter", "series_y_axes": "left,left,left", "aggregate_categories": false, "title": "趋势与目标线", "anchor_cell": "F2", "width": 720, "height": 420}
 
 # 先从创建结果或 +chart-list 取得完整 series 数组，再整段回写；辅助线系列不设置 labels
-sheets.+chart-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "properties": {"snapshot": {"plotArea": {"plot": {"series": [{"index": 2, "comboType": "line", "labels": {"value": true}}, {"index": 3, "comboType": "line"}, {"index": 4, "comboType": "scatter", "labels": {"value": true}}]}}}}}
+sheets.+chart-update {"url": "...", "sheet_id": "<SID>", "chart_id": "chrXXX", "properties": {"snapshot": {"plotArea": {"plot": {"series": [{"index": 2, "comboType": "line", "labels": {"value": true}}, {"index": 3, "comboType": "line"}, {"index": 4, "comboType": "scatter", "labels": {"value": true}}]}}}}}
 
 # 气泡图：x、y 必填，group、size 可选
 sheets.+chart-create-basic {"url": "...", "sheet_name": "Sheet1", "chart_type": "bubble", "data_range": "'Sheet1'!A1:E20", "key_index": 1, "x_index": 2, "y_index": 3, "group_index": 4, "size_index": 5, "title": "客户分布"}
@@ -402,7 +406,7 @@ sheets.+batch-chart-update {"url": "...", "operations": {"file_id": "<file_id>"}
 
 ```text
 # 把遗漏的最后一列纳入原折线图，保留标题、配色、图例和落点
-sheets.+chart-data-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "data_range": "'Sheet1'!A1:M6"}
+sheets.+chart-data-update {"url": "...", "sheet_id": "<SID>", "chart_id": "chrXXX", "data_range": "'Sheet1'!A1:M6"}
 ```
 
 ### `sheets.+chart-config-update`
@@ -410,9 +414,9 @@ sheets.+chart-data-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX
 只传需要改的字段，成功后返回更新后的 `viewModel`。`data_labels` 支持 `value`、`category`、`percentage` 的任意非空组合，组合值按 `value_category_percentage` 顺序拼接；另可用 `series` 显示系列名称、用 `none` 删除数据标签。多个系列需要不同标签策略时不要使用这个全局参数，按上文的辅助列与高级系列配置流程处理。`legend_position=hidden` 隐藏图例；显式关闭平滑曲线时使用 `smooth=false`。为减少参数重试，`stacked` 自动按 `stack=normal` 处理，`percentage,value` 或 `value,percentage` 自动按 `value_percentage` 处理，`--x-axis` / `--y-axis` 自动按 `x_axis_title` / `y_axis_title` 处理；新调用仍优先使用规范参数。
 
 ```text
-sheets.+chart-config-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "title": "新标题", "x_axis_label_angle": -45, "legend_position": "right"}
+sheets.+chart-config-update {"url": "...", "sheet_id": "<SID>", "chart_id": "chrXXX", "title": "新标题", "x_axis_label_angle": -45, "legend_position": "right"}
 
-sheets.+chart-config-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "data_labels": "value_percentage", "stack": "percent", "aggregate_categories": false}
+sheets.+chart-config-update {"url": "...", "sheet_id": "<SID>", "chart_id": "chrXXX", "data_labels": "value_percentage", "stack": "percent", "aggregate_categories": false}
 
 ```
 
@@ -434,7 +438,7 @@ sheets.+chart-config-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrX
 
 ```text
 # 只调整尺寸；无需携带 snapshot
-sheets.+chart-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "properties": {"size": {"width": 640, "height": 400}}}
+sheets.+chart-update {"url": "...", "sheet_id": "<SID>", "chart_id": "chrXXX", "properties": {"size": {"width": 640, "height": 400}}}
 ```
 
 #### 高级 `properties` 边界
@@ -446,7 +450,7 @@ sheets.+chart-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "p
 - dry-run（网关不提供，改为先读取核对） 输出中的 `tool_name` / `operation` / `basic_chart` / `properties` 是 CLI 翻译后的内部请求，只用于检查，不能复制回 operations 或再次当作 MCP body 提交。
 - `data_range` 本身支持逗号分隔的多个范围和跨子表范围。仅因数据不连续或跨子表，不构成手写 raw data 映射的理由。
 - raw data 使用 inline 表头时，`refs` 包含真正表头且不写 `nameRef`；只有 `refs` 只覆盖纯数据、真正表头位于范围外时才用 detached：显式设置 `headerMode='detached'`，并让 `dim1.serie.nameRef` 与每个 `dim2.series[].nameRef` 指向对应表头单元格。
-- raw 堆叠字段位于 `snapshot.plotArea.plot.extra.stack`；普通任务仍使用 `stack=normal|percent`。`plotArea.plot.labels` 对象的存在性就是开关，关闭标签时省略整个对象；普通任务使用 `data_labels=none`。
+- raw 堆叠字段位于 `snapshot.plotArea.plot.extra.stack`；普通任务仍使用 `stack normal|percent`。`plotArea.plot.labels` 对象的存在性就是开关，关闭标签时省略整个对象；普通任务使用 `data_labels=none`。
 - `axes[].label` 不接受 `format` / `number_format`。日期、百分比和数值格式应修改源单元格的 `cell_styles.number_format`。
 
 ### `sheets.+chart-delete`
@@ -455,10 +459,10 @@ sheets.+chart-update {"url": "...", "sheet_id": "$SID", "chart_id": "chrXXX", "p
 
 ```text
 # dry-run 先看会删什么（sheet 定位必填）
-sheets.+chart-delete {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_id": "$SID", "chart_id": "chrXXX"}
+# 网关不提供 dry-run 预览，此示例省略
 
 # 真正执行
-sheets.+chart-delete {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_id": "$SID", "chart_id": "chrXXX"}
+sheets.+chart-delete {"url": "https://example.feishu.cn/sheets/shtXXX", "sheet_id": "<SID>", "chart_id": "chrXXX"}
 ```
 
 ### Validate / DryRun / Execute 约束

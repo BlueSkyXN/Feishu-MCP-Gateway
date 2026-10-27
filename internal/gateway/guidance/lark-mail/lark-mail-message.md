@@ -29,7 +29,7 @@ mail.+message {"mailbox": "user@example.com", "message_id": "<message-id>"}
 mail.+message {"message_id": "<message-id>"}
 
 # Dry Run
-mail.+message {"message_id": "<message-id>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数
@@ -172,6 +172,8 @@ mail.+message {"message_id": "<id>"}  # 原命令后接管道处理；网关直�
 ```text
 # 1. 读取邮件（仅纯文本，更小负载）
 mail.+message {"message_id": "<id>", "html": false}
+
+# 2. 让 LLM 分析 body_plain_text 并起草回复
 
 # 3. 发送回复
 mail.+reply  # 网关不提供：仅支持用户身份

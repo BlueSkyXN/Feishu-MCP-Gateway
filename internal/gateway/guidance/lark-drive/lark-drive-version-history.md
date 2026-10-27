@@ -9,7 +9,7 @@ drive.+version-history {"file_token": "boxcnxxxxxxxx"}
 
 drive.+version-history {"file_token": "boxcnxxxxxxxx", "limit": 50, "cursor": "1777013761763"}
 
-drive.+version-history {"file_token": "boxcnxxxxxxxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

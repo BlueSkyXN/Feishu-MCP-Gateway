@@ -62,6 +62,7 @@ npx -y @larksuite/whiteboard-cli@^0.2.13 -i <dir>/edited.svg -f svg --check
 `overwrite` 会清空原画板内容，确认后再执行
 
 ```bash
+# dry-run 探测
 
 # 用户确认后执行
 ```

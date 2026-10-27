@@ -19,6 +19,11 @@ A message can have flags on both layers simultaneously:
 ## Commands
 
 ```bash
+# Double-cancel both layers (recommended default)
+
+# Only cancel message layer
+
+# Only cancel feed layer (need to specify item-type)
 
 # Preview request
 ```

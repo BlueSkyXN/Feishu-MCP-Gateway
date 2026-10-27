@@ -78,6 +78,12 @@ mail.+decline-receipt  # 网关不提供：仅支持用户身份
 ```text
 # 1. 拉信
 mail.+message {"message_id": "msg-1"}  # 原命令后接管道处理；网关直接返回 JSON
+# → ["UNREAD", "READ_RECEIPT_REQUEST"]
+
+# 2. 向用户提示：
+#    "这封来自 alice@example.com 的邮件请求已读回执。主题：《周报》。
+#     要不要回一封告诉对方你已阅读？
+#     也可以选择：不发送回执，但关闭这条提示。"
 
 # 3. 用户选了"不发送" → 
 mail.+decline-receipt  # 网关不提供：仅支持用户身份
@@ -88,6 +94,7 @@ mail.+decline-receipt  # 网关不提供：仅支持用户身份
 ```text
 # 第一次移除标签
 mail.+decline-receipt  # 网关不提供：仅支持用户身份
+# → {"declined": true}
 
 # 再跑一次 —— 不会报错，也不会再发 modify 请求
 mail.+decline-receipt  # 网关不提供：仅支持用户身份

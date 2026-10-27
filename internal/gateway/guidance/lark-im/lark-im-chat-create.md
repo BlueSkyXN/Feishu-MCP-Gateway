@@ -40,7 +40,7 @@ im.+chat-create {"name": "My Group"}
 im.+chat-create {"name": "My Group", "users": "ou_aaa"}
 
 # Preview the request without creating anything
-im.+chat-create {"name": "My Group"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters
@@ -107,7 +107,7 @@ im.+chat-create {"name": "Project Discussion Group", "owner": "ou_xxx", "users":
 
 ```bash
 CHAT_ID=$(lark-cli im +chat-create --name "New Group" --format json | jq -r '.data.chat_id')
-im.+messages-send {"chat_id": "$CHAT_ID", "text": "Welcome, everyone!"}
+im.+messages-send {"chat_id": "<CHAT_ID>", "text": "Welcome, everyone!"}
 ```
 
 ## Common Errors and Troubleshooting

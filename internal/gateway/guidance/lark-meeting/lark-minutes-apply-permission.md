@@ -7,12 +7,13 @@
 ## 命令
 
 ```text
+# 以 user 身份申请查看权限
 
 # 以 bot 身份申请编辑权限
 minutes.+apply-permission {"minute_token": "obcnxxxxxxxxxxxxxxxxxxxx", "perm": "edit"}
 
 # 预览 API 调用
-minutes.+apply-permission {"minute_token": "obcnxxxxxxxxxxxxxxxxxxxx", "perm": "view"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

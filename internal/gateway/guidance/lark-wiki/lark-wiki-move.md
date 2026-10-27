@@ -43,7 +43,7 @@ wiki.+move {"obj_type": "docx", "obj_token": "<DOC_TOKEN>", "target_space_id": "
 wiki.+move {"obj_type": "sheet", "obj_token": "<SHEET_TOKEN>", "target_space_id": "<TARGET_SPACE_ID>", "target_parent_token": "<TARGET_PARENT_TOKEN>", "apply": true}
 
 # 预览底层调用链
-wiki.+move {"obj_type": "docx", "obj_token": "<DOC_TOKEN>", "target_space_id": "<TARGET_SPACE_ID>"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

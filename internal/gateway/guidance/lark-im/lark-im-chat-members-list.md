@@ -27,7 +27,7 @@ im.+chat-members-list {"chat_id": "oc_xxx", "page_token": "xxx", "page_all": tru
 
 # JSON output / preview the request
 im.+chat-members-list {"chat_id": "oc_xxx"}
-im.+chat-members-list {"chat_id": "oc_xxx"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## Parameters

@@ -1,6 +1,6 @@
 > 由 Feishu-MCP-Gateway 从 lark-cli `7f70de0666a2` 的 `lark-im` Skill 自动转换。
 > - `docs.+fetch` 这类标识是 operation_id：具名视图调用对应工具（如 `feishu_docs_fetch`），紧凑视图用 `feishu_execute_read` / `feishu_execute_write` 传 operation_id 和 arguments。
-> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例。
+> - CLI 参数 `--foo-bar` 对应 JSON 参数 `foo_bar`；代码块里的 `operation_id {…}` 行是参数示例，`<…>` 是要替换的占位值。代码块中仍以 `lark-cli` 开头的命令无法等价转换，只作参考。
 > - 文中的“主题 `x`”用 `feishu_guide`（topic="x"）读取。
 > - 网关固定以应用（bot）身份执行，没有 dry-run；高风险操作需要管理员预授权。
 > - 本地文件改用 `{"file_id": "…"}`（先 `feishu_file_create` 或文件传输），输出路径填受控工作区内的相对名称；文中的本地脚本、jq、stdin 在网关中不可用。
@@ -62,7 +62,7 @@ Some message-listing shortcuts support `concise` for compact Markdown output. Us
 
 `im.+chat-messages-list`, `im.+messages-mget`, and `im.+threads-messages-list` accept `download_resources` to save eligible attachments into `./lark-im-resources/` and add a `resources` array to each message. It is off by default; stickers are not downloadable. A failed attachment is reported on that resource without aborting the message pull. Use `im.+messages-resources-download` (topic `lark-im-messages-resources-download`) for one attachment. See topic `lark-im-message-enrichment` for the output contract.
 
-**Folder resources** are containers, not files — a folder `file_key` cannot be downloaded directly. Expand it first with `im.files.folder` (file_key="<folder_key>", srctype="message", srcid="<message_id>"), then download the files inside with `im.+messages-resources-download` (topic `lark-im-messages-resources-download`).
+**Folder resources** are containers, not files — a folder `file_key` cannot be downloaded directly. Expand it first with `im.files.folder` (params={"recursive": true, "file_key": "<folder_key>", "srctype": "message", "srcid": "<message_id>"}), then download the files inside with `im.+messages-resources-download` (topic `lark-im-messages-resources-download`).
 
 ### Card Messages (Interactive)
 
@@ -116,7 +116,7 @@ Shortcut 是对常用操作的高级封装（`im.+<verb> {参数}`）。有 Shor
 | `im.+messages-mget` (topic `lark-im-messages-mget`) | Batch get messages by IDs; user/bot; fetches up to 50 om_ message IDs, formats sender names, expands thread replies |
 | `im.+messages-read-status` (not available in the gateway: user identity only) (topic `lark-im-message-read-status`) | Batch query whether the current user read 1–50 messages; user-only; returns readable items and invalid message IDs |
 | `im.+messages-reply` (topic `lark-im-messages-reply`) | Reply to a message (supports thread replies); user/bot; supports text/markdown/post/media replies, reply-in-thread, idempotency key |
-| `im.+messages-resources-download` (topic `lark-im-messages-resources-download`) | Download an image/file from a message; folders are not directly downloadable — expand with `im.files.folder` first, then download the files inside; user/bot |
+| `im.+messages-resources-download` (topic `lark-im-messages-resources-download`) | Download an image/file from a message; folders are not directly downloadable — expand with `im.files.folder` (params={"recursive": true}) first, then download the files inside; user/bot |
 | `im.+messages-send` (topic `lark-im-messages-send`) | Send a message to a chat or direct message; user/bot; sends to chat-id or user-id with text/markdown/post/media, supports idempotency key |
 | `im.+threads-messages-list` (topic `lark-im-threads-messages-list`) | List messages in a thread; user/bot; accepts om_/omt_ input, resolves message IDs to thread_id, supports `order` asc/desc sorting, auto-pagination |
 | `im.+flag-create` (not available in the gateway: user identity only) (topic `lark-im-flag-create`) | Create a bookmark on a message; user-only; defaults to message-layer flag; use --flag-type feed for feed-layer flag (item_type auto-detected from chat mode) |

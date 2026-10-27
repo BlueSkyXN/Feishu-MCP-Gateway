@@ -7,7 +7,7 @@
 ```text
 vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "SELECTED", "open_ids": ["ou_xxx", "ou_yyy"]}
 vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "ALL_SUGGESTED"}
-vc.+meeting-invite {"meeting_id": "7628568141510692381", "type": "ALL_SUGGESTED"}
+# 网关不提供 dry-run 预览，此示例省略
 ```
 
 ## 参数

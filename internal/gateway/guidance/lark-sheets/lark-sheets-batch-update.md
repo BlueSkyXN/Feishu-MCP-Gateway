@@ -165,6 +165,10 @@ _列表选项_
 ```text
 sheets.+batch-update {"url": "https://example.feishu.cn/sheets/shtXXX", "operations": {"file_id": "<file_id>"}}
 
+# ops.json （array<{shortcut, input}>，shortcut 用 CLI 名）:
+# [
+#   {"shortcut": "+dim-insert", "input": {"sheet_id":"...","position":10,"count":3}},
+#   {"shortcut": "+cells-set",  "input": {"sheet_id":"...","range":"A11:B12","cells":[[{"value":"a"},{"value":"b"}],[{"value":"c"},{"value":"d"}]]}}
 # ]
 ```
 
@@ -178,9 +182,9 @@ sheets.+batch-update {"url": "https://example.feishu.cn/sheets/shtXXX", "operati
 > ```jsonc
 > // 在 C 列前插入新列 → 写表头 C1 → 回填 C2:C100 共 99 行
 > [
->   {"shortcut": "`sheets.+dim-insert`",
+>   {"shortcut": "+dim-insert",
 >    "input": {"sheet_name": "Sheet1", "position": "C", "count": 1}},
->   {"shortcut": "`sheets.+cells-set`",
+>   {"shortcut": "+cells-set",
 >    "input": {"sheet_name": "Sheet1", "range": "C1:C100",
 >              "cells": [[{"value":"score"}], [{"value":95}], [{"value":87}], /* ... 97 more rows ... */ ]}}
 > ]
@@ -195,8 +199,8 @@ sheets.+batch-update {"url": "https://example.feishu.cn/sheets/shtXXX", "operati
 > ]
 > ```
 >
-> ```bash
-> `sheets.+batch-chart-create` (url="...", operations={"file_id": "<file_id>"})
+> ```text
+> sheets.+batch-chart-create {"url": "...", "operations": {"file_id": "<file_id>"}}
 > ```
 
 ### `sheets.+cells-batch-clear`
@@ -205,7 +209,7 @@ sheets.+batch-update {"url": "https://example.feishu.cn/sheets/shtXXX", "operati
 
 ```text
 # dry-run 先看清除范围
-sheets.+cells-batch-clear {"url": "...", "ranges": "[\"sheet1!A2:Z1000\",\"sheet2!A2:Z1000\"]", "scope": "all"}
+# 网关不提供 dry-run 预览，此示例省略
 # 执行
 sheets.+cells-batch-clear {"url": "...", "ranges": "[\"sheet1!A2:Z1000\",\"sheet2!A2:Z1000\"]", "scope": "all"}
 ```

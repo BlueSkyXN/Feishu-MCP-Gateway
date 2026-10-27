@@ -51,6 +51,7 @@
 ## 命令示例
 
 ```text
+# 1. 先查列表（裸调 HTTP）
 
 # 2. 再替换（from-speaker-id 来自上一步的 speaker_id）
 minutes.+speaker-replace  # 网关不提供：仅支持用户身份

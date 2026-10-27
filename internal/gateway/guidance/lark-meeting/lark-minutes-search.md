@@ -50,6 +50,7 @@ minutes.+search {"owner_ids": "me"}
 # 广义查询我参与的妙记（自然语言默认：我拥有 ∪ 我参与）
 minutes.+search {"owner_ids": "me", "start": "2026-03-10", "end": "2026-03-10"}
 minutes.+search {"participant_ids": "me", "start": "2026-03-10", "end": "2026-03-10"}
+# 然后按 token 去重合并两次结果
 
 # 多条件组合查询
 minutes.+search {"owner_ids": "ou_owner", "participant_ids": "ou_x", "start": "2026-03-10T00:00+08:00"}
