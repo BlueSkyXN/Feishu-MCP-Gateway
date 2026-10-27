@@ -1,6 +1,6 @@
 # 0.3.0-dev 开发验收
 
-验证日期：2026-10-27。开发环境为 macOS arm64、Go 1.27.2；模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
+验证日期：2026-10-27。本机为 macOS arm64、Go 1.27.2；GitHub Actions 为 ubuntu linux/amd64、Go 1.27.3，另用 Go 1.26.9 核对模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
 
 ## 操作覆盖与验证强度
 
@@ -14,7 +14,7 @@
 
 0.3.0-dev 重新导入后，目录的风险、执行映射和资源绑定与 0.2.0-dev 逐项一致。变化包括 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文），以及 13 个 sheets 操作的 18 个参数 schema：6 个枚举参数（`include` 2 个、坐标轴标签角度 4 个）原来拒绝任何取值，7 个 `properties` 与 5 个 `sheets`/`styles` 原来拒绝 lark-cli 接受的写法。受控后端的 dry-run 确认 lark-cli 接受部分 `properties`、外层对象或数组形式的 `sheets`/`styles`、逗号拼接的 `include` 与 -45 度角。`catalog_revision` 因此改变。
 
-以上是目录与适配合同检查，不能当作 598 项真实飞书逐项实测。端到端测试使用实际构建的 wrapper，运行以下 11 项：
+以上检查目录与适配合同，598 项操作没有逐项做真实飞书实测（见外部验收边界）。端到端测试使用实际构建的 wrapper，运行以下 11 项：
 
 | 能力 | 实际 wrapper 调用 |
 |---|---|
@@ -55,16 +55,21 @@
 
 ## 执行结果
 
-测试原始结果保存在忽略的 `local/evidence/`：`test-0.3-review2.jsonl`、`race-0.3-review2.jsonl`、`test-0.3-review2-amd64.jsonl`、`backend-validation-review2.json`、`process-smoke-review2.json` 和 `refresh-review2-*.log`。
+| 检查 | macOS arm64（本机） | darwin/amd64（Rosetta 2） | linux/amd64（GitHub Actions） |
+|---|---|---|---|
+| `go vet`、`go test`、`go test -race`：42 个顶层测试，含实际 wrapper 的集成测试 | 通过，无跳过，无数据竞争 | `go test` 通过 | 通过 |
+| Go 1.26 运行 `go vet`、`go test`（未构建 wrapper，相应集成测试跳过） | — | — | 通过 |
+| wrapper 的 race 测试、vet 与构建 | 通过 | — | 通过 |
+| `scripts/refresh_catalog.py` 重新生成的目录、覆盖台账与指南与提交一致 | 通过，连续两次逐字节一致 | — | 通过 |
+| `scripts/verify_backend.py`：598 项定义、3 个 dry-run，无真实请求 | 通过 | — | 通过 |
+| `scripts/smoke_gateway.py`：独立 Gateway 进程 | 通过 | — | 通过 |
+| `build_release.py` 与 `verify_release.py`：4 个二进制的包内、PROVENANCE 记录与离线重建结果一致 | — | — | 通过 |
+| 交叉构建 | linux/amd64 静态 ELF 通过 | — | darwin/arm64 通过 |
 
-- Go 常规测试与 race 回归：42 个顶层测试、48 个测试通过事件，无测试跳过，无数据竞争；vet 通过。
-- darwin/amd64（Rosetta 2）运行同一测试集：42 个顶层测试通过。超大 `offset` 的回归测试在修复前的代码上只在 amd64 失败，arm64 上通过。
-- wrapper 的 race 测试、vet 与构建：通过。
-- `scripts/refresh_catalog.py` 从固定源码重新构建后端并导入，连续两次生成的目录、覆盖台账与指南逐字节一致。
-- `scripts/verify_backend.py`：598 项定义核对无差异，3 个 dry-run 通过，无真实请求。
-- 独立 Gateway 进程：配置检查、健康检查、旧版 MCP 初始化与 instructions、工具发现、应用身份上下文与可见领域、领域指南分页、文件创建、Resources 读取、认证下载、无认证拒绝及正常退出通过。
-- macOS arm64：Gateway 与 wrapper 已构建并用于上述检查；Gateway 二进制约 27 MB，比 0.2.0-dev 增加约 3.3 MB，主要是内嵌指南。
-- Linux amd64：Gateway 已交叉构建为静态 ELF；未在 Linux 本机运行。
+- 独立进程检查覆盖配置检查、健康检查、旧版 MCP 初始化与 instructions、工具发现、应用身份上下文与可见领域、领域指南分页、文件创建、Resources 读取、认证下载、无认证拒绝及正常退出。
+- 超大 `offset` 的回归测试在修复前的代码上只在 amd64 失败，arm64 上通过。
+- macOS arm64 的 Gateway 二进制约 27 MB，比 0.2.0-dev 增加约 3.3 MB，主要是内嵌指南。
+- 本机原始结果保存在忽略的 `local/evidence/`：`test-0.3-review2.jsonl`、`race-0.3-review2.jsonl`、`test-0.3-review2-amd64.jsonl`、`backend-validation-review2.json`、`process-smoke-review2.json` 和 `refresh-review2-*.log`；GitHub Actions 的结果见 PR #1 的检查记录。
 
 ## 外部验收边界
 
@@ -74,6 +79,6 @@
 2. 目标 Wake 版本实际发送的 Sender、Resources/Job 请求是否保留身份、文件适配器运行目录和聊天产物展示；Wake 是否把 MCP `instructions` 交给模型，以及上传带 `references/` 的 Skill 后的读取方式。
 3. 真实模型在具名与紧凑视图下的任务完成情况：选对操作的比例、参数一次填对的比例、调用轮次与耗时。
 4. 指南内容与真实飞书行为的一致性；指南来自上游文档，逐项实测不在本轮范围。
-5. 真实飞书事件回调与客户端事件订阅配置；官方完整 MCP conformance harness、其他客户端与 Linux 原生运行。
+5. 真实飞书事件回调与客户端事件订阅配置；官方完整 MCP conformance harness 与其他客户端。
 
 MCP 接入采用预配 Bearer key，未声明 OAuth 授权发现兼容；没有启用标准 Tasks 扩展、旧式 SSE endpoint 或用户身份授权。
