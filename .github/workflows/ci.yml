@@ -58,6 +58,9 @@ jobs:
       - name: Process smoke
         run: python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway --output "$RUNNER_TEMP/process-smoke.json"
 
+      - name: Release verifier self-test
+        run: python3 scripts/test_verify_release.py
+
       - name: Cross-build darwin/arm64
         run: GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o "$RUNNER_TEMP/feishu-mcp-gateway-darwin-arm64" ./cmd/gateway
 
