@@ -42,7 +42,9 @@ func (s *Service) addCompact(server *mcp.Server) {
 		hits, partial := s.search.search(query, func(op Operation) bool {
 			return discoverable(c, p, op) && (domain == "" || opDomain(op) == domain) && (risk == "" || (risk == "read") == (op.Risk == "read"))
 		})
-		start, end := min(offset, len(hits)), min(offset+limit, len(hits))
+		// 先截断起点再加 limit：after 可以接近 int 上限，直接相加会溢出成负数。
+		start := min(offset, len(hits))
+		end := min(start+limit, len(hits))
 		entries := []any{}
 		for _, h := range hits[start:end] {
 			entries = append(entries, s.operationSummary(h.entry.op))

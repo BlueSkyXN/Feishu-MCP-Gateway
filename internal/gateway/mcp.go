@@ -8,6 +8,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"runtime/debug"
 	"strings"
 	"unicode/utf8"
 
@@ -34,6 +36,32 @@ func mcpResult(r Result) *mcp.CallToolResult {
 	return result
 }
 
+// guardTool 把处理函数中的 panic 转为 internal 错误。SDK 在独立 goroutine 中调用处理函数，
+// 未恢复的 panic 会结束整个进程，所有接入一起中断。日志不记录参数。
+func guardTool(name string, h mcp.ToolHandler) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (result *mcp.CallToolResult, err error) {
+		defer func() {
+			if v := recover(); v != nil {
+				slog.Error("tool handler panic", "tool", name, "panic", fmt.Sprint(v), "stack", string(debug.Stack()))
+				result, err = mcpResult(failed(fault("internal", "服务内部错误，请通过调用记录核对"))), nil
+			}
+		}()
+		return h(ctx, req)
+	}
+}
+
+func guardResource(h mcp.ResourceHandler) mcp.ResourceHandler {
+	return func(ctx context.Context, req *mcp.ReadResourceRequest) (result *mcp.ReadResourceResult, err error) {
+		defer func() {
+			if v := recover(); v != nil {
+				slog.Error("resource handler panic", "panic", fmt.Sprint(v), "stack", string(debug.Stack()))
+				result, err = nil, fault("internal", "服务内部错误，请通过调用记录核对")
+			}
+		}()
+		return h(ctx, req)
+	}
+}
+
 const Version = "0.3.0-dev"
 
 func (s *Service) mcpView(client Client) *mcp.Server {
@@ -51,7 +79,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 		server.AddTool(&mcp.Tool{Name: op.Tool, Description: s.toolDescription(op), InputSchema: op.InputSchema, OutputSchema: resultSchema(&op), Annotations: &mcp.ToolAnnotations{
 			// 所有操作都可能登记 Job/结果文件，保守描述本地副作用。
 			ReadOnlyHint: false, DestructiveHint: boolean(op.Risk != "read"), OpenWorldHint: boolean(true), IdempotentHint: op.Risk != "read",
-		}}, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		}}, guardTool(op.Tool, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			p, err := principal(ctx)
 			if err != nil {
 				return mcpResult(failed(err)), nil
@@ -61,7 +89,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 				return mcpResult(failed(fault("invalid_arguments", "参数必须是 JSON 对象"))), nil
 			}
 			return mcpResult(s.Invoke(ctx, p, op.ID, args)), nil
-		})
+		}))
 	}
 	if client.ToolView == "compact" {
 		s.addCompact(server)
@@ -175,7 +203,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 			return Result{Status: "succeeded", Data: data, Files: []File{f}}
 		})
 	}
-	server.AddResourceTemplate(&mcp.ResourceTemplate{URITemplate: "feishu-file://files/{file_id}", Name: "受控文件", Description: "当前主体可读取的操作产物和输入文件。"}, func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+	server.AddResourceTemplate(&mcp.ResourceTemplate{URITemplate: "feishu-file://files/{file_id}", Name: "受控文件", Description: "当前主体可读取的操作产物和输入文件。"}, guardResource(func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		p, err := principal(ctx)
 		if err != nil {
 			return nil, err
@@ -207,7 +235,7 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 			content.Blob = b
 		}
 		return &mcp.ReadResourceResult{Contents: []*mcp.ResourceContents{content}}, nil
-	})
+	}))
 	return server
 }
 
@@ -226,7 +254,7 @@ func (s *Service) addUtility(server *mcp.Server, name, description string, input
 	if err != nil {
 		panic(fmt.Sprintf("internal tool schema: %s: %v", name, err))
 	}
-	server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: input, OutputSchema: resultSchema(nil), Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolean(strings.HasSuffix(name, "delete") || strings.HasSuffix(name, "cancel") || name == "feishu_execute_write"), OpenWorldHint: boolean(strings.HasPrefix(name, "feishu_execute_")), IdempotentHint: name == "feishu_execute_write"}}, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: input, OutputSchema: resultSchema(nil), Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolean(strings.HasSuffix(name, "delete") || strings.HasSuffix(name, "cancel") || name == "feishu_execute_write"), OpenWorldHint: boolean(strings.HasPrefix(name, "feishu_execute_")), IdempotentHint: name == "feishu_execute_write"}}, guardTool(name, func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		p, err := principal(ctx)
 		if err != nil {
 			return mcpResult(failed(err)), nil
@@ -245,7 +273,7 @@ func (s *Service) addUtility(server *mcp.Server, name, description string, input
 			}
 		}
 		return mcpResult(fn(ctx, p, args)), nil
-	})
+	}))
 }
 func isText(mime string) bool {
 	return strings.HasPrefix(mime, "text/") || strings.HasPrefix(mime, "application/json")
