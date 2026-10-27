@@ -68,12 +68,12 @@ func (s *Service) visibleDomains(c Client, p Principal) []domainView {
 // searchVocabulary 把中文与常见英文说法归一到目录中的英文词；领域别名另由领域表加入。
 var searchVocabulary = map[string][]string{
 	"读取": {"get", "fetch", "read", "list", "query"}, "读": {"get", "fetch", "read", "list"}, "阅读": {"get", "fetch", "read"},
-	"获取": {"get", "fetch", "list"}, "查看": {"get", "fetch", "list", "info", "detail"}, "看": {"get", "fetch", "list"},
+	"获取": {"get", "fetch", "list"}, "查看": {"get", "fetch", "list", "info", "detail", "view"}, "看": {"get", "fetch", "list", "view"},
 	"查询": {"query", "get", "list", "search"}, "查": {"query", "get", "list", "search"}, "列出": {"list"}, "列表": {"list"},
-	"搜索": {"search", "find"}, "查找": {"search", "find"}, "检索": {"search"},
+	"搜索": {"search", "find"}, "查找": {"search", "find"}, "检索": {"search"}, "找": {"search", "find", "list", "get"}, "寻找": {"search", "find"},
 	"创建": {"create", "add"}, "新建": {"create", "add"}, "新增": {"create", "add", "append"}, "建": {"create"}, "添加": {"add", "create"},
 	"更新": {"update", "patch", "edit", "set"}, "修改": {"update", "patch", "edit", "set"}, "改": {"update", "edit"}, "编辑": {"edit", "update"},
-	"写入": {"set", "put", "write", "update", "append"}, "写": {"set", "put", "write"}, "填写": {"set", "put"}, "追加": {"append", "add"},
+	"写入": {"set", "put", "write", "update", "append"}, "写": {"set", "put", "write"}, "填写": {"set", "put"}, "追加": {"append", "add", "put"},
 	"删除": {"delete", "remove"}, "删": {"delete", "remove"}, "移除": {"remove", "delete"}, "清空": {"clear"},
 	"发送": {"send"}, "发": {"send"}, "回复": {"reply"}, "转发": {"forward"}, "撤回": {"recall", "delete"},
 	"上传": {"upload"}, "下载": {"download"}, "导出": {"export"}, "导入": {"import"}, "移动": {"move"}, "复制": {"copy"},
@@ -87,17 +87,32 @@ var searchVocabulary = map[string][]string{
 	"历史": {"history"}, "封面": {"cover"}, "标题": {"title"}, "链接": {"url", "link"}, "用户": {"user", "users"},
 	"参会人": {"attendee", "attendees"}, "子任务": {"subtask"}, "草稿": {"draft", "drafts"}, "标签": {"label", "labels"},
 	"规则": {"rule", "rules"}, "周期": {"cycle"}, "进展": {"progress"}, "页面": {"slide", "page"}, "截图": {"screenshot"},
+	"日程": {"agenda", "event", "events"}, "知识库": {"wiki"}, "电子表格": {"spreadsheet", "workbook"}, "表格": {"spreadsheet", "workbook"},
+	"一行": {"row", "rows"}, "多行": {"row", "rows"}, "整行": {"row", "rows"}, "新行": {"row", "rows"}, "行数据": {"row", "rows"},
 	"read": {"get", "fetch", "read", "list"}, "view": {"get", "list", "fetch"}, "show": {"get", "list", "fetch"}, "see": {"get", "list"},
 	"lookup": {"get", "search"}, "find": {"search", "find"}, "write": {"set", "put", "write", "update"}, "fill": {"set", "put"},
 	"modify": {"update", "edit", "patch"}, "change": {"update", "edit", "patch"}, "edit": {"edit", "update"}, "new": {"create"},
-	"add": {"add", "create", "append"}, "remove": {"remove", "delete"}, "post": {"send", "create"}, "rollback": {"revert"},
+	"add": {"add", "create", "append"}, "append": {"append", "add", "put"}, "remove": {"remove", "delete"}, "post": {"send", "create"}, "rollback": {"revert"},
 	"msg": {"message", "messages"}, "picture": {"image"}, "photo": {"image"}, "attachment": {"attachment", "file"},
-	"workbook": {"workbook", "domain:sheets"}, "table": {"table", "tables"}, "group": {"chat"}, "share": {"share", "permission"},
+	"workbook": {"workbook", "domain:sheets"}, "spreadsheet": {"spreadsheet", "workbook"}, "table": {"table", "tables"}, "group": {"chat"}, "share": {"share", "permission"},
+}
+
+// searchHints 只加分、不作为必需条件，例如时间词指向日程视图。
+var searchHints = map[string][]string{
+	"今天": {"agenda"}, "明天": {"agenda"}, "后天": {"agenda"}, "今日": {"agenda"}, "明日": {"agenda"}, "本周": {"agenda"}, "这周": {"agenda"}, "下周": {"agenda"},
+	"today": {"agenda"}, "tomorrow": {"agenda"}, "week": {"agenda"},
+}
+
+// searchStopwords 是英文查询中不作为条件的虚词。
+var searchStopwords = map[string]bool{
+	"a": true, "an": true, "the": true, "to": true, "in": true, "into": true, "of": true, "for": true, "on": true, "at": true, "from": true, "by": true,
+	"with": true, "and": true, "or": true, "my": true, "me": true, "i": true, "please": true, "this": true, "that": true, "these": true, "those": true,
+	"it": true, "its": true, "is": true, "are": true, "be": true, "all": true, "some": true, "about": true,
 }
 
 type concept struct {
 	alts []string
-	soft bool // 未登记的中文片段：命中加分，但不作为必须条件
+	soft bool // 未登记的中文片段与 searchHints：命中加分，但不作为必须条件
 }
 
 type searchEntry struct {
@@ -114,6 +129,7 @@ type searchEntry struct {
 type searchIndex struct {
 	entries []*searchEntry
 	terms   map[string][]string
+	soft    map[string]bool
 	keys    []string
 }
 
@@ -134,9 +150,12 @@ func wordSet(values ...string) map[string]bool {
 }
 
 func newSearchIndex(c *Catalog, g *Guidance) *searchIndex {
-	x := &searchIndex{terms: map[string][]string{}}
+	x := &searchIndex{terms: map[string][]string{}, soft: map[string]bool{}}
 	for k, v := range searchVocabulary {
 		x.terms[k] = append(x.terms[k], v...)
+	}
+	for k, v := range searchHints {
+		x.terms[k], x.soft[k] = append(x.terms[k], v...), true
 	}
 	featured := map[string]int{}
 	for _, d := range domains {
@@ -192,7 +211,7 @@ func (x *searchIndex) expand(word string) concept {
 		alts = append(alts, singular)
 		alts = append(alts, x.terms[singular]...)
 	}
-	return concept{alts: alts}
+	return concept{alts: alts, soft: x.soft[word]}
 }
 
 // parse 把查询拆成若干概念：每个概念内的词可互换，概念之间需要同时命中。
@@ -203,6 +222,9 @@ func (x *searchIndex) parse(query string) []concept {
 	}) {
 		if !hasHan(field) {
 			for _, w := range splitWords(field) {
+				if searchStopwords[w] {
+					continue
+				}
 				out = append(out, x.expand(w))
 			}
 			continue
@@ -219,7 +241,9 @@ func (x *searchIndex) parse(query string) []concept {
 				return
 			}
 			for _, w := range splitWords(piece) {
-				out = append(out, x.expand(w))
+				if !searchStopwords[w] {
+					out = append(out, x.expand(w))
+				}
 			}
 		}
 		for i := 0; i < len(runes); {
