@@ -35,7 +35,7 @@
 
 源码：[BlueSkyXN/Feishu-MCP-Gateway](https://github.com/BlueSkyXN/Feishu-MCP-Gateway)。
 
-[GitHub Releases](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 提供 macOS arm64、Linux amd64 的 Gateway 与配套后端、对应源码包、`PROVENANCE.json` 和 `SHA256SUMS`；由 Release 工作流生成的版本另附 `RELEASE-VERIFY.json` 与 GitHub 构建证明，见 [检查与发布](docs/RELEASE.md)。下载后核对 SHA256SUMS，并按示例配置应用凭据和接入权限。
+[GitHub Releases](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 提供 macOS arm64、Linux amd64 的 Gateway 与配套后端、对应源码包、`PROVENANCE.json` 和 `SHA256SUMS`；由 Release 工作流生成的版本另附 `RELEASE-VERIFY.json` 与 GitHub 构建证明，见 [检查与发布](docs/RELEASE.md)。v0.2.0-dev 早于该工作流，附带的 `RELEASE-AUDIT.json` 记录发布前的密钥扫描、离线重建与许可清点结果。下载后核对 SHA256SUMS，并按示例配置应用凭据和接入权限。
 
 ## 构建
 
