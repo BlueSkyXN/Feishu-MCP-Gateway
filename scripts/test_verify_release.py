@@ -86,6 +86,10 @@ class VerifyReleaseTest(unittest.TestCase):
         report = self.check(False, extra='unlisted.tar.gz')
         self.assertEqual(report['files_missing_from_sums'], ['unlisted.tar.gz'])
 
+    def test_unpublished_files_are_ignored(self):
+        # 发布工作流只收集 *.tar.gz 与 PROVENANCE.json；系统生成的 .DS_Store 等文件不发布。
+        self.check(True, extra='.DS_Store')
+
 
 if __name__ == '__main__':
     unittest.main()

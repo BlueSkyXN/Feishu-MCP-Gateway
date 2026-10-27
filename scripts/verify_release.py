@@ -33,7 +33,8 @@ def main():
     provenance = json.loads((release/'PROVENANCE.json').read_text())
     tag = provenance['version']
     targets = provenance['targets']
-    published = sorted(p.name for p in release.iterdir() if p.is_file() and p.name != 'SHA256SUMS')
+    # 与 build_release.py 写入 SHA256SUMS、发布工作流收集附件的范围一致；目录中的其他文件不发布。
+    published = sorted([p.name for p in release.glob('*.tar.gz')] + (['PROVENANCE.json'] if (release/'PROVENANCE.json').is_file() else []))
     source_name = f'Feishu-MCP-Gateway-{tag}-source'
     expected_files = sorted([f'{source_name}.tar.gz', 'PROVENANCE.json', *(f'Feishu-MCP-Gateway-{tag}-{t}.tar.gz' for t in targets)])
     mismatched = sorted(name for name, digest in sums.items() if (release/name).is_file() and sha256(release/name) != digest)
