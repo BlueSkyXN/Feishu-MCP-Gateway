@@ -1,6 +1,6 @@
 # 0.3.0-dev 开发验收
 
-验证日期：2026-10-27。本机为 macOS arm64、Go 1.27.2；GitHub Actions 为 ubuntu linux/amd64、Go 1.27.3，另用 Go 1.26.9 核对模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
+基线验证日期：2026-10-27；2026-10-28 的修复验证见下方增量记录。本机为 macOS arm64、Go 1.27.2；GitHub Actions 为 ubuntu linux/amd64、Go 1.27.3，另用 Go 1.26.9 核对模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
 
 ## 操作覆盖与验证强度
 
@@ -12,7 +12,7 @@
 - 599 个 Operation 均通过 schema 编译；包含 source 已公开的复杂 JSON 参数 schema。
 - Wiki 查询、Drive 文件列表和创建目录的 3 个 dry-run 通过。
 
-0.3.0-dev 重新导入后，目录的风险、执行映射和资源绑定与 0.2.0-dev 逐项一致。变化包括 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文），以及 13 个 sheets 操作的 18 个参数 schema：6 个枚举参数（`include` 2 个、坐标轴标签角度 4 个）原来拒绝任何取值，7 个 `properties` 与 5 个 `sheets`/`styles` 原来拒绝 lark-cli 接受的写法。受控后端的 dry-run 确认 lark-cli 接受部分 `properties`、外层对象或数组形式的 `sheets`/`styles`、逗号拼接的 `include` 与 -45 度角。`catalog_revision` 因此改变。
+2026-10-27 重新导入后，目录的风险、执行映射和资源绑定与 0.2.0-dev 逐项一致。变化包括 65 个操作描述和 701 个参数描述（删除用户身份说明、CLI flag 改为参数名、英文描述中的网关说明改用英文），以及 13 个 sheets 操作的 18 个参数 schema：6 个枚举参数（`include` 2 个、坐标轴标签角度 4 个）原来拒绝任何取值，7 个 `properties` 与 5 个 `sheets`/`styles` 原来拒绝 lark-cli 接受的写法。受控后端的 dry-run 确认 lark-cli 接受部分 `properties`、外层对象或数组形式的 `sheets`/`styles`、逗号拼接的 `include` 与 -45 度角。`catalog_revision` 因此改变。
 
 以上检查目录与适配合同，598 项操作没有逐项做真实飞书实测（见外部验收边界）。端到端测试使用实际构建的 wrapper，运行以下 11 项：
 
@@ -53,7 +53,7 @@
 - `/admin/status` 返回版本、指南摘要与各接入的视图和开放范围。
 - 超大分页参数（搜索 `after` 接近 int64 上限、指南 `offset` 超出 int 范围）返回空页。工具与资源处理函数中的 panic 转为 `internal` 错误；执行中的 panic 写入回执（写入为 unknown，读取为 failed），同键重试返回原回执，服务继续处理请求。
 
-## 执行结果
+## 执行结果（2026-10-27 基线）
 
 | 检查 | macOS arm64（本机） | darwin/amd64（Rosetta 2） | linux/amd64（GitHub Actions） |
 |---|---|---|---|
@@ -71,9 +71,33 @@
 - macOS arm64 的 Gateway 二进制约 27 MB，比 0.2.0-dev 增加约 3.3 MB，主要是内嵌指南。
 - 本机原始结果保存在忽略的 `local/evidence/`：`test-0.3-review2.jsonl`、`race-0.3-review2.jsonl`、`test-0.3-review2-amd64.jsonl`、`backend-validation-review2.json`、`process-smoke-review2.json` 和 `refresh-review2-*.log`；GitHub Actions 的结果见 PR #1 的检查记录。
 
+## 2026-10-28 修复验证
+
+本轮在 macOS arm64、Go 1.27.2 验证，使用当前源码构建的受控 wrapper 与模拟飞书上游。目录新增 3 个 Base Record 操作的 NDJSON 产物映射；操作数量、风险和资源绑定保持不变。配套后端声明 `artifact_envelope`，缺少该能力的旧 wrapper 会在启动检查时被拒绝。
+
+- 多行 JSON 错误及前后的提示行可以解析，保留错误类型、错误码、scopes 和 log_id；flag 解析阶段缺少 identity 的纯错误可返回，声明用户身份的回执仍被拒绝。
+- `base.+record-list`、`base.+record-get`、`base.+record-search` 的 `output` 会产生可复用的 NDJSON 与 manifest，回执中的产物路径改为文件 URI；跨 actor 读取被拒绝。另覆盖 `jq_records` 的多值、尾部注释、空结果，以及 `minimal_stdout`、`overwrite`。
+- 子进程 stdout/stderr 通过实际管道超过限额时返回 `backend_output_limit`；`io.Copy` 的零字节、恰好达到上限及超限输入均验证，超限内容截断后继续排空管道。
+- 归档 manifest 内部的 `record_file`、`manifest_file` 使用文件 URI，并与回执一致；最终文件大小和 SHA-256 与实际存储字节匹配。检查了大整数与业务字符串保留、重复导出未变化的输入、普通 JSON 产物保持原样，以及越界/缺失引用、文件大小、工作区容量和接入配额失败时不写入无效 manifest。
+- 实际 wrapper 接受 `offset=1000000`，产物分页回执保持正确的 next_offset。
+- 客户端、应用、actor 三种并发额度分别达到上限时，其他客户端的任务仍执行；等待额度的任务保持 queued，可取消，撤权后记录失败。
+- 用本地 Git fixture 验证来源固定：默认拒绝不同提交；显式完整提交可进入升级构建；不匹配、脏工作区和短摘要仍拒绝。构建过程由 stub 替代，不下载新来源或依赖。
+
+| 检查 | 本轮本地结果 |
+|---|---|
+| `go test`、`go test -race` | 47 个顶层测试、含子测试共 77 项通过，无测试跳过，无数据竞争 |
+| `go vet`、Gateway 构建 | 通过 |
+| wrapper race 测试、vet、构建 | 通过，4 个顶层测试 |
+| Python 回归测试 | 16 项通过：发布核对、来源固定/升级、NDJSON 指南转换 |
+| 后端契约与 dry-run | 598 项定义、3 个 dry-run 通过 |
+| 独立进程 smoke | 通过 |
+| 目录与指南重复生成 | 430 个文件逐字节一致；Skill 已重新渲染 |
+
+第一轮原始日志保存在忽略的 `local/evidence/20261028-review-fixes/`，补充修复后的完整测试、race 和 smoke 结果在 `local/evidence/20261028-followup-fixes/`。远端 CI、跨平台运行和完整发布包重建尚未针对本轮修改执行；上表只记录本地结果。
+
 ## 外部验收边界
 
-当前没有生产部署、发布、飞书权限修改或真实飞书业务写入。尚未验证：
+本地验收未执行生产部署、飞书权限修改或真实飞书业务写入。发布与构建验证见对应 GitHub Release；尚未验证：
 
 1. 目标应用的真实 Token/DPoP 服务行为、应用 scopes、资源 ACL、限流及 598 项操作的线上数据差异。
 2. 目标 Wake 版本实际发送的 Sender、Resources/Job 请求是否保留身份、文件适配器运行目录和聊天产物展示；Wake 是否把 MCP `instructions` 交给模型，以及上传带 `references/` 的 Skill 后的读取方式。

@@ -76329,11 +76329,11 @@
           },
           "limit": {
             "type": "integer",
-            "description": "maximum records to return; ndjson defaults to 2000 (range 1-2000); json defaults to 100 (range 1-200)"
+            "description": "普通 JSON 读取范围 1–200；提供 output 等产物参数时使用 NDJSON，范围 1–2000。"
           },
           "output": {
             "type": "string",
-            "description": "受控工作区中的相对产物名称或目录；返回对应 file_id，不接受宿主机绝对路径。"
+            "description": "填写相对 .ndjson 文件名时导出记录和 manifest，返回对应 file_id；普通读取返回 JSON。"
           },
           "minimal_stdout": {
             "type": "boolean",
@@ -76341,7 +76341,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "对导出的完整记录数组执行 jq 表达式，结果作为 JSON 数组返回；记录文件保持完整。"
           },
           "overwrite": {
             "type": "boolean",
@@ -76480,7 +76480,8 @@
           "input": [],
           "file": false,
           "output": false,
-          "json": false
+          "json": false,
+          "collect_results": true
         },
         "overwrite": {
           "name": "overwrite",
@@ -76500,7 +76501,14 @@
       ],
       "hidden": false,
       "has_dry_run": true,
-      "conditional_confirmation": false
+      "conditional_confirmation": false,
+      "artifact_format": "ndjson",
+      "artifact_arguments": [
+        "output",
+        "minimal_stdout",
+        "jq_records",
+        "overwrite"
+      ]
     },
     {
       "id": "base.+record-search",
@@ -76634,11 +76642,11 @@
           },
           "limit": {
             "type": "integer",
-            "description": "maximum records to return; range 1-200, or 1-2000 for ndjson; omitted limit uses 10 inline or 2000 for ndjson"
+            "description": "普通 JSON 读取范围 1–200；提供 output 等产物参数时使用 NDJSON，范围 1–2000。"
           },
           "output": {
             "type": "string",
-            "description": "受控工作区中的相对产物名称或目录；返回对应 file_id，不接受宿主机绝对路径。"
+            "description": "填写相对 .ndjson 文件名时导出记录和 manifest，返回对应 file_id；普通读取返回 JSON。"
           },
           "minimal_stdout": {
             "type": "boolean",
@@ -76646,7 +76654,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "对导出的完整记录数组执行 jq 表达式，结果作为 JSON 数组返回；记录文件保持完整。"
           },
           "overwrite": {
             "type": "boolean",
@@ -76809,7 +76817,8 @@
           "input": [],
           "file": false,
           "output": false,
-          "json": false
+          "json": false,
+          "collect_results": true
         },
         "overwrite": {
           "name": "overwrite",
@@ -76829,7 +76838,14 @@
       ],
       "hidden": false,
       "has_dry_run": true,
-      "conditional_confirmation": false
+      "conditional_confirmation": false,
+      "artifact_format": "ndjson",
+      "artifact_arguments": [
+        "output",
+        "minimal_stdout",
+        "jq_records",
+        "overwrite"
+      ]
     },
     {
       "id": "base.+record-get",
@@ -76897,7 +76913,7 @@
           },
           "output": {
             "type": "string",
-            "description": "受控工作区中的相对产物名称或目录；返回对应 file_id，不接受宿主机绝对路径。"
+            "description": "填写相对 .ndjson 文件名时导出记录和 manifest，返回对应 file_id；普通读取返回 JSON。"
           },
           "minimal_stdout": {
             "type": "boolean",
@@ -76905,7 +76921,7 @@
           },
           "jq_records": {
             "type": "string",
-            "description": "required instead of jq (not available in the gateway) to process ndjson records with the built-in jq engine; runs once against the exported records array and leaves artifact files unchanged"
+            "description": "对导出的完整记录数组执行 jq 表达式，结果作为 JSON 数组返回；记录文件保持完整。"
           },
           "overwrite": {
             "type": "boolean",
@@ -77016,7 +77032,8 @@
           "input": [],
           "file": false,
           "output": false,
-          "json": false
+          "json": false,
+          "collect_results": true
         },
         "overwrite": {
           "name": "overwrite",
@@ -77036,7 +77053,14 @@
       ],
       "hidden": false,
       "has_dry_run": true,
-      "conditional_confirmation": false
+      "conditional_confirmation": false,
+      "artifact_format": "ndjson",
+      "artifact_arguments": [
+        "output",
+        "minimal_stdout",
+        "jq_records",
+        "overwrite"
+      ]
     },
     {
       "id": "base.+record-upsert",

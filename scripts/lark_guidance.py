@@ -408,7 +408,7 @@ def parse_call(index, words, domain, strict):
     bindings = {b['name']: (key, b) for key, b in (op.get('flag_bindings') or {}).items()}
     params = op['input_schema'].get('properties', {}).get('params', {}).get('properties', {})
     file_fields = op.get('file_fields') or []
-    args, i = {}, 0
+    args, i, artifact_requested = {}, 0, False
     while i < len(rest):
         token = rest[i]
         i += 1
@@ -420,7 +420,10 @@ def parse_call(index, words, domain, strict):
         name = index.aliases.get((op_id, name), name)
         if name in CLI_ONLY:
             if name in VALUE_FLAGS and not eq and i < len(rest) and not rest[i].startswith('--'):
+                value = rest[i]
                 i += 1
+            if name == 'format' and value == op.get('artifact_format'):
+                artifact_requested = True
             continue
         if name == 'json' and name not in bindings and not eq and (i >= len(rest) or rest[i].startswith('--')):
             continue  # CLI 的 JSON 输出开关；网关始终返回 JSON
@@ -485,6 +488,8 @@ def parse_call(index, words, domain, strict):
             target.setdefault(key, []).extend(items)
         else:
             target[key] = converted
+    if artifact_requested:
+        args.setdefault('output', 'records.ndjson')
     return op_id, args, dropped
 
 
@@ -560,6 +565,8 @@ def flag_text(ctx, name, value):
                'jq': ('jq（网关不提供）', False)}
     if name in special:
         return special[name]
+    if name == 'format' and value == 'ndjson' and ctx.domain == 'base':
+        return 'output=records.ndjson', True
     if name in ('format', 'profile', 'flag-name', 'api-version'):
         return '', False
     key = ctx.index.param(name, ctx.op_id, ctx.domain)
@@ -819,7 +826,7 @@ def operation_guidance(index, rows, source, topic_files):
         ctx = Ctx(index, op_id, domain)
 
         def items(values):
-            return [x for x in (translate_text(ctx, v) for v in values if not DROP.search(v)) if x]
+            return [x for x in (translate_text(ctx, v.replace('Record reads default to ndjson;', 'Record reads return inline JSON by default; set output to export NDJSON;')) for v in values if not DROP.search(v)) if x]
 
         g, related, topics, examples, notes = {'use_when': items(entry['use_when'])}, [], [], [], []
         for sec in entry['sections']:
@@ -1114,6 +1121,8 @@ def build(source, commit, operations, coverage, rows, output):
         meta = re.search(r'^description:\s*"?(.*?)"?\s*$', skill_md, re.M)
         (output / skill).mkdir()
         guide = translate_document(index, skill_md, domain, skill + '/SKILL.md', topic_files)
+        if domain == 'base':
+            guide = '> Record 的普通读取返回 JSON；填写 output（例如 records.ndjson）时导出 NDJSON 与 manifest，返回可复用的 files。minimal_stdout、jq_records 或 overwrite 的有效值也会启用产物模式。\n\n' + guide
         (output / skill / 'GUIDE.md').write_text(GUIDE_PREFACE.format(commit=short, skill=skill) + guide)
         topics = []
         for topic, path in sorted(skills[skill].items()):

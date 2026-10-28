@@ -6,7 +6,7 @@
 
 1. 从 larksuite/cli 取目录记录的固定提交，构建受控后端，运行其 race 测试与 vet。
 2. 使用最新稳定版 Go 运行 `go vet`、`go test`、`go test -race`，并构建 Gateway；实际 wrapper 的集成测试一起运行。
-3. `verify_backend.py` 核对后端声明，`smoke_gateway.py` 启动独立进程检查，`test_verify_release.py` 用构造的发布目录检查发布核对脚本。
+3. `verify_backend.py` 核对后端声明，`smoke_gateway.py` 启动独立进程检查；Python 回归测试覆盖发布包核对、来源固定及目录升级入口。
 4. 交叉构建 darwin/arm64。
 5. `scripts/refresh_catalog.py` 按目录记录的 lark-cli 提交重新生成目录、覆盖台账与指南，结果须与提交内容一致；不一致时在本地运行该脚本并提交结果。
 
@@ -25,4 +25,4 @@
 
 工作流全部成功后，维护者核对草稿的说明与附件再手动发布；工作流失败时，先删除这次创建的草稿再重新运行。修改发布脚本、Release 或 CI 工作流的 PR 会运行第 1 至 3 步，不创建版本。
 
-发布前仍需完成真实飞书和 Wake 的联调。
+开发预发布的版本说明应列明已通过的验证与尚未完成的真实飞书、Wake 联调；稳定版本发布前完成对应联调。

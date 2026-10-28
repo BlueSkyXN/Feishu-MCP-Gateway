@@ -17,6 +17,22 @@ import (
 	"time"
 )
 
+type backendEnvelope struct {
+	OK       *bool          `json:"ok"`
+	Identity string         `json:"identity"`
+	Data     any            `json:"data"`
+	Meta     map[string]any `json:"meta"`
+	Error    struct {
+		Type          string   `json:"type"`
+		Subtype       string   `json:"subtype"`
+		Code          *int     `json:"code"`
+		Message       string   `json:"message"`
+		LogID         string   `json:"log_id"`
+		MissingScopes []string `json:"missing_scopes"`
+		RetryAfter    *float64 `json:"retry_after_seconds"`
+	} `json:"error"`
+}
+
 type CLIExecutor struct {
 	binary, sha, root string
 	limit             int64
@@ -43,11 +59,12 @@ func NewCLIExecutor(c Config) (*CLIExecutor, error) {
 		return nil, errors.New("需要 lark-cli-gateway 受控后端，无法读取后端契约")
 	}
 	var caps struct {
-		Contract string `json:"contract"`
-		Source   string `json:"source_commit"`
-		AppOnly  bool   `json:"app_only"`
-		Rooted   bool   `json:"rooted_fileio"`
-		Proxy    bool   `json:"sidecar_required"`
+		Contract  string `json:"contract"`
+		Source    string `json:"source_commit"`
+		AppOnly   bool   `json:"app_only"`
+		Rooted    bool   `json:"rooted_fileio"`
+		Artifacts bool   `json:"artifact_envelope"`
+		Proxy     bool   `json:"sidecar_required"`
 	}
 	cat, err := LoadCatalog()
 	if err != nil {
@@ -56,8 +73,8 @@ func NewCLIExecutor(c Config) (*CLIExecutor, error) {
 	if err = validateCatalogConfig(c, cat); err != nil {
 		return nil, err
 	}
-	if json.Unmarshal(out, &caps) != nil || caps.Contract != "feishu-gateway-backend-v1" || caps.Source != cat.SourceCommit || !caps.AppOnly || !caps.Rooted || !caps.Proxy {
-		return nil, errors.New("受控后端契约或源码版本与目录不一致")
+	if json.Unmarshal(out, &caps) != nil || caps.Contract != "feishu-gateway-backend-v1" || caps.Source != cat.SourceCommit || !caps.AppOnly || !caps.Rooted || !caps.Proxy || !caps.Artifacts {
+		return nil, errors.New("受控后端契约、产物回执能力或源码版本与目录不一致；请重新构建配套 wrapper 并更新 cli_sha256")
 	}
 	if err := os.MkdirAll(e.root, 0700); err != nil {
 		return nil, err
@@ -76,23 +93,22 @@ func (e *CLIExecutor) verify() error {
 }
 
 type cappedBuffer struct {
-	bytes.Buffer
+	buffer   bytes.Buffer
 	max      int64
 	overflow bool
 }
 
+func (b *cappedBuffer) Len() int      { return b.buffer.Len() }
+func (b *cappedBuffer) Bytes() []byte { return b.buffer.Bytes() }
+
 func (b *cappedBuffer) Write(p []byte) (int, error) {
 	n := len(p)
-	left := b.max - int64(b.Len())
-	if left <= 0 {
-		b.overflow = true
-		return n, nil
-	}
+	left := max(0, b.max-int64(b.buffer.Len()))
 	if int64(n) > left {
 		b.overflow = true
 		p = p[:left]
 	}
-	_, _ = b.Buffer.Write(p)
+	_, _ = b.buffer.Write(p)
 	return n, nil
 }
 
@@ -168,6 +184,7 @@ func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) (resu
 		"LARKSUITE_CLI_CONFIG_DIR=" + filepath.Join(dir, ".gateway/config"),
 		"LARKSUITE_CLI_APP_ID=" + app.AppID,
 		"LARKSUITE_CLI_AUTH_PROXY=" + proxy.URL, "LARKSUITE_CLI_PROXY_KEY=" + proxy.Key,
+		"FEISHU_GATEWAY_ARTIFACT_MODE=" + in.Operation.outputFormat(in.Arguments),
 		"FEISHU_GATEWAY_WORKDIR=" + dir, "FEISHU_GATEWAY_FILE_LIMIT=" + fmt.Sprint(e.limit), "FEISHU_GATEWAY_WORKSPACE_LIMIT=" + fmt.Sprint(e.workspaceLimit),
 		"LARKSUITE_CLI_BRAND=" + app.Brand, "LARKSUITE_CLI_DEFAULT_AS=bot", "LARKSUITE_CLI_STRICT_MODE=bot",
 		"LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1", "LARKSUITE_CLI_NO_SKILLS_NOTIFIER=1",
@@ -181,21 +198,7 @@ func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) (resu
 	if out.overflow || stderr.overflow {
 		return ExecutionResult{Error: fault("backend_output_limit", "执行输出超过上限，需要核对操作回执"), Uncertain: uncertain}
 	}
-	var envelope struct {
-		OK       *bool          `json:"ok"`
-		Identity string         `json:"identity"`
-		Data     any            `json:"data"`
-		Meta     map[string]any `json:"meta"`
-		Error    struct {
-			Type          string   `json:"type"`
-			Subtype       string   `json:"subtype"`
-			Code          *int     `json:"code"`
-			Message       string   `json:"message"`
-			LogID         string   `json:"log_id"`
-			MissingScopes []string `json:"missing_scopes"`
-			RetryAfter    *float64 `json:"retry_after_seconds"`
-		} `json:"error"`
-	}
+	var envelope backendEnvelope
 	valid := json.Unmarshal(out.Bytes(), &envelope) == nil && envelope.OK != nil
 	if valid && envelope.Identity != "bot" {
 		return ExecutionResult{Error: fault("identity_violation", "后端未确认应用身份，请核对 CLI 版本"), Uncertain: uncertain}
@@ -204,12 +207,13 @@ func (e *CLIExecutor) Execute(ctx context.Context, in Invocation, app App) (resu
 		return ExecutionResult{Data: envelope.Data, Meta: envelope.Meta}
 	}
 	if !valid || envelope.OK == nil || *envelope.OK {
-		for _, line := range bytes.Split(stderr.Bytes(), []byte("\n")) {
-			var tmp = envelope
-			if json.Unmarshal(line, &tmp) == nil && tmp.OK != nil && !*tmp.OK {
-				envelope = tmp
-				valid = true
+		if problem, ok := decodeBackendError(stderr.Bytes()); ok {
+			// CLI 在解析 flag 时尚未解析身份；这类错误不能携带业务数据。
+			if (problem.Identity != "" && problem.Identity != "bot") ||
+				(problem.Identity == "" && (problem.Data != nil || problem.Meta != nil || problem.Error.Type == "")) {
+				return ExecutionResult{Error: fault("identity_violation", "后端未确认应用身份，请核对 CLI 版本"), Uncertain: uncertain}
 			}
+			envelope, valid = problem, true
 		}
 	}
 	if valid && envelope.OK != nil && !*envelope.OK {
@@ -246,4 +250,28 @@ func readBounded(r io.Reader, max int64) ([]byte, error) {
 		return nil, fault("input_too_large", "输入超过大小限制")
 	}
 	return b, nil
+}
+
+// 错误可能是缩进 JSON，前后还可能有 CLI 提示；按完整 JSON 值读取，提示行跳过。
+func decodeBackendError(raw []byte) (backendEnvelope, bool) {
+	var last backendEnvelope
+	found := false
+	for len(raw) > 0 {
+		raw = bytes.TrimSpace(raw)
+		var value backendEnvelope
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		if err := decoder.Decode(&value); err == nil {
+			raw = raw[decoder.InputOffset():]
+			if value.OK != nil && !*value.OK {
+				last, found = value, true
+			}
+			continue
+		}
+		i := bytes.IndexByte(raw, '\n')
+		if i < 0 {
+			break
+		}
+		raw = raw[i+1:]
+	}
+	return last, found
 }

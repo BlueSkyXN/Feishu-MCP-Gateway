@@ -721,6 +721,20 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 		{"identity", `{"ok":true,"identity":"user","data":{}}`, "", "identity_violation", false},
 		{"partial", `{"ok":false,"identity":"bot","data":{"items":[{"status":"succeeded"},{"status":"failed"}]},"meta":{"count":2}}`, "", "partial_failure", false},
 		{"auth", "", `{"ok":false,"identity":"bot","error":{"type":"authorization","subtype":"missing_scope","code":99991679,"message":"run auth login","missing_scopes":["scope"],"log_id":"fixture-log"}}`, "upstream_authorization_missing_scope", false},
+		{"pretty-auth", "", "notice: fixture\n" + `{
+  "ok": false,
+  "identity": "bot",
+  "error": {
+    "type": "authorization",
+    "subtype": "missing_scope",
+    "code": 99991679,
+    "message": "run auth login",
+    "missing_scopes": ["scope"],
+    "log_id": "fixture-log"
+  }
+}` + "\nnotice: done\n", "upstream_authorization_missing_scope", false},
+		{"stderr-identity", "", `{"ok":false,"identity":"user","error":{"type":"validation"}}`, "identity_violation", false},
+		{"pre-identity-error", "", "{\n  \"ok\": false,\n  \"error\": {\"type\":\"validation\",\"subtype\":\"invalid_argument\",\"message\":\"invalid flag\"}\n}", "upstream_validation_invalid_argument", false},
 		{"network", "", `{"ok":false,"identity":"bot","error":{"type":"network","subtype":"timeout","message":"timeout"}}`, "upstream_network_timeout", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -758,7 +772,7 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 			if r.Error == nil || r.Error.Kind != tc.want || r.Uncertain != tc.uncertain {
 				t.Fatalf("%+v", r)
 			}
-			if tc.name == "auth" {
+			if tc.name == "auth" || tc.name == "pretty-auth" {
 				if r.Error.UpstreamCode == nil || *r.Error.UpstreamCode != 99991679 || r.Error.LogID != "fixture-log" || strings.Contains(r.Error.Message, "auth login") {
 					t.Fatalf("auth mapping: %+v", r.Error)
 				}
@@ -772,5 +786,5 @@ func TestCLITypedErrorsPartialAndWrongIdentity(t *testing.T) {
 
 func fixtureHeader() string {
 	cat, _ := LoadCatalog()
-	return "#!/bin/sh\nif [ \"$1\" = --gateway-capabilities ]; then printf '%s\\n' '{\"contract\":\"feishu-gateway-backend-v1\",\"source_commit\":\"" + cat.SourceCommit + "\",\"app_only\":true,\"rooted_fileio\":true,\"sidecar_required\":true}'; exit 0; fi\n"
+	return "#!/bin/sh\nif [ \"$1\" = --gateway-capabilities ]; then printf '%s\\n' '{\"contract\":\"feishu-gateway-backend-v1\",\"source_commit\":\"" + cat.SourceCommit + "\",\"app_only\":true,\"rooted_fileio\":true,\"sidecar_required\":true,\"artifact_envelope\":true}'; exit 0; fi\n"
 }

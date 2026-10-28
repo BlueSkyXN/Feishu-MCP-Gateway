@@ -221,15 +221,37 @@ func (s *Store) Record(p Principal, id string) (Record, error) {
 	}
 	return r, err
 }
-func (s *Store) Claim() (Record, error) {
+
+// ready 在领取前预留执行额度；没有额度的任务保持 queued。
+// 回调只检查内存策略，不能在持有事务时再次访问 Store。
+func (s *Store) Claim(ready func(Principal) bool) (Record, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return Record{}, err
 	}
 	defer tx.Rollback()
-	r, err := scanRecord(tx.QueryRow(`SELECT ` + recordColumns + ` FROM invocations WHERE state='queued' ORDER BY created,id LIMIT 1`))
+	rows, err := tx.Query(`SELECT ` + recordColumns + ` FROM invocations WHERE state='queued' ORDER BY created,id`)
+	if err != nil {
+		return Record{}, err
+	}
+	var r Record
+	found := false
+	for rows.Next() {
+		r, err = scanRecord(rows)
+		if err != nil {
+			break
+		}
+		if ready(r.Principal) {
+			found = true
+			break
+		}
+	}
+	err = errors.Join(err, rows.Err(), rows.Close())
 	if err != nil {
 		return r, err
+	}
+	if !found {
+		return Record{}, sql.ErrNoRows
 	}
 	r.State = "running"
 	r.Result.Status = "running"
@@ -268,18 +290,28 @@ func (s *Store) Cancel(p Principal, id string) (Result, error) {
 }
 
 func (s *Store) PutFile(p Principal, name, mime string, b []byte, source ...string) (File, error) {
-	if int64(len(b)) > s.cfg.MaxFileBytes {
-		return File{}, fault("file_too_large", "文件超过单文件容量限制")
-	}
+	return s.putPreparedFile(p, name, mime, func(File) ([]byte, error) { return b, nil }, source...)
+}
+
+// 先生成文件 ID，供产物索引写入自身 URI；按准备后的最终字节检查容量并计算摘要。
+func (s *Store) putPreparedFile(p Principal, name, mime string, prepare func(File) ([]byte, error), source ...string) (File, error) {
 	if _, err := validFileName(name); err != nil {
 		return File{}, err
 	}
 
-	f := File{ID: newID("f_"), Name: name, MIME: mime, Size: int64(len(b)), SHA256: digest(b), Expires: time.Now().Unix() + s.cfg.FileTTL}
+	f := File{ID: newID("f_"), Name: name, MIME: mime, Expires: time.Now().Unix() + s.cfg.FileTTL}
 	f.URI = "feishu-file://files/" + f.ID
 	if len(source) > 0 {
 		f.SourceInvocation = source[0]
 	}
+	b, err := prepare(f)
+	if err != nil {
+		return File{}, err
+	}
+	if int64(len(b)) > s.cfg.MaxFileBytes {
+		return File{}, fault("file_too_large", "文件超过单文件容量限制")
+	}
+	f.Size, f.SHA256 = int64(len(b)), digest(b)
 	tx, err := s.db.Begin()
 	if err != nil {
 		return f, err

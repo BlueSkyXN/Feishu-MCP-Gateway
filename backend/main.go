@@ -15,7 +15,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/larksuite/cli/cmd"
 	_ "github.com/larksuite/cli/extension/credential/sidecar"
 	"github.com/larksuite/cli/extension/fileio"
 	"github.com/larksuite/cli/extension/transport"
@@ -42,7 +41,7 @@ type shortcutInfo struct {
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--gateway-capabilities" {
-		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{"contract": "feishu-gateway-backend-v1", "source_commit": sourceCommit, "app_only": true, "rooted_fileio": true, "sidecar_required": true})
+		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{"contract": "feishu-gateway-backend-v1", "source_commit": sourceCommit, "app_only": true, "rooted_fileio": true, "sidecar_required": true, "artifact_envelope": true})
 		return
 	}
 	if len(os.Args) > 1 && os.Args[1] == "--gateway-export-shortcuts" {
@@ -88,7 +87,7 @@ func main() {
 	os.Unsetenv("LARKSUITE_CLI_USER_ACCESS_TOKEN")
 	os.Unsetenv("LARKSUITE_CLI_APP_SECRET")
 	os.Unsetenv("LARKSUITE_CLI_TENANT_ACCESS_TOKEN")
-	os.Exit(cmd.Execute())
+	os.Exit(executeCLI())
 }
 func fail(kind, message string) {
 	_ = json.NewEncoder(os.Stderr).Encode(map[string]any{"ok": false, "identity": "bot", "error": map[string]any{"type": "policy", "subtype": kind, "message": message}})

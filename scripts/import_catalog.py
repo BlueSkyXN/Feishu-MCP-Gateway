@@ -132,7 +132,17 @@ def shortcut_operation(row, source):
     if service=='sheets' and row['command'] in ('+workbook-info','+sheet-list','+sheet-info','+cells-get','+csv-get','+cells-set','+cells-clear','+history-list','+revision-get') and 'spreadsheet_token' in props: resource={'spreadsheet_token':'spreadsheet'}
     if service=='im' and row['command'] in ('+chat-get','+chat-members-list') and 'chat_id' in props: resource={'chat_id':'chat'}
     if service=='wiki' and row['command'] in ('+node-list','+space-get') and 'space_id' in props: resource={'space_id':'wiki_space'}
-    return {'id':service+'.'+row['command'],'tool':'feishu_'+service+'_'+row['command'].lstrip('+').replace('-','_'),'kind':'shortcut','description':row['description'],'pack':service+('.read' if row['risk']=='read' else '.write'),'risk':row['risk'],'command':[service,row['command']],'input_schema':{'type':'object','properties':props,'required':required,'additionalProperties':False},'data_schema':{},'app_scopes':row['app_scopes'] or [],'conditional_app_scopes':row['conditional_app_scopes'] or [],'resource_bindings':resource,'flag_bindings':bindings,'egress_prefixes':sorted(prefixes),'hidden':row['hidden'],'has_dry_run':row['has_dry_run'],'conditional_confirmation':any(f['Name']=='yes' for f in row['flags'] or [])}
+    operation = {'id':service+'.'+row['command'],'tool':'feishu_'+service+'_'+row['command'].lstrip('+').replace('-','_'),'kind':'shortcut','description':row['description'],'pack':service+('.read' if row['risk']=='read' else '.write'),'risk':row['risk'],'command':[service,row['command']],'input_schema':{'type':'object','properties':props,'required':required,'additionalProperties':False},'data_schema':{},'app_scopes':row['app_scopes'] or [],'conditional_app_scopes':row['conditional_app_scopes'] or [],'resource_bindings':resource,'flag_bindings':bindings,'egress_prefixes':sorted(prefixes),'hidden':row['hidden'],'has_dry_run':row['has_dry_run'],'conditional_confirmation':any(f['Name']=='yes' for f in row['flags'] or [])}
+    if service == 'base' and row['command'] in ('+record-list', '+record-get', '+record-search'):
+        operation['artifact_format'] = 'ndjson'
+        operation['artifact_arguments'] = ['output', 'minimal_stdout', 'jq_records', 'overwrite']
+        bindings['jq_records']['collect_results'] = True
+        props['jq_records']['description'] = '对导出的完整记录数组执行 jq 表达式，结果作为 JSON 数组返回；记录文件保持完整。'
+        props['output']['description'] = '填写相对 .ndjson 文件名时导出记录和 manifest，返回对应 file_id；普通读取返回 JSON。'
+        if 'limit' in props:
+            props['limit']['description'] = '普通 JSON 读取范围 1–200；提供 output 等产物参数时使用 NDJSON，范围 1–2000。'
+    return operation
+
 
 
 def object_schema(fields):

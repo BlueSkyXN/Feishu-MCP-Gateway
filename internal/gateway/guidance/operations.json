@@ -588,7 +588,7 @@
     "Example: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id>\"])",
     "Example with projection: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"rec_001\", \"rec_002\"], field_id=[\"Name\", \"Status\"])",
     "Example for analysis input: `base.+record-get` (base_token=\"<base_token>\", table_id=\"<table_id>\", record_id=[\"<record_id>\"], field_id=[\"<field>\"], output=\"./record.ndjson\")",
-    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
+    "Record reads return inline JSON by default; set output to export NDJSON; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
     "Use `field_id` as a projection boundary to avoid loading large cell values into context when they are not needed.",
     "Use `base.+record-get` when record_id is already known; otherwise use `base.+record-search` or `base.+record-list`."
    ]
@@ -611,7 +611,7 @@
     "Option intersection filter: `filter_json` '{\"logic\":\"and\",\"conditions\":`\"Tags\",\"intersects\",[\"P0\",\"Blocked\"`]}'",
     "Sort priority follows `sort_json` array order: `sort_json` '[{\"field\":\"Updated\",\"desc\":true},{\"field\":\"Title\",\"desc\":false}]'",
     "Query priority: `filter_json` overrides `view_id`'s view filter JSON; `sort_json` overrides `view_id`'s view sort config.",
-    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
+    "Record reads return inline JSON by default; set output to export NDJSON; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset.",
     "Use `field_id` repeatedly to keep output small and aligned with the task."
    ]
   },
@@ -638,7 +638,7 @@
     "Query priority: `filter_json` overrides `view_id`'s view filter JSON; `sort_json` overrides `view_id`'s view sort config.",
     "Use `base.+record-search` flag mode for keyword matching; combine `filter_json` or `sort_json` to narrow or order matches. For filter/sort-only reads, use `base.+record-list`.",
     "Use `json` only when you need to pass the full search body directly.",
-    "Record reads default to ndjson; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset."
+    "Record reads return inline JSON by default; set output to export NDJSON; use `output` ./records.ndjson for analysis, parsing, or comparison to keep long user data out of model context; process the records file with Python or another data analysis engine. Follow lark-base-record-query-and-analysis-sop.md for engine selection and complete-data checks. Ndjson defaults to limit 2000, so set a smaller `limit` only for probes, previews, or an explicitly bounded result. Each list/search command makes one data request, up to 2000 records. If has_more is true, continue explicitly with `offset` set to next_offset."
    ]
   },
   "base.+record-share-link-create": {

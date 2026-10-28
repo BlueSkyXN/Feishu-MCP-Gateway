@@ -5,6 +5,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -16,15 +17,18 @@ def main():
     parser.add_argument('--test', action='store_true', help='运行 wrapper 测试和 vet')
     parser.add_argument('--goos')
     parser.add_argument('--goarch')
+    parser.add_argument('--source-commit', help='目录升级时显式指定新的完整来源提交；默认使用现有目录的固定提交')
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[1]
     source = args.source.resolve()
     commit = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     if subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'], text=True).strip():
         raise SystemExit('来源工作区有未提交修改，不能声称构建固定源码版本')
-    expected = json.loads((project/'internal/gateway/catalog.json').read_text())['source_commit']
+    expected = args.source_commit or json.loads((project/'internal/gateway/catalog.json').read_text())['source_commit']
+    if not re.fullmatch(r'[0-9a-f]{40}', expected):
+        raise SystemExit('source-commit 需要完整的 40 位 Git 提交摘要')
     if commit != expected:
-        raise SystemExit('来源提交与当前 Gateway 目录版本不一致')
+        raise SystemExit('来源提交与固定提交不一致；升级目录时用 --source-commit 显式指定目标提交')
     local = project/'local/backend-build'
     local.mkdir(parents=True, exist_ok=True)
     mod = local/'backend.mod'

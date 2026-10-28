@@ -286,7 +286,21 @@ func (s *Service) worker() {
 			return
 		case <-tick.C:
 		}
-		r, err := s.Store.Claim()
+		var acquired *Principal
+		var admissionErr error
+		r, err := s.Store.Claim(func(p Principal) bool {
+			admissionErr = s.acquirePrincipal(p)
+			if admissionErr == nil {
+				acquired = &p
+				return true
+			}
+			var f *Fault
+			// 撤权任务仍需领取并记录失败；额度不足的任务留给下一轮调度。
+			return !errors.As(admissionErr, &f) || f.Kind != "concurrency_limit"
+		})
+		if err != nil && acquired != nil {
+			s.releasePrincipal(*acquired)
+		}
 		if errors.Is(err, sql.ErrNoRows) {
 			continue
 		}
@@ -294,26 +308,10 @@ func (s *Service) worker() {
 			slog.Error("job claim failed", "error", err)
 			continue
 		}
-		// 已领取任务等待自身并发额度，不循环重新执行外部请求。
-		for {
-			err = s.acquirePrincipal(r.Principal)
-			if err == nil {
-				break
-			}
-			var f *Fault
-			if !errors.As(err, &f) || f.Kind != "concurrency_limit" {
-				break
-			}
-			select {
-			case <-s.ctx.Done():
-				return
-			case <-time.After(100 * time.Millisecond):
-			}
-		}
-		if err != nil {
+		if admissionErr != nil {
 			result := r.Result
 			result.Status = "failed"
-			result.Error = asFault(err)
+			result.Error = asFault(admissionErr)
 			_ = s.Store.Finish(r.ID, result)
 			continue
 		}

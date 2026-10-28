@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 )
 
@@ -223,5 +224,119 @@ func TestRealBackendMCPAppOnlyFilesAndShortcuts(t *testing.T) {
 	defer mu.Unlock()
 	if issues != 1 {
 		t.Fatalf("token cache did not coalesce sequential calls: %d; %v", issues, requests)
+	}
+}
+
+func TestRealBackendBaseRecordArtifactsAndErrors(t *testing.T) {
+	var requests atomic.Int32
+	s, _ := realBackend(t, func(r *http.Request) (*http.Response, error) {
+		if r.URL.Path == "/oauth/v3/token" {
+			return jsonResponse(r, 200, map[string]any{"access_token": "fixture", "expires_in": 7200, "token_type": "Bearer"}), nil
+		}
+		requests.Add(1)
+		switch r.URL.Path {
+		case "/open-apis/base/v3/bases/app_fixture/tables/tbl_fixture/records":
+			if r.URL.Query().Get("offset") == "1000000" && r.URL.Query().Get("limit") != "2000" {
+				t.Error("artifact page limit lost")
+			}
+		case "/open-apis/base/v3/bases/app_fixture/tables/tbl_fixture/records/batch_get", "/open-apis/base/v3/bases/app_fixture/tables/tbl_fixture/records/search":
+		default:
+			t.Errorf("unexpected endpoint: %s", r.URL.Path)
+		}
+		matrix := map[string]any{
+			"timezone": "UTC", "fields": []any{"Name"}, "field_id_list": []any{"fld_fixture"}, "field_type_list": []any{"text"},
+			"record_id_list": []any{"rec_fixture", "rec_second"}, "data": []any{[]any{"fixture"}, []any{"second"}}, "has_more": true, "rev": 42,
+		}
+		return jsonResponse(r, 200, map[string]any{"code": 0, "data": matrix}), nil
+	})
+	for _, tc := range []struct {
+		name, op string
+		extra    map[string]any
+	}{
+		{"list", "base.+record-list", map[string]any{"output": "exports/records.ndjson", "offset": float64(1000000), "limit": float64(2000)}},
+		{"get", "base.+record-get", map[string]any{"output": "records.ndjson", "record_id": []any{"rec_fixture", "rec_second"}}},
+		{"search", "base.+record-search", map[string]any{"output": "records.ndjson", "json": map[string]any{"keyword": "fixture", "search_fields": []any{"Name"}}}},
+		{"jq-stream", "base.+record-list", map[string]any{"jq_records": ".[] | .Name"}},
+		{"jq-comment", "base.+record-list", map[string]any{"jq_records": ".[] | .Name # fixture"}},
+		{"jq-empty", "base.+record-list", map[string]any{"jq_records": "empty"}},
+		{"minimal", "base.+record-list", map[string]any{"minimal_stdout": true}},
+		{"overwrite", "base.+record-list", map[string]any{"overwrite": true}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			args := map[string]any{"base_token": "app_fixture", "table_id": "tbl_fixture"}
+			for k, v := range tc.extra {
+				args[k] = v
+			}
+			r := s.Invoke(context.Background(), actor("alice"), tc.op, args)
+			if r.Error != nil || r.Status != "succeeded" {
+				t.Fatalf("%s", encode(r))
+			}
+			if len(r.Files) != 2 {
+				t.Fatalf("missing record/manifest pair: %s", encode(r))
+			}
+			artifacts := map[string]File{}
+			for _, f := range r.Files {
+				artifacts[f.URI] = f
+			}
+			for _, f := range r.Files {
+				_, content, err := s.Store.ReadFile(actor("alice"), f.ID, 0, 65536)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if int64(len(content)) != f.Size || digest(content) != f.SHA256 {
+					t.Fatalf("artifact metadata does not match stored bytes: %s", f.Name)
+				}
+				if strings.HasSuffix(f.Name, ".ndjson") {
+					if f.MIME != "application/x-ndjson" {
+						t.Fatalf("NDJSON mime: %s", f.MIME)
+					}
+					if bytes := strings.Count(string(content), "\n"); bytes != 2 {
+						t.Fatalf("record lines=%d", bytes)
+					}
+					if !strings.Contains(string(content), `"record_id":"rec_fixture"`) {
+						t.Fatalf("records: %s", content)
+					}
+				} else {
+					var manifest map[string]any
+					if json.Unmarshal(content, &manifest) != nil || manifest["format"] != "ndjson" || manifest["records_count"] != float64(2) {
+						t.Fatalf("manifest: %s", content)
+					}
+					uri, _ := manifest["record_file"].(string)
+					record, ok := artifacts[uri]
+					if !ok || !strings.HasSuffix(record.Name, ".ndjson") || manifest["manifest_file"] != f.URI || manifest["record_file_size_bytes"] != float64(record.Size) {
+						t.Fatalf("stored manifest references are not usable: %s", content)
+					}
+					if data, ok := r.Data.(map[string]any); ok && (data["record_file"] != uri || data["manifest_file"] != f.URI) {
+						t.Fatalf("manifest differs from receipt: %s", content)
+					}
+				}
+				if _, err = s.AuthorizeFile(actor("bob"), f.ID); err == nil {
+					t.Fatal("artifact crossed actor boundary")
+				}
+			}
+			switch tc.name {
+			case "jq-stream", "jq-comment":
+				if string(encode(r.Data)) != `["fixture","second"]` {
+					t.Fatalf("jq stream: %s", encode(r.Data))
+				}
+			case "jq-empty":
+				if string(encode(r.Data)) != `[]` {
+					t.Fatalf("jq empty: %s", encode(r.Data))
+				}
+			default:
+				data := object(r.Data)
+				if !strings.HasPrefix(data["record_file"].(string), "feishu-file://") || !strings.HasPrefix(data["manifest_file"].(string), "feishu-file://") {
+					t.Fatalf("paths not rewritten: %s", encode(data))
+				}
+				if tc.name == "list" && data["next_offset"] != float64(1000002) {
+					t.Fatalf("integer offset changed: %s", encode(data))
+				}
+			}
+		})
+	}
+	before := requests.Load()
+	r := s.Invoke(context.Background(), actor("alice"), "base.+record-list", map[string]any{"base_token": "app_fixture", "table_id": "tbl_fixture", "limit": float64(-1)})
+	if r.Error == nil || r.Error.Kind != "upstream_validation_invalid_argument" || r.Error.Message == "" || requests.Load() != before {
+		t.Fatalf("structured validation error: %s", encode(r))
 	}
 }
