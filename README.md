@@ -69,7 +69,9 @@ python3 scripts/refresh_catalog.py /path/to/lark-cli
 go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
 ```
 
-核对步骤见 [Agent 使用层](docs/AGENT-USAGE.md#升级-lark-cli)。维护者可以从干净提交生成完整发布包：
+更换 lark-cli 提交时，在刷新命令中加 `--source-commit <完整的40位提交摘要>`；省略时只允许目录中已固定的提交。核对步骤见 [Agent 使用层](docs/AGENT-USAGE.md#升级-lark-cli)。
+
+维护者可以从干净提交生成完整发布包：
 
 ```sh
 python3 scripts/build_release.py /path/to/lark-cli --tag v0.3.0-dev --output local/releases/v0.3.0-dev
@@ -81,7 +83,7 @@ python3 scripts/build_release.py /path/to/lark-cli --tag v0.3.0-dev --output loc
 
 复制 [示例配置](examples/config.json) 到 `local/config.json`。相对 `data_dir` 相对于配置文件目录解析。`cli_binary` 填受控 wrapper 的绝对路径，`cli_sha256` 填其 SHA-256。普通 lark-cli 二进制无法通过受控后端契约检查。
 
-`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张。0.3.0-dev 清理了目录中的描述文字，并修正了 18 个 sheets 参数的校验，升级时需要更新此值。`--version` 同时输出版本、目录摘要和指南摘要：
+`catalog_revision` 固定实际工具目录的摘要。升级目录时，先核对覆盖台账和已有 packs，再更新此值，以免能力包静默扩张。0.3.0-dev 清理了目录描述、修正 18 个 sheets 参数校验，并补齐 Base 记录的 NDJSON 产物映射，升级时需要更新此值。配套 wrapper 需要支持 `artifact_envelope`，重新构建后更新 `cli_sha256`。`--version` 同时输出版本、目录摘要和指南摘要：
 
 ```sh
 ./bin/feishu-mcp-gateway --version
@@ -147,6 +149,8 @@ X-QoderWake-AtWaker-Sender-Channel
 小文本通过 `feishu_file_create` 保存。文件输入使用 `{"file_id":"f_…"}`；通用 API 形如 `files.image`，shortcut 形如 `content`。`workspace_files` 是相对名称到 file_id 的映射，在本次调用的 `inputs/` 下提供，用于 Markdown/XML 中的相对资源引用。
 
 每次调用独立工作区，输入只从当前主体的 File Store 挂载。输出使用相对名称；超限回执（包括 data、meta 和文件清单）保存为 result.json。产物归档后返回 files 与 `feishu-file://files/…` resource_link。未改变的输入不会重复归档，部分失败保留已经产生的文件。工作区退出后清理。
+
+Base 的 `record-list`、`record-get`、`record-search` 默认返回 JSON；填写 `output`（相对 `.ndjson` 文件名）时导出记录与 manifest。非空 `jq_records`、`minimal_stdout=true` 或 `overwrite=true` 也会启用产物模式。`jq_records` 的结果放在 `data` 数组中，完整记录文件仍可从 `files` 获取。归档 manifest 中的 `record_file`、`manifest_file` 与回执一致，使用 `feishu-file://` 资源 URI。
 
 - `feishu_file_list/stat/read/delete` 管理当前主体的文件；read 每次最多 64 KiB，返回 next_offset 和 eof。
 - `resources/read` 适合小文件；每次检查当前主体和产物来源操作的权限。

@@ -276,7 +276,7 @@ func (s *Service) addUtility(server *mcp.Server, name, description string, input
 	}))
 }
 func isText(mime string) bool {
-	return strings.HasPrefix(mime, "text/") || strings.HasPrefix(mime, "application/json")
+	return strings.HasPrefix(mime, "text/") || strings.HasPrefix(mime, "application/json") || strings.HasPrefix(mime, "application/x-ndjson")
 }
 
 func decodeArguments(raw json.RawMessage, out *map[string]any) error {

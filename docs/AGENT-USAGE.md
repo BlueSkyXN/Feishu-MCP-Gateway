@@ -111,8 +111,10 @@ go run ./cmd/gateway --render-skill > skills/feishu-gateway/SKILL.md
 2. 重新生成目录、覆盖台账和指南：
 
    ```sh
-   python3 scripts/refresh_catalog.py /path/to/lark-cli
+   python3 scripts/refresh_catalog.py /path/to/lark-cli --source-commit <完整的40位目标提交摘要>
    ```
+
+   仅调整转换规则、继续使用目录已固定的来源时，省略 `--source-commit`。指定目标提交仍要求来源工作区干净，且 HEAD 与该提交一致。
 
 3. 核对 `git diff`：`docs/coverage.json` 中新增或排除的操作、能力包变化、指南的新增与删除。
 4. 运行 `go test ./...`。领域入口操作失效、指南引用了不存在的操作、代码块示例不符合 schema 或原文残留超过上限时，测试会指出具体项；需要时更新 `domains.go` 或 `scripts/lark_guidance.py` 的转换规则。

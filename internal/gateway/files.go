@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -204,7 +205,35 @@ func (w *workspace) fileArgument(value any, b FlagBinding) (string, error) {
 func (w *workspace) collect(e *CLIExecutor, in Invocation) ([]File, map[string]File, error) {
 	var files []File
 	paths := map[string]File{}
+	var manifests []string
 	var total int64
+	read := func(name string) ([]byte, error) {
+		f, err := w.root.Open(name)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		return readBounded(f, e.limit)
+	}
+	save := func(name string, b []byte) error {
+		if len(files) >= 256 {
+			return fault("output_file_limit", "产物超过 256 个文件，请分批执行")
+		}
+		typ := mime.TypeByExtension(filepath.Ext(name))
+		if strings.EqualFold(filepath.Ext(name), ".ndjson") {
+			typ = "application/x-ndjson"
+		}
+		if typ == "" {
+			typ = "application/octet-stream"
+		}
+		saved, err := e.store.PutFile(in.Principal, filepath.Base(name), typ, b, in.ID)
+		if err != nil {
+			return err
+		}
+		files = append(files, saved)
+		paths[name] = saved
+		return nil
+	}
 	err := fs.WalkDir(w.root.FS(), ".", func(name string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -235,35 +264,104 @@ func (w *workspace) collect(e *CLIExecutor, in Invocation) ([]File, map[string]F
 		if total > e.workspaceLimit {
 			return fault("workspace_limit", "工作区产物超过总量限制")
 		}
-		f, err := w.root.Open(name)
-		if err != nil {
-			return err
-		}
-		b, err := readBounded(f, e.limit)
-		f.Close()
+		b, err := read(name)
 		if err != nil {
 			return err
 		}
 		if w.inputs[name] == digest(b) {
 			return nil
 		}
-		if len(files) >= 256 {
+		if len(files)+len(manifests) >= 256 {
 			return fault("output_file_limit", "产物超过 256 个文件，请分批执行")
 		}
-		typ := mime.TypeByExtension(filepath.Ext(name))
-		if typ == "" {
-			typ = "application/octet-stream"
+		if in.Operation.outputFormat(in.Arguments) == "ndjson" && strings.HasSuffix(name, ".manifest.json") {
+			// 记录文件先归档，索引随后引用已落盘的文件和自身的新 ID。
+			manifests = append(manifests, name)
+			return nil
 		}
-		saved, err := e.store.PutFile(in.Principal, filepath.Base(name), typ, b, in.ID)
+		return save(name, b)
+	})
+	if err != nil {
+		return files, paths, err
+	}
+	for _, name := range manifests {
+		b, err := read(name)
 		if err != nil {
-			return err
+			return files, paths, err
 		}
+		manifest, recordPath, err := w.recordManifest(name, b)
+		if err != nil {
+			return files, paths, err
+		}
+		if _, ok := paths[recordPath]; !ok && w.inputs[recordPath] != "" {
+			// 显式导出也可能覆盖 inputs 中的文件且内容未变；索引需要本次产物的独立有效期。
+			records, err := read(recordPath)
+			if err == nil {
+				err = save(recordPath, records)
+			}
+			if err != nil {
+				return files, paths, err
+			}
+		}
+		record, ok := paths[recordPath]
+		if !ok {
+			return files, paths, fault("invalid_manifest", "NDJSON manifest 引用的记录文件未归档，请核对导出结果")
+		}
+		if len(files) >= 256 {
+			return files, paths, fault("output_file_limit", "产物超过 256 个文件，请分批执行")
+		}
+		saved, err := e.store.putPreparedFile(in.Principal, filepath.Base(name), "application/json", func(self File) ([]byte, error) {
+			manifest["record_file"] = encode(record.URI)
+			manifest["manifest_file"] = encode(self.URI)
+			content := append(encode(manifest), '\n')
+			if total+int64(len(content)-len(b)) > e.workspaceLimit {
+				return nil, fault("workspace_limit", "工作区产物超过总量限制")
+			}
+			return content, nil
+		}, in.ID)
+		if err != nil {
+			return files, paths, err
+		}
+		total += saved.Size - int64(len(b))
 		files = append(files, saved)
 		paths[name] = saved
-		return nil
-	})
-	return files, paths, err
+	}
+	return files, paths, nil
 }
+
+// 仅解析 NDJSON 产物索引的关联字段；业务元数据用 RawMessage 保留精确数值和字符串。
+func (w *workspace) recordManifest(name string, raw []byte) (map[string]json.RawMessage, string, error) {
+	var manifest map[string]json.RawMessage
+	invalid := fault("invalid_manifest", "NDJSON manifest 的文件引用无效，请核对导出结果")
+	if json.Unmarshal(raw, &manifest) != nil {
+		return nil, "", invalid
+	}
+	var format, recordFile, manifestFile string
+	if json.Unmarshal(manifest["format"], &format) != nil || format != "ndjson" ||
+		json.Unmarshal(manifest["record_file"], &recordFile) != nil || json.Unmarshal(manifest["manifest_file"], &manifestFile) != nil {
+		return nil, "", invalid
+	}
+	relative := func(value string) (string, error) {
+		if filepath.IsAbs(value) {
+			var err error
+			value, err = filepath.Rel(w.dir, value)
+			if err != nil {
+				return "", err
+			}
+		}
+		return logicalPath(value)
+	}
+	recordPath, err := relative(recordFile)
+	if err != nil || !strings.HasSuffix(recordPath, ".ndjson") {
+		return nil, "", invalid
+	}
+	selfPath, err := relative(manifestFile)
+	if err != nil || selfPath != name {
+		return nil, "", invalid
+	}
+	return manifest, recordPath, nil
+}
+
 func (w *workspace) rewrite(v any, paths map[string]File) any {
 	switch x := v.(type) {
 	case string:
@@ -299,7 +397,7 @@ func cloneArguments(args map[string]any) map[string]any {
 }
 func (e *CLIExecutor) buildArgs(in Invocation, w *workspace) ([]string, error) {
 	argv := append([]string{}, in.Operation.Command...)
-	argv = append(argv, "--as", "bot", "--format", "json")
+	argv = append(argv, "--as", "bot", "--format", in.Operation.outputFormat(in.Arguments))
 	if in.Operation.Risk == "high-risk-write" || in.Operation.ConditionalConfirmation {
 		argv = append(argv, "--yes")
 	}
@@ -360,11 +458,21 @@ func (e *CLIExecutor) buildArgs(in Invocation, w *workspace) ([]string, error) {
 			switch binding.Type {
 			case "string", "string_array", "string_slice", "":
 				text, err = w.fileArgument(v, binding)
+			case "int", "int_array":
+				if n, ok := v.(float64); ok {
+					text = strconv.FormatFloat(n, 'f', -1, 64)
+				} else {
+					text = fmt.Sprint(v)
+				}
 			default:
 				text = fmt.Sprint(v)
 			}
 			if err != nil {
 				return nil, err
+			}
+			if binding.CollectResults && strings.TrimSpace(text) != "" {
+				// CLI 的 jq 字符串输出没有引号；收集为数组后可完整保留类型和换行。
+				text = "[(\n" + text + "\n)]"
 			}
 			argv = append(argv, "--"+binding.Name+"="+text)
 		}

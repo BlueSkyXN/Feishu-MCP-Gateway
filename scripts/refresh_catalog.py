@@ -16,13 +16,17 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source', type=Path, help='lark-cli 源码目录，需处于目标提交且无未提交修改')
+    parser.add_argument('--source-commit', help='升级来源时指定目标完整提交；省略时核对现有目录提交')
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[1]
     source = args.source.resolve()
     backend = project / 'local/import/lark-cli-gateway'
     shortcuts = project / 'local/import/shortcuts.json'
     shortcuts.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run([sys.executable, str(project / 'scripts/build_backend.py'), str(source), '--output', str(backend)], cwd=project, check=True)
+    build = [sys.executable, str(project / 'scripts/build_backend.py'), str(source), '--output', str(backend)]
+    if args.source_commit:
+        build.extend(['--source-commit', args.source_commit])
+    subprocess.run(build, cwd=project, check=True)
     with tempfile.TemporaryDirectory(prefix='gateway-export-') as home:
         env = {'HOME': home, 'PATH': '/usr/bin:/bin', 'CI': '1', 'LARKSUITE_CLI_CONFIG_DIR': home + '/config', 'LARKSUITE_CLI_NO_UPDATE_NOTIFIER': '1', 'LARKSUITE_CLI_NO_SKILLS_NOTIFIER': '1'}
         shortcuts.write_bytes(subprocess.run([str(backend), '--gateway-export-shortcuts'], env=env, cwd=home, check=True, capture_output=True).stdout)

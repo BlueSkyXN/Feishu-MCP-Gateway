@@ -21,6 +21,8 @@ func CatalogRevision() string {
 }
 
 type Operation struct {
+	ArtifactFormat          string                 `json:"artifact_format,omitempty"`
+	ArtifactArguments       []string               `json:"artifact_arguments,omitempty"`
 	QueryFields             []string               `json:"query_fields,omitempty"`
 	ParameterDefaults       map[string]any         `json:"parameter_defaults,omitempty"`
 	Kind                    string                 `json:"kind"`
@@ -49,12 +51,13 @@ type Operation struct {
 }
 
 type FlagBinding struct {
-	JSON   bool     `json:"json,omitempty"`
-	Name   string   `json:"name"`
-	Type   string   `json:"type"`
-	Input  []string `json:"input"`
-	File   bool     `json:"file"`
-	Output bool     `json:"output"`
+	CollectResults bool     `json:"collect_results,omitempty"`
+	JSON           bool     `json:"json,omitempty"`
+	Name           string   `json:"name"`
+	Type           string   `json:"type"`
+	Input          []string `json:"input"`
+	File           bool     `json:"file"`
+	Output         bool     `json:"output"`
 }
 
 type Catalog struct {
@@ -95,6 +98,17 @@ func LoadCatalog() (*Catalog, error) {
 		if op.Risk != "read" && op.Risk != "write" && op.Risk != "high-risk-write" {
 			return nil, fmt.Errorf("unsupported risk: %s", op.ID)
 		}
+		if op.ArtifactFormat != "" || len(op.ArtifactArguments) > 0 {
+			if op.Kind != "shortcut" || op.ArtifactFormat != "ndjson" || len(op.ArtifactArguments) == 0 {
+				return nil, fmt.Errorf("unsupported artifact mapping: %s", op.ID)
+			}
+			for _, name := range op.ArtifactArguments {
+				binding, ok := op.FlagBindings[name]
+				if !ok || (binding.Type != "string" && binding.Type != "bool") {
+					return nil, fmt.Errorf("invalid artifact argument: %s.%s", op.ID, name)
+				}
+			}
+		}
 		var err error
 		op.input, err = compileSchema(op.InputSchema)
 		if err != nil {
@@ -111,6 +125,22 @@ func LoadCatalog() (*Catalog, error) {
 }
 
 func (c *Catalog) Operation(id string) (Operation, bool) { op, ok := c.byID[id]; return op, ok }
+
+func (op Operation) outputFormat(args map[string]any) string {
+	for _, name := range op.ArtifactArguments {
+		switch v := args[name].(type) {
+		case string:
+			if v != "" {
+				return op.ArtifactFormat
+			}
+		case bool:
+			if v {
+				return op.ArtifactFormat
+			}
+		}
+	}
+	return "json"
+}
 func (op Operation) Validate(args map[string]any) error {
 	if err := op.input.Validate(args); err != nil {
 		return fault("invalid_arguments", err.Error())
