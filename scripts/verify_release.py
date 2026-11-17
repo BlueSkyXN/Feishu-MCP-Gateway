@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 BlueSkyXN
 # SPDX-License-Identifier: GPL-3.0-only
-"""核对 build_release.py 的输出：SHA256SUMS 覆盖全部发布文件且与文件一致；每个目标包内的二进制、
-PROVENANCE.json 记录、对应源码包在关闭网络并使用空模块与构建缓存时的重建结果，三者逐一相同。"""
+"""核对发布文件、二进制的 PROVENANCE 与离线重建结果，以及平台客户端脚本与对应源码的一致性。"""
 import argparse
 import hashlib
 import json
@@ -14,6 +13,7 @@ import tempfile
 from pathlib import Path
 
 BINARIES = ['feishu-mcp-gateway', 'lark-cli-gateway']
+CLIENT_SCRIPTS = ['request_client.py', 'transfer_file.py']
 
 
 def sha256(path):
@@ -43,7 +43,7 @@ def main():
               # 发布目录、SHA256SUMS 与 PROVENANCE 的目标列表必须描述同一组文件。
               'files_missing_from_sums': sorted(set(published) - set(sums)), 'files_missing_from_release': sorted(set(sums) - set(published)),
               'files_not_in_provenance': sorted(set(published) - set(expected_files)), 'provenance_files_missing': sorted(set(expected_files) - set(published)),
-              'binaries': []}
+              'binaries': [], 'client_scripts': []}
     with tempfile.TemporaryDirectory(prefix='release-verify-') as directory:
         root = Path(directory)
         with tarfile.open(release/f'{source_name}.tar.gz') as archive:
@@ -58,6 +58,17 @@ def main():
             if (release/f'{bundle}.tar.gz').is_file():
                 with tarfile.open(release/f'{bundle}.tar.gz') as archive:
                     archive.extractall(packaged, filter='data')
+            for name in CLIENT_SCRIPTS:
+                source_path = tree/'project/scripts'/name
+                # 旧版本源码没有请求客户端；按对应源码实际提供的入口核对平台包。
+                if not source_path.is_file():
+                    continue
+                archive_path = packaged/bundle/'scripts'/name
+                item = {'target': target, 'script': 'scripts/'+name,
+                        'source_sha256': sha256(source_path),
+                        'archive_sha256': sha256(archive_path) if archive_path.is_file() else None}
+                item['identical'] = item['archive_sha256'] == item['source_sha256']
+                report['client_scripts'].append(item)
             rebuilt = root/'rebuild'/target
             subprocess.run([sys.executable, 'rebuild.py', '--goos', goos, '--goarch', goarch, '--output', str(rebuilt)], cwd=tree, env=env, check=True)
             for name in sorted(set(BINARIES) | set(recorded)):
@@ -69,13 +80,14 @@ def main():
                 report['binaries'].append(item)
     report['passed'] = (not mismatched and not report['files_missing_from_sums'] and not report['files_missing_from_release']
                         and not report['files_not_in_provenance'] and not report['provenance_files_missing']
-                        and bool(report['binaries']) and all(item['identical'] for item in report['binaries']))
+                        and bool(report['binaries']) and all(item['identical'] for item in report['binaries'])
+                        and all(item['identical'] for item in report['client_scripts']))
     text = json.dumps(report, ensure_ascii=False, indent=2)+'\n'
     if args.output:
         args.output.write_text(text)
     print(text, end='')
     if not report['passed']:
-        raise SystemExit('发布包核对失败：校验和或文件清单不一致，或包内二进制、PROVENANCE 记录与源码包重建结果不同；详见上方 JSON')
+        raise SystemExit('发布包核对失败：请检查上方 JSON 中的文件清单、校验和、二进制重建结果及客户端脚本一致性。')
 
 
 if __name__ == '__main__':

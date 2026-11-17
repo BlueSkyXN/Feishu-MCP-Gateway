@@ -61,6 +61,9 @@ jobs:
       - name: Process smoke
         run: python3 scripts/smoke_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway --output "$RUNNER_TEMP/process-smoke.json"
 
+      - name: Request-mode smoke
+        run: python3 scripts/smoke_request_gateway.py bin/feishu-mcp-gateway bin/lark-cli-gateway --output "$RUNNER_TEMP/request-smoke.json"
+
       - name: Python regression tests
         run: python3 -m unittest discover -s scripts -p 'test_*.py'
 

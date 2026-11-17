@@ -8,8 +8,11 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -33,6 +36,7 @@ func run() error {
 	keygen := flag.Bool("generate-key", false, "仅向 stdout 输出新接入 key 和校验摘要，不写文件")
 	version := flag.Bool("version", false, "输出版本、目录摘要与指南摘要")
 	renderSkill := flag.Bool("render-skill", false, "输出随仓库发布的 feishu-gateway SKILL.md")
+	explainPath := flag.String("explain-request", "", "从 JSON headers 文件解释身份与路由，不调用飞书或启动后端")
 	flag.Parse()
 	if *catalogFlag {
 		fmt.Println(gateway.CatalogRevision())
@@ -55,6 +59,9 @@ func run() error {
 	c, err := gateway.LoadConfig(*path)
 	if err != nil {
 		return err
+	}
+	if *explainPath != "" {
+		return explainRequest(c, *explainPath)
 	}
 	executor, err := gateway.NewCLIExecutor(c)
 	if err != nil {
@@ -122,4 +129,45 @@ func run() error {
 			}
 		}
 	}
+}
+
+func explainRequest(c gateway.Config, path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	b, err := io.ReadAll(io.LimitReader(f, (64<<10)+1))
+	if err != nil {
+		return err
+	}
+	if len(b) > 64<<10 {
+		return errors.New("请求示例超过 64 KiB")
+	}
+	var input struct {
+		Headers map[string]json.RawMessage `json:"headers"`
+	}
+	if err := json.Unmarshal(b, &input); err != nil {
+		return errors.New("请求示例需要 JSON 对象，headers 的值为字符串或字符串数组")
+	}
+	headers := http.Header{}
+	for name, raw := range input.Headers {
+		var value string
+		if json.Unmarshal(raw, &value) == nil {
+			headers[name] = []string{value}
+			continue
+		}
+		var values []string
+		if err := json.Unmarshal(raw, &values); err != nil {
+			return errors.New("headers 的值必须为字符串或字符串数组")
+		}
+		headers[name] = values
+	}
+	result, err := c.ExplainRequest(headers)
+	if err != nil {
+		return err
+	}
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(result)
 }

@@ -5,8 +5,6 @@ package gateway
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -19,9 +17,12 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/BlueSkyXN/Feishu-MCP-Gateway/internal/ingress"
 )
 
 type App struct {
+	CredentialMode            string   `json:"credential_mode,omitempty"`
 	OutboundRequestsPerSecond float64  `json:"outbound_requests_per_second,omitempty"`
 	EventVerifyTokenEnv       string   `json:"event_verify_token_env,omitempty"`
 	EventEncryptKeyEnv        string   `json:"event_encrypt_key_env,omitempty"`
@@ -49,6 +50,8 @@ type ActorPolicy struct {
 }
 
 type Client struct {
+	CallerAdapter        ingress.Adapter        `json:"caller_adapter,omitempty"`
+	Routes               []ingress.Route        `json:"routes,omitempty"`
 	EventTypes           []string               `json:"event_types,omitempty"`
 	AllowTransferTickets bool                   `json:"allow_transfer_tickets,omitempty"`
 	ToolView             string                 `json:"tool_view,omitempty"`
@@ -187,11 +190,29 @@ func (c *Config) Validate() error {
 		if a.Brand != "feishu" && a.Brand != "lark" {
 			return fmt.Errorf("应用 %s 的 brand 必须为 feishu 或 lark", a.ID)
 		}
+		if a.CredentialMode == "" {
+			a.CredentialMode = "managed"
+		}
+		if a.CredentialMode != "managed" && a.CredentialMode != "request_bearer" {
+			return errors.New("credential_mode 必须为 managed 或 request_bearer")
+		}
 		if a.DPoPMode == "" {
 			a.DPoPMode = "preferred"
+			if a.CredentialMode == "request_bearer" {
+				a.DPoPMode = "disabled"
+			}
 		}
 		if a.DPoPMode != "preferred" && a.DPoPMode != "required" && a.DPoPMode != "disabled" {
 			return errors.New("dpop_mode 必须为 preferred、required 或 disabled")
+		}
+		if a.CredentialMode == "request_bearer" {
+			if a.SecretEnv != "" || a.DPoPMode != "disabled" {
+				return errors.New("request_bearer 不接收 secret_env，且只支持 dpop_mode=disabled")
+			}
+			if len(a.EventTypes) > 0 || a.EventVerifyTokenEnv != "" || a.EventEncryptKeyEnv != "" {
+				return errors.New("request_bearer 本版不支持后台事件回调配置")
+			}
+			a.secret = ""
 		}
 		if !a.Disabled && len(a.EventTypes) > 0 {
 			a.eventToken = os.Getenv(a.EventVerifyTokenEnv)
@@ -200,7 +221,7 @@ func (c *Config) Validate() error {
 				return errors.New("事件接入需要配置 verify token 与 encrypt key 的环境变量")
 			}
 		}
-		if !a.Disabled {
+		if !a.Disabled && a.CredentialMode == "managed" {
 			a.secret = os.Getenv(a.SecretEnv)
 			if a.secret == "" {
 				return fmt.Errorf("应用 %s 缺少配置的 secret_env", a.ID)
@@ -233,8 +254,33 @@ func (c *Config) Validate() error {
 		}
 		ids[v.ID] = true
 		keys[strings.ToLower(v.KeySHA256)] = true
-		if v.IdentityMode != "client" && v.IdentityMode != "wake_actor" {
-			return errors.New("identity_mode 必须为 client 或 wake_actor")
+		if v.IdentityMode != "client" && v.IdentityMode != "actor" && v.IdentityMode != "wake_actor" {
+			return errors.New("identity_mode 必须为 client、actor 或兼容模式 wake_actor")
+		}
+		if v.IdentityMode == "wake_actor" {
+			if v.CallerAdapter.Kind == "" {
+				v.CallerAdapter.Kind = "qoderwake"
+			}
+			if v.CallerAdapter.Kind != "qoderwake" {
+				return errors.New("wake_actor 必须使用 qoderwake caller_adapter；通用身份请使用 actor")
+			}
+		}
+		if v.CallerAdapter.Kind == "" {
+			v.CallerAdapter.Kind = "none"
+		}
+		if err := v.CallerAdapter.Validate(); err != nil {
+			return fmt.Errorf("接入 %s 的 caller_adapter 无效: %w", v.ID, err)
+		}
+		if v.IdentityMode == "actor" && v.CallerAdapter.Kind == "none" {
+			return errors.New("actor 身份模式需要配置 caller_adapter")
+		}
+		if err := ingress.ValidateRoutes(v.Routes); err != nil {
+			return fmt.Errorf("接入 %s 的 routes 无效: %w", v.ID, err)
+		}
+		for _, route := range v.Routes {
+			if !apps[route.AppConnectionID] {
+				return fmt.Errorf("路由 %s 引用了未配置的 app_connection_id", route.ID)
+			}
 		}
 		if v.ResourceMode != "application_scope" && v.ResourceMode != "resource_scoped" {
 			return errors.New("resource_mode 必须明确选择 application_scope 或 resource_scoped")
@@ -270,43 +316,8 @@ func (c Config) app(id string) (App, bool) {
 }
 
 func (c Config) authenticate(r *http.Request) (Principal, error) {
-	if len(r.Header.Values("Authorization")) != 1 {
-		return Principal{}, fault("unauthenticated", "需要唯一的 Bearer 接入凭据")
-	}
-	h := r.Header.Get("Authorization")
-	if !strings.HasPrefix(h, "Bearer ") {
-		return Principal{}, fault("unauthenticated", "需要 Bearer 接入凭据")
-	}
-	hash := sha256.Sum256([]byte(strings.TrimPrefix(h, "Bearer ")))
-	for _, v := range c.Clients {
-		expected, _ := hex.DecodeString(v.KeySHA256)
-		if subtle.ConstantTimeCompare(hash[:], expected) != 1 || v.Disabled {
-			continue
-		}
-		a, ok := c.app(v.AppID)
-		if !ok {
-			return Principal{}, fault("application_disabled", "应用连接已停用")
-		}
-		p := Principal{ClientID: v.ID, AppID: a.ID, OrgID: a.OrgID}
-		if v.IdentityMode == "wake_actor" {
-			id := r.Header.Get("X-QoderWake-AtWaker-Sender-Id")
-			channel := r.Header.Get("X-QoderWake-AtWaker-Sender-Channel")
-			if len(r.Header.Values("X-QoderWake-AtWaker-Sender-Id")) > 1 || len(r.Header.Values("X-QoderWake-AtWaker-Sender-Channel")) > 1 {
-				return Principal{}, fault("invalid_actor", "提问者 Header 重复")
-			}
-			if id != "" || channel != "" {
-				if id == "" || (channel != "feishu" && channel != "lark") || strings.ContainsAny(id, ":\r\n") || len(id) > 128 {
-					return Principal{}, fault("invalid_actor", "提问者标识或渠道无效")
-				}
-				p.Actor = channel + ":user_id:" + id
-				if _, ok := v.Actors[p.Actor]; !ok {
-					return Principal{}, fault("actor_denied", "提问者未被授予此接入权限")
-				}
-			}
-		}
-		return p, nil
-	}
-	return Principal{}, fault("unauthenticated", "接入凭据无效或已停用")
+	state, err := c.authenticateRequest(r)
+	return state.Principal, err
 }
 
 func (c Config) checkPrincipal(p Principal, requireActor bool) (Client, App, error) {
@@ -314,17 +325,26 @@ func (c Config) checkPrincipal(p Principal, requireActor bool) (Client, App, err
 	if !ok {
 		return Client{}, App{}, fault("access_revoked", "接入已停用")
 	}
-	a, ok := c.app(v.AppID)
-	if !ok || a.ID != p.AppID || a.OrgID != p.OrgID {
-		return v, a, fault("access_revoked", "应用绑定已改变或停用")
+	var caller ingress.Caller
+	var requested string
+	if p.Routing != nil {
+		caller, requested = p.Routing.Caller, p.Routing.RequestedRoute
 	}
-	if v.IdentityMode == "wake_actor" {
+	selected, err := ingress.Select(v.Routes, caller, requested, v.AppID)
+	if err != nil {
+		return v, App{}, fault("access_revoked", "原请求的路由已不再有效")
+	}
+	a, ok := c.app(selected.AppConnectionID)
+	if !ok || a.ID != p.AppID || a.OrgID != p.OrgID {
+		return v, a, fault("access_revoked", "应用绑定或路由已改变或停用")
+	}
+	if v.IdentityMode == "wake_actor" || v.IdentityMode == "actor" {
 		if requireActor && p.Actor == "" {
-			return v, a, fault("actor_required", "此操作需要 Wake 提问者身份")
+			return v, a, fault("actor_required", "此操作需要调用者身份")
 		}
-		if p.Actor != "" {
+		if p.Actor != "" && (v.IdentityMode == "wake_actor" || len(v.Actors) > 0) {
 			if _, ok := v.Actors[p.Actor]; !ok {
-				return v, a, fault("actor_denied", "提问者权限已撤销")
+				return v, a, fault("actor_denied", "调用者未被授予此接入")
 			}
 		}
 	} else if p.Actor != "" {

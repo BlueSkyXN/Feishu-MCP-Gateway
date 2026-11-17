@@ -93,6 +93,9 @@ func (s *Service) Reload(c Config) error {
 			return errors.New("现有应用连接不能改绑；请使用新的连接 id")
 		}
 	}
+	if err := s.Store.EnsureAppBindings(c.Apps); err != nil {
+		return err
+	}
 	for _, a := range c.Apps {
 		s.bindings[a.ID] = a
 	}
@@ -161,13 +164,24 @@ func (s *Service) acquirePrincipal(p Principal) error {
 	return nil
 }
 func (s *Service) releasePrincipal(p Principal) {
+	// 计数归零即删除 key：动态 actor 会不断产生新 key，只减不删会让闲置条目无限增长。
+	// rates 是按分钟窗口的调用频率，不随并发归零清空，否则能绕过速率限制。
 	s.limitsMu.Lock()
 	defer s.limitsMu.Unlock()
 	for _, key := range []string{"global", "client:" + p.ClientID, "app:" + p.AppID} {
+		if s.counts[key] <= 1 {
+			delete(s.counts, key)
+			continue
+		}
 		s.counts[key]--
 	}
 	if p.Actor != "" {
-		s.counts["actor:"+p.Owner()]--
+		key := "actor:" + p.Owner()
+		if s.counts[key] <= 1 {
+			delete(s.counts, key)
+			return
+		}
+		s.counts[key]--
 	}
 }
 func (s *Service) admin(w http.ResponseWriter, r *http.Request) {

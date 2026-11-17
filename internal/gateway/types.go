@@ -10,18 +10,38 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+
+	"github.com/BlueSkyXN/Feishu-MCP-Gateway/internal/ingress"
 )
 
 type Principal struct {
-	ClientID string `json:"client_id"`
-	AppID    string `json:"app_connection_id"`
-	OrgID    string `json:"organization_id"`
-	Actor    string `json:"actor,omitempty"`
+	ClientID string          `json:"client_id"`
+	AppID    string          `json:"app_connection_id"`
+	OrgID    string          `json:"organization_id"`
+	Actor    string          `json:"actor,omitempty"`
+	Routing  *RoutingContext `json:"routing,omitempty"`
 }
 
-func (p Principal) Owner() string { b, _ := json.Marshal(p); return digest(b) }
-func digest(b []byte) string      { v := sha256.Sum256(b); return hex.EncodeToString(v[:]) }
-func newID(prefix string) string  { return prefix + rand.Text() }
+// Routing records only non-secret inputs needed to reevaluate current routes.
+// Display names and credentials are deliberately not part of durable identity.
+type RoutingContext struct {
+	Caller         ingress.Caller `json:"caller"`
+	RequestedRoute string         `json:"requested_route,omitempty"`
+}
+
+func (p Principal) Owner() string {
+	// Preserve the v0.3 ownership bytes so existing files and receipts remain usable.
+	identity := struct {
+		ClientID string `json:"client_id"`
+		AppID    string `json:"app_connection_id"`
+		OrgID    string `json:"organization_id"`
+		Actor    string `json:"actor,omitempty"`
+	}{p.ClientID, p.AppID, p.OrgID, p.Actor}
+	b, _ := json.Marshal(identity)
+	return digest(b)
+}
+func digest(b []byte) string     { v := sha256.Sum256(b); return hex.EncodeToString(v[:]) }
+func newID(prefix string) string { return prefix + rand.Text() }
 
 type Fault struct {
 	Kind          string   `json:"kind"`

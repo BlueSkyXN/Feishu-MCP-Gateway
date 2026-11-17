@@ -62,7 +62,7 @@ func guardResource(h mcp.ResourceHandler) mcp.ResourceHandler {
 	}
 }
 
-const Version = "0.3.0-dev"
+const Version = "0.4.0-dev"
 
 func (s *Service) mcpView(client Client) *mcp.Server {
 	server := mcp.NewServer(&mcp.Implementation{Name: "Feishu-MCP-Gateway", Version: Version}, &mcp.ServerOptions{
@@ -108,7 +108,10 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 			total += d.Operations
 			brief = append(brief, map[string]any{"domain": d.Domain, "title": d.Title, "operations": d.Operations})
 		}
-		return Result{Status: "succeeded", Data: map[string]any{"app_connection_id": a.ID, "execution_identity": "bot", "identity_mode": c.IdentityMode, "actor": p.Actor, "packs": c.Packs, "tool_view": c.ToolView, "operations": total, "domains": brief, "catalog_source": s.Catalog.SourceCommit, "catalog_revision": s.catalogRevision, "guidance_revision": s.Guidance.revision}}
+		info := requestInfo(ctx)
+		// app_id/brand/supports_async 表达本次路由选中的应用配置与执行契约；
+		// managed 才有后台异步能力，request_bearer 仅同步执行。
+		return Result{Status: "succeeded", Data: map[string]any{"app_connection_id": a.ID, "app_id": a.AppID, "brand": a.Brand, "supports_async": a.CredentialMode != "request_bearer", "execution_identity": "bot", "identity_mode": c.IdentityMode, "actor": p.Actor, "caller": info.Caller, "route_id": info.RouteID, "credential_mode": a.CredentialMode, "upstream_credential_present": info.credential != nil, "packs": c.Packs, "tool_view": c.ToolView, "operations": total, "domains": brief, "catalog_source": s.Catalog.SourceCommit, "catalog_revision": s.catalogRevision, "guidance_revision": s.Guidance.revision}}
 	})
 	for _, action := range []string{"get", "cancel"} {
 		action := action

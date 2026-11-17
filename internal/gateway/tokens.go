@@ -49,9 +49,15 @@ func NewTokenManager(client *http.Client) *TokenManager {
 	return &TokenManager{slots: map[string]*tokenSlot{}, client: client}
 }
 func tokenKey(a App) string {
-	return digest(encode([]string{a.ID, a.OrgID, a.Brand, a.AppID, a.secret, a.DPoPMode}))
+	return digest(encode([]string{a.ID, a.OrgID, a.Brand, a.AppID, a.secret, a.DPoPMode, a.CredentialMode}))
 }
 func (t *TokenManager) Get(ctx context.Context, a App) (*appToken, error) {
+	if err := checkRequestCredentialMode(ctx, a); err != nil {
+		return nil, err
+	}
+	if a.CredentialMode == "request_bearer" {
+		return requestAppToken(ctx, a)
+	}
 	k := tokenKey(a)
 	t.mu.Lock()
 	slot := t.slots[k]
@@ -105,6 +111,9 @@ func (t *TokenManager) Get(ctx context.Context, a App) (*appToken, error) {
 	}
 }
 func (t *TokenManager) Invalidate(a App, tok *appToken) {
+	if a.CredentialMode == "request_bearer" {
+		return
+	}
 	t.mu.Lock()
 	slot := t.slots[tokenKey(a)]
 	t.mu.Unlock()
@@ -306,7 +315,7 @@ func signDPoP(key *ecdsa.PrivateKey, method, target string, offset time.Duration
 func (t *TokenManager) Retain(apps []App) {
 	keep := map[string]bool{}
 	for _, a := range apps {
-		if !a.Disabled {
+		if !a.Disabled && a.CredentialMode != "request_bearer" {
 			keep[tokenKey(a)] = true
 		}
 	}

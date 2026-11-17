@@ -30,7 +30,7 @@ description: 通过 Feishu-MCP-Gateway 以飞书应用身份处理飞书/Lark �
 - 每次写入在参数中提供稳定的 `idempotency_key`。同一次写入重试时复用原键和原参数；改变参数时换新键。
 - 结果为 `unknown` 时，先用 `feishu_job_get` 查询 invocation_id 并核对飞书中的实际对象，再决定是否重试。
 - 结果为 `partial` 时，按逐项回执只处理确定失败的项目。
-- 耗时操作可设 `async=true`，再用 `feishu_job_get` 查询；`feishu_job_cancel` 只停止剩余执行，已产生的飞书对象仍按回执处理。
+- 耗时操作可设 `async=true`，再用 `feishu_job_get` 查询；`feishu_job_cancel` 只停止剩余执行，已产生的飞书对象仍按回执处理。`async` 仅在托管（managed）应用下可用；请求级凭据（request_bearer）应用只支持同步执行，不确定时先调用 `feishu_context` 查看 `supports_async`。
 - 高风险操作需要管理员逐项预授权后才能使用。
 
 ## 文件
@@ -48,6 +48,10 @@ description: 通过 Feishu-MCP-Gateway 以飞书应用身份处理飞书/Lark �
 
 - `operation_denied`：当前接入或提问者未开放该操作。换用已开放的操作，或请管理员调整接入。
 - `resource_denied`：目标资源不在授权范围内。确认资源 ID，或请管理员授权该资源。
+- `upstream_credential_required`：本次操作需要客户端提供应用访问 Token。凭据由客户端连接层提供，不要把 Token 塞进工具参数；先调用 `feishu_context` 确认所选应用的 `app_id`，再由客户端环境提供对应 Token 后重试。
+- `upstream_app_mismatch`：客户端提供的 Token 与本次路由选中的应用不一致。按 `feishu_context` 返回的 `app_id`/`brand` 更换对应应用凭据；不要改路由去凑凭据。
+- `route_ambiguous`：请求缺少可确定路由的 caller 或 route。补充 caller 字段或显式路由 ID 后重试。
+- `request_credential_async_unsupported`：请求级凭据应用不支持 `async=true`。改为同步执行，或让管理员为该应用改配托管凭据。
 - 应用权限错误按 `error.kind`、`upstream_code`、`missing_scopes` 处理：把需要管理员开通的 scope 或资源告诉用户。
 
 ## Wake
