@@ -300,6 +300,10 @@ func copyReply(w http.ResponseWriter, r *replayReply) {
 
 func (g *proxyGrant) forward(ctx context.Context, a App, identity, authHeader, target, method string, headers http.Header, body []byte) (*http.Response, error) {
 	ctx, cancel := context.WithCancel(ctx)
+	// The backend calls this proxy over a new HTTP connection. Preserve the
+	// originating invocation's request-only credentials without putting them in
+	// the subprocess environment or proxy headers.
+	ctx = withRequestInfo(ctx, requestInfo(g.ctx))
 	stop := context.AfterFunc(g.ctx, cancel)
 	cleanup := func() { stop(); cancel() }
 	success := false

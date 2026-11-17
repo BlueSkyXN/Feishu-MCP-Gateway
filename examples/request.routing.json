@@ -1,0 +1,9 @@
+{
+  "headers": {
+    "Authorization": "Bearer REPLACE_WITH_GATEWAY_KEY",
+    "X-Feishu-Gateway-Route": "team-b",
+    "X-QoderWake-AtWaker-Sender-Channel": "feishu",
+    "X-QoderWake-AtWaker-Sender-Id": "REPLACE_WITH_TEAM_B_USER_ID",
+    "X-QoderWake-AtWaker-Sender-Name": "Demo%20User"
+  }
+}

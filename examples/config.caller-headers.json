@@ -1,0 +1,42 @@
+{
+  "listen": "127.0.0.1:18791",
+  "data_dir": "./data",
+  "cli_binary": "/absolute/path/to/lark-cli-gateway",
+  "cli_sha256": "REPLACE_WITH_WRAPPER_SHA256",
+  "catalog_revision": "0c25c429f0f14e01ac4fa996f51040f79354e865ca26adeddf86f5ed5de4b85e",
+  "workers": 4,
+  "apps": [
+    {
+      "id": "feishu-primary",
+      "organization_id": "your-organization",
+      "app_id": "REPLACE_WITH_APP_ID",
+      "brand": "feishu",
+      "credential_mode": "request_bearer",
+      "dpop_mode": "disabled"
+    }
+  ],
+  "clients": [
+    {
+      "id": "generic-client",
+      "app_connection_id": "feishu-primary",
+      "key_sha256": "REPLACE_WITH_GATEWAY_KEY_SHA256",
+      "identity_mode": "client",
+      "caller_adapter": {
+        "kind": "headers",
+        "headers": {
+          "channel": "X-Caller-Channel",
+          "id": "X-Caller-Id",
+          "id_type": "external_id",
+          "name": "X-Caller-Name",
+          "open_id": "X-Caller-Open-Id",
+          "union_id": "X-Caller-Union-Id"
+        }
+      },
+      "packs": [
+        "wiki.read"
+      ],
+      "resource_mode": "application_scope",
+      "tool_view": "compact"
+    }
+  ]
+}

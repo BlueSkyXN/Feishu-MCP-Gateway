@@ -123,7 +123,11 @@ func (s *Service) Invoke(ctx context.Context, p Principal, operation string, arg
 	if err := op.Validate(args); err != nil {
 		return failed(err)
 	}
-	if _, err := authorize(s.currentConfig(), p, op, args); err != nil {
+	app, err := authorize(s.currentConfig(), p, op, args)
+	if err != nil {
+		return failed(err)
+	}
+	if err := checkRequestCredentialMode(ctx, app); err != nil {
 		return failed(err)
 	}
 	// 验证分页句柄，但保存 Gateway 参数，后台执行时再次解析。
@@ -134,6 +138,16 @@ func (s *Service) Invoke(ctx context.Context, p Principal, operation string, arg
 	}
 	idem, _ := args["idempotency_key"].(string)
 	async, _ := args["async"].(bool)
+	if app.CredentialMode == "request_bearer" {
+		if async {
+			return failed(fault("request_credential_async_unsupported", "请求级凭据仅用于同步执行；本版不持久化凭据以恢复后台任务"))
+		}
+		if op.Kind != "native" {
+			if _, err := requestAppToken(ctx, app); err != nil {
+				return failed(err)
+			}
+		}
+	}
 	if err := s.rate(p); err != nil {
 		return failed(err)
 	}
@@ -177,6 +191,16 @@ func (s *Service) execute(parent context.Context, record Record) (result Result)
 	}
 	app, err := authorize(s.currentConfig(), record.Principal, op, record.Arguments)
 	r := record.Result
+	if err == nil {
+		err = checkRequestCredentialMode(parent, app)
+	}
+	if err == nil && app.CredentialMode == "request_bearer" {
+		if record.Async {
+			err = fault("request_credential_async_unsupported", "应用已改为请求级凭据，旧后台任务不能继续执行")
+		} else if op.Kind != "native" {
+			_, err = requestAppToken(parent, app)
+		}
+	}
 	if err != nil {
 		r.Status = "failed"
 		r.Error = asFault(err)

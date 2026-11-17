@@ -86,9 +86,9 @@ func (s *Service) addCompact(server *mcp.Server) {
 	})
 	for _, mode := range []string{"read", "write"} {
 		mode := mode
-		description := "执行读取操作：传 operation_id 和 arguments。已知 operation_id 与参数时直接调用；参数不确定时先 feishu_tools_describe。"
+		description := "执行读取操作：传 operation_id 和 arguments。已知 operation_id 与参数时直接调用；参数不确定时先 feishu_tools_describe。托管（managed）应用支持 async=true 登记后台执行；请求级凭据应用仅同步。"
 		if mode == "write" {
-			description = "执行写入操作：传 operation_id 和 arguments，arguments 中提供稳定的 idempotency_key，重试时复用同一键和参数。已知 operation_id 与参数时直接调用；参数不确定时先 feishu_tools_describe。"
+			description = "执行写入操作：传 operation_id 和 arguments，arguments 中提供稳定的 idempotency_key，重试时复用同一键和参数。已知 operation_id 与参数时直接调用；参数不确定时先 feishu_tools_describe。托管（managed）应用支持 async=true 登记后台执行；请求级凭据应用仅同步，不确定时先 feishu_context。"
 		}
 		s.addUtility(server, "feishu_execute_"+mode, description, schemaObject(map[string]any{"operation_id": map[string]any{"type": "string"}, "arguments": map[string]any{"type": "object"}}, []string{"operation_id", "arguments"}), false, func(ctx context.Context, p Principal, args map[string]any) Result {
 			op, ok := s.Catalog.Operation(args["operation_id"].(string))

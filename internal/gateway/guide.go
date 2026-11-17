@@ -139,6 +139,7 @@ func (s *Service) instructions(c Client) string {
 		b.WriteString("直接调用具名工具，参数以工具 schema 为准；指南中的 operation_id docs.+fetch 对应工具 feishu_docs_fetch。")
 	}
 	b.WriteString("写入在参数中提供稳定的 idempotency_key，重试时复用同一键和参数；结果为 unknown 时先用 feishu_job_get 核对，partial 只处理失败项。")
+	b.WriteString("async 仅在托管（managed）应用下可用；请求级凭据（request_bearer）应用只支持同步执行，不确定当前应用时调用 feishu_context 查看 supports_async。")
 	b.WriteString(`文件输入用 {"file_id":"…"}，小文本先用 feishu_file_create 保存；输出填相对名称，结果中的 files 可直接复用。分页沿用返回的 page_token 或 cursor。`)
 	return b.String()
 }
@@ -158,5 +159,5 @@ func (s *Service) toolDescription(op Operation) string {
 			parts = append(parts, "不适用："+trim(firstSentence(g.AvoidWhen[0], 160)))
 		}
 	}
-	return strings.Join(append(parts, "执行身份固定为飞书应用；支持 async 登记后台操作。"), "。")
+	return strings.Join(append(parts, "执行身份固定为飞书应用；托管应用支持 async 登记后台操作，请求级凭据应用仅同步执行；不确定时先调用 feishu_context 查看 supports_async。"), "。")
 }

@@ -16,6 +16,7 @@ TAG = 'v0.0.0-selftest'
 TARGETS = ['darwin-arm64', 'linux-amd64']
 BINARIES = ['feishu-mcp-gateway', 'lark-cli-gateway']
 REBUILT = b'rebuilt fixture bytes\n'
+CLIENT_SCRIPT = b'# client script fixture\n'
 
 
 def digest(data):
@@ -27,12 +28,16 @@ def archive(tree, output):
         stream.add(tree, arcname=tree.name)
 
 
-def make_release(root, packaged=REBUILT, rebuilt=REBUILT, recorded=REBUILT, extra=None):
+def make_release(root, packaged=REBUILT, rebuilt=REBUILT, recorded=REBUILT, extra=None,
+                 request_client_overrides=None):
     """生成与 build_release.py 同结构的发布目录；各参数分别控制包内二进制、源码包重建结果和 PROVENANCE 记录。"""
     release = root/'release'
     release.mkdir()
     source = root/f'Feishu-MCP-Gateway-{TAG}-source'
     source.mkdir()
+    (source/'project/scripts').mkdir(parents=True)
+    for name in ['request_client.py', 'transfer_file.py']:
+        (source/'project/scripts'/name).write_bytes(CLIENT_SCRIPT)
     (source/'rebuild.py').write_text(
         'import argparse\nfrom pathlib import Path\np = argparse.ArgumentParser()\n'
         "p.add_argument('--goos')\np.add_argument('--goarch')\np.add_argument('--output', type=Path)\n"
@@ -45,6 +50,11 @@ def make_release(root, packaged=REBUILT, rebuilt=REBUILT, recorded=REBUILT, extr
         bundle.mkdir()
         for name in BINARIES:
             (bundle/name).write_bytes(packaged)
+        (bundle/'scripts').mkdir()
+        (bundle/'scripts/transfer_file.py').write_bytes(CLIENT_SCRIPT)
+        request_client = (request_client_overrides or {}).get(target, CLIENT_SCRIPT)
+        if request_client is not None:
+            (bundle/'scripts/request_client.py').write_bytes(request_client)
         provenance['targets'][target] = {name: digest(recorded) for name in BINARIES}
         archive(bundle, release/f'{bundle.name}.tar.gz')
     (release/'PROVENANCE.json').write_text(json.dumps(provenance))
@@ -71,6 +81,22 @@ class VerifyReleaseTest(unittest.TestCase):
     def test_consistent_release_passes(self):
         report = self.check(True)
         self.assertEqual(len(report['binaries']), len(TARGETS)*len(BINARIES))
+        self.assertEqual(len(report['client_scripts']), len(TARGETS)*2)
+
+    def test_request_client_missing_from_platform_is_rejected(self):
+        report = self.check(False, request_client_overrides={'darwin-arm64': None})
+        mismatches = [item for item in report['client_scripts'] if not item['identical']]
+        self.assertEqual(len(mismatches), 1)
+        self.assertEqual(mismatches[0]['target'], 'darwin-arm64')
+        self.assertEqual(mismatches[0]['script'], 'scripts/request_client.py')
+        self.assertIsNone(mismatches[0]['archive_sha256'])
+
+    def test_request_client_differs_from_source_is_rejected(self):
+        report = self.check(False, request_client_overrides={'linux-amd64': b'# changed script\n'})
+        mismatches = [item for item in report['client_scripts'] if not item['identical']]
+        self.assertEqual(len(mismatches), 1)
+        self.assertEqual(mismatches[0]['target'], 'linux-amd64')
+        self.assertIsNotNone(mismatches[0]['archive_sha256'])
 
     def test_packaged_binary_differs(self):
         report = self.check(False, packaged=b'different packaged bytes\n')

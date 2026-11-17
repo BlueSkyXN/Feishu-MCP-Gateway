@@ -68,12 +68,15 @@ func (s *Service) Handler() http.Handler {
 			s.admin(w, r)
 			return
 		}
-		p, err := s.currentConfig().authenticate(r)
+		state, err := s.currentConfig().authenticateRequest(r)
 		if err != nil {
 			w.Header().Set("WWW-Authenticate", `Bearer realm="feishu-mcp-gateway"`)
 			code := http.StatusUnauthorized
 			if f, ok := err.(*Fault); ok && f.Kind != "unauthenticated" {
 				code = http.StatusForbidden
+				if f.Kind == "invalid_request_header" || f.Kind == "invalid_caller" || f.Kind == "route_invalid" || f.Kind == "route_ambiguous" || f.Kind == "upstream_credential_invalid" {
+					code = http.StatusBadRequest
+				}
 			}
 			http.Error(w, err.Error(), code)
 			return
@@ -83,7 +86,17 @@ func (s *Service) Handler() http.Handler {
 			max = s.config.MaxFileBytes
 		}
 		r.Body = http.MaxBytesReader(w, r.Body, max)
-		mux.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), principalKey{}, p)))
+		ctx := context.WithValue(r.Context(), principalKey{}, state.Principal)
+		ctx = withRequestInfo(ctx, state)
+		r = r.Clone(ctx)
+		// Authentication material is consumed here, not exposed to MCP handlers or
+		// serialized into tool parameters by transport integrations.
+		for name := range r.Header {
+			if strings.EqualFold(name, upstreamTokenHeader) || strings.EqualFold(name, upstreamAppHeader) || strings.EqualFold(name, "Authorization") {
+				delete(r.Header, name)
+			}
+		}
+		mux.ServeHTTP(w, r)
 	})
 }
 func (s *Service) upload(w http.ResponseWriter, r *http.Request) {

@@ -86,32 +86,91 @@ func openStore(c Config) (*Store, error) {
 		s.Close()
 		return nil, err
 	}
-	if version > 4 {
+	if version > 5 {
 		s.Close()
-		return nil, fmt.Errorf("数据库版本 %d 高于当前程序支持的版本 4", version)
+		return nil, fmt.Errorf("数据库版本 %d 高于当前程序支持的版本 5", version)
 	}
-	_, err = db.Exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
+	if _, err = db.Exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`); err != nil {
+		s.Close()
+		return nil, err
+	}
+	if err = s.initialize(c.Apps); err != nil {
+		s.Close()
+		return nil, err
+	}
+	return s, nil
+}
+
+// initialize 把迁移、应用绑定与重启恢复放在同一事务中。错误配置不能先改变
+// 已有任务状态，再在绑定检查时失败。旧数据库首次登记只能采用当前配置。
+func (s *Store) initialize(apps []App) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`
 CREATE TABLE IF NOT EXISTS invocations(id TEXT PRIMARY KEY,owner TEXT NOT NULL,principal TEXT NOT NULL,operation TEXT NOT NULL,args TEXT NOT NULL,idem TEXT NOT NULL,hash TEXT NOT NULL,state TEXT NOT NULL,result TEXT NOT NULL,async INTEGER NOT NULL,created INTEGER NOT NULL,updated INTEGER NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS invocation_idem ON invocations(owner,operation,idem) WHERE idem<>'';
+CREATE INDEX IF NOT EXISTS invocation_queue ON invocations(created,id) WHERE state='queued';
+CREATE TABLE IF NOT EXISTS app_bindings(connection_id TEXT PRIMARY KEY,app_id TEXT NOT NULL,org_id TEXT NOT NULL,brand TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files(id TEXT PRIMARY KEY,owner TEXT NOT NULL,client TEXT NOT NULL,meta TEXT NOT NULL,size INTEGER NOT NULL,expires INTEGER NOT NULL,state TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS cursors(id TEXT PRIMARY KEY,owner TEXT NOT NULL,operation TEXT NOT NULL,query_hash TEXT NOT NULL,token TEXT NOT NULL,expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS file_pins(invocation TEXT NOT NULL,file TEXT NOT NULL,PRIMARY KEY(invocation,file));
 CREATE TABLE IF NOT EXISTS transfers(hash TEXT PRIMARY KEY,principal TEXT NOT NULL,direction TEXT NOT NULL,file TEXT NOT NULL,name TEXT NOT NULL,mime TEXT NOT NULL,expires INTEGER NOT NULL,used INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT,app TEXT NOT NULL,event_id TEXT NOT NULL,event_type TEXT NOT NULL,payload TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(app,event_id));
 CREATE TABLE IF NOT EXISTS event_retention(app TEXT NOT NULL,event_type TEXT NOT NULL,floor INTEGER NOT NULL,PRIMARY KEY(app,event_type));
-CREATE INDEX IF NOT EXISTS events_app_seq ON events(app,seq);
-PRAGMA user_version=4;`)
+CREATE INDEX IF NOT EXISTS events_app_seq ON events(app,seq);`)
 	if err != nil {
-		s.Close()
-		return nil, err
+		return err
+	}
+	if err = ensureAppBindings(tx, apps); err != nil {
+		return err
 	}
 	// 已经开始的外部请求无法仅凭本地状态判断是否完成。
-	_, err = db.Exec(`UPDATE invocations SET state='unknown',result=json_set(result,'$.status','unknown','$.error',json(?)) WHERE state IN ('running','cancel_requested')`, string(encode(fault("process_restarted", "进程中断，执行结果需要核对"))))
+	_, err = tx.Exec(`UPDATE invocations SET state='unknown',result=json_set(result,'$.status','unknown','$.error',json(?)) WHERE state IN ('running','cancel_requested')`, string(encode(fault("process_restarted", "进程中断，执行结果需要核对"))))
 	if err != nil {
-		s.Close()
-		return nil, err
+		return err
 	}
-	return s, nil
+	if _, err = tx.Exec(`PRAGMA user_version=5;`); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// EnsureAppBindings 持久化连接 ID 与真实应用的关系。移除配置不会释放连接 ID，
+// Secret 轮换也不会改变绑定，避免历史任务与产物在重启后被另一应用接管。
+func (s *Store) EnsureAppBindings(apps []App) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err = ensureAppBindings(tx, apps); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func ensureAppBindings(tx *sql.Tx, apps []App) error {
+	for _, app := range apps {
+		if app.ID == "" || app.AppID == "" || app.OrgID == "" || app.Brand == "" {
+			return errors.New("持久化应用绑定需要连接 ID、应用 ID、企业和区域")
+		}
+		var appID, orgID, brand string
+		err := tx.QueryRow(`SELECT app_id,org_id,brand FROM app_bindings WHERE connection_id=?`, app.ID).Scan(&appID, &orgID, &brand)
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			if _, err = tx.Exec(`INSERT INTO app_bindings(connection_id,app_id,org_id,brand) VALUES(?,?,?,?)`, app.ID, app.AppID, app.OrgID, app.Brand); err != nil {
+				return err
+			}
+		case err != nil:
+			return err
+		case appID != app.AppID || orgID != app.OrgID || brand != app.Brand:
+			return fmt.Errorf("应用连接 %q 已绑定到其他应用、企业或区域；请使用新的连接 id", app.ID)
+		}
+	}
+	return nil
 }
 func (s *Store) Close() error {
 	s.files.Close()

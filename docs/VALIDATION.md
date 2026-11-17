@@ -1,8 +1,29 @@
-# 0.3.0-dev 开发验收
+# 开发验收记录
+
+## 0.4.0-dev（2026-11-17）
+
+本地环境为 macOS arm64、Go 1.27.4，使用固定受控 wrapper 与模拟飞书上游。生产 Go 代码、最终测试与独立进程检查完成后再次核对；发布准备另补客户端脚本的打包校验。依赖与目录来源保持不变。
+
+| 检查 | 本地结果 |
+|---|---|
+| 全仓 Go 测试、全仓 race | 含子测试共 195 项通过；独立复核重跑全仓普通测试和相关 race |
+| 实际 wrapper 集成用例 | 四个必备用例实际通过；无测试级 skip，cmd/gateway 为无包内测试 |
+| vet、Gateway 构建 | 通过，构建产物与候选二进制摘要一致 |
+| Python 回归 | 60 项通过，含客户端、目录生成与发布验证 |
+| 后端契约与 dry-run | 598 项定义、206 个静态 schema、392 个 shortcut、3 个 dry-run 通过 |
+| managed 与 request_bearer 进程 smoke | 均通过；请求模式启动 28 次 Python 客户端，真实飞书调用为 0 |
+| 归属与取消的定向反例 | 去掉 owner 中 actor 时 smoke 失败；移除取消动作时新测试失败并正常清理；漏释放及提前删计数均可检出 |
+| 发布客户端脚本核对 | 平台包缺失 request_client.py 或其字节与对应源码不一致时拒绝发布 |
+
+请求模式验证包括 caller 最小字段、可选字段与 Unicode 显示名、两个适配器的渠道范围、自动及显式路由、失败 JSON 分类、context-only 不读取上游凭据、Token A/B 不串用及轮换后的资源归属、真实失败回执与 job_get 查回、应用连接绑定持久化及 v4 到 v5 数据副本迁移。应用身份、逐请求授权、固定工具注册和原 owner 规则保持。
+
+云端 CI、macOS/Linux 发布包与离线重建结果随对应 [GitHub Release](https://github.com/BlueSkyXN/Feishu-MCP-Gateway/releases) 和 Actions 运行记录核对，发布步骤见 [检查与发布](RELEASE.md)。真实飞书应用 Token、scopes、资源 ACL、QoderWake Header/Helper 与实际部署仍待目标环境验收；本地模拟和发布构建验证均不执行真实飞书业务请求。
+
+## 0.3.0-dev 历史验收
 
 基线验证日期：2026-10-27；2026-10-28 的修复验证见下方增量记录。本机为 macOS arm64、Go 1.27.2；GitHub Actions 为 ubuntu linux/amd64、Go 1.27.3，另用 Go 1.26.9 核对模块最低版本 Go 1.26.0。MCP SDK v1.8.0、SQLite 驱动 v1.61.0。飞书上游使用模拟 HTTP transport，测试凭据均为 fixture。
 
-## 操作覆盖与验证强度
+### 操作覆盖与验证强度
 
 固定来源 `larksuite/cli@7f70de0666a21ff77ab882c62b61aff44ae3734d`：
 
@@ -26,7 +47,7 @@
 
 链路包含 MCP SDK 客户端、Gateway、独立 CLI 子进程、应用取票代理、模拟官方 HTTPS origin、文件存储和回执。验证了从 file_id 读取文档输入、multipart 上传、下载/导出归档、JSON 对象转 shortcut 参数、Token 跨调用复用和 actor 文件隔离。
 
-## 用法知识与发现
+### 用法知识与发现
 
 - 导入脚本从同一来源生成 228 个操作级指南、15 个领域指南与 412 个主题；对同一来源重复导入，生成文件逐字节一致。
 - 指南加载时与目录交叉校验：引用的操作、示例、主题、领域入口操作都必须存在。operations.json 的 24 个示例与指南代码块中的 999 条调用示例全部通过对应操作的 schema 校验（`<…>` 占位值只放宽类型、枚举与格式），参数中没有 `$'...'`、`$VAR` 残留。59 处 dry-run 预览示例改为说明注释，测试检查预览注释后不跟写入调用。操作级指南中没有 CLI 登录、`--as` 身份切换或 `lark-cli` 命令残留；全部指南文件中没有 `--as` 参数、首格残缺的表格行和按 shell 区分写法的表格，无法等价转换而保留原文的 `lark-cli` 命令 48 行，测试检查不超过此数。
@@ -36,7 +57,7 @@
 - `instructions` 按接入列出领域与调用约定；具名工具描述带适用场景。
 - 仓库中的 SKILL.md 与 `--render-skill` 输出一致，其中引用的 operation_id 均存在；`scripts/package_skill.py` 生成含 427 个指南文件的 Skill 目录与 ZIP。
 
-## 行为检查
+### 行为检查
 
 - 2026-07-28 和 2025-11-25 官方 SDK 客户端互操作、同一连接 A→B→A、发现时无 actor、实际调用缺失 actor 拒绝。
 - 具名与紧凑视图；动态参数 schema 校验、读写入口类型检查、当前 actor 策略和资源检查。
@@ -53,7 +74,7 @@
 - `/admin/status` 返回版本、指南摘要与各接入的视图和开放范围。
 - 超大分页参数（搜索 `after` 接近 int64 上限、指南 `offset` 超出 int 范围）返回空页。工具与资源处理函数中的 panic 转为 `internal` 错误；执行中的 panic 写入回执（写入为 unknown，读取为 failed），同键重试返回原回执，服务继续处理请求。
 
-## 执行结果（2026-10-27 基线）
+### 执行结果（2026-10-27 基线）
 
 | 检查 | macOS arm64（本机） | darwin/amd64（Rosetta 2） | linux/amd64（GitHub Actions） |
 |---|---|---|---|
@@ -71,7 +92,7 @@
 - macOS arm64 的 Gateway 二进制约 27 MB，比 0.2.0-dev 增加约 3.3 MB，主要是内嵌指南。
 - 本机原始结果保存在忽略的 `local/evidence/`：`test-0.3-review2.jsonl`、`race-0.3-review2.jsonl`、`test-0.3-review2-amd64.jsonl`、`backend-validation-review2.json`、`process-smoke-review2.json` 和 `refresh-review2-*.log`；GitHub Actions 的结果见 PR #1 的检查记录。
 
-## 2026-10-28 修复验证
+### 2026-10-28 修复验证
 
 本轮在 macOS arm64、Go 1.27.2 验证，使用当前源码构建的受控 wrapper 与模拟飞书上游。目录新增 3 个 Base Record 操作的 NDJSON 产物映射；操作数量、风险和资源绑定保持不变。配套后端声明 `artifact_envelope`，缺少该能力的旧 wrapper 会在启动检查时被拒绝。
 
@@ -95,7 +116,7 @@
 
 第一轮原始日志保存在忽略的 `local/evidence/20261028-review-fixes/`，补充修复后的完整测试、race 和 smoke 结果在 `local/evidence/20261028-followup-fixes/`。远端 CI、跨平台运行和完整发布包重建尚未针对本轮修改执行；上表只记录本地结果。
 
-## 外部验收边界
+### 外部验收边界
 
 本地验收未执行生产部署、飞书权限修改或真实飞书业务写入。发布与构建验证见对应 GitHub Release；尚未验证：
 
