@@ -39,6 +39,7 @@ type Service struct {
 	wg              sync.WaitGroup
 	activeMu        sync.Mutex
 	active          map[string]context.CancelFunc
+	recoveryMu      sync.Mutex
 }
 
 func NewService(c Config, executor Executor) (*Service, error) {
@@ -161,7 +162,10 @@ func (s *Service) Invoke(ctx context.Context, p Principal, operation string, arg
 	if err != nil {
 		return failed(err)
 	}
-	if existing || async {
+	if existing {
+		return s.resultFor(p, record)
+	}
+	if async {
 		return record.Result
 	}
 	return s.execute(ctx, record)
@@ -271,6 +275,9 @@ func (s *Service) execute(parent context.Context, record Record) (result Result)
 					wrapped, e := s.Store.WrapCursor(record.Principal, op.ID, record.Arguments, token)
 					if e != nil {
 						r.Error = fault("storage_failed", "无法保存分页标识")
+						if r.Status == "succeeded" {
+							r.Status = "failed"
+						}
 						delete(data, field)
 					} else {
 						data[field] = wrapped
@@ -279,25 +286,17 @@ func (s *Service) execute(parent context.Context, record Record) (result Result)
 			}
 		}
 	}
-	payload := encode(r)
-	if len(payload) > s.config.MaxInlineBytes || (r.Error != nil && r.Data != nil) {
-		f, e := s.Store.PutFile(record.Principal, "result.json", "application/json", payload, record.ID)
-		count := len(r.Files)
-		r.Data = nil
-		r.Meta = map[string]any{"result_spilled": true, "artifact_count": count}
-		if e != nil {
-			r.Error = fault("result_storage_failed", "操作已返回，但结果保存失败，请核对调用记录")
-			r.Files = nil
-		} else {
-			r.Files = []File{f}
-		}
+	var retained *Result
+	archived, _, archiveErr := s.archiveResult(record.Principal, r)
+	if archiveErr != nil {
+		retained = &r
+		archived = s.resultDeliveryFailure(r, archiveErr)
 	}
-
-	if err = s.Store.Finish(record.ID, r); err != nil {
+	if err = s.Store.Finish(record.ID, archived, retained); err != nil {
 		return Result{InvocationID: record.ID, OperationID: op.ID, Status: "unknown", Error: fault("receipt_storage_failed", "无法持久化执行回执，重试前请核对")}
 	}
-	slog.Info("invocation finished", "id", record.ID, "client", record.Principal.ClientID, "operation", op.ID, "status", r.Status)
-	return r
+	slog.Info("invocation finished", "id", record.ID, "client", record.Principal.ClientID, "operation", op.ID, "status", archived.Status)
+	return archived
 }
 
 func (s *Service) worker() {
@@ -360,7 +359,7 @@ func (s *Service) Job(p Principal, id string, cancel bool) Result {
 		return failed(err)
 	}
 	if !cancel {
-		return r.Result
+		return s.resultFor(p, r)
 	}
 	result, err := s.Store.Cancel(p, id)
 	if err != nil {

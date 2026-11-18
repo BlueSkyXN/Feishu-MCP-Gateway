@@ -46,12 +46,15 @@ type GuideSkill struct {
 }
 
 type Guidance struct {
-	SourceCommit string                       `json:"source_commit"`
-	Skills       map[string]GuideSkill        `json:"skills"`
-	Operations   map[string]OperationGuidance `json:"operations"`
-	topicSkill   map[string]string
-	topicTitle   map[string]string
-	revision     string
+	SourceCommit   string                       `json:"source_commit"`
+	Skills         map[string]GuideSkill        `json:"skills"`
+	Operations     map[string]OperationGuidance `json:"operations"`
+	topicSkill     map[string]string
+	topicTitle     map[string]string
+	revision       string
+	documents      map[string]guideDocument
+	topicOwners    map[string][]string
+	toolOperations map[string]string
 }
 
 // GuidanceRevision 是全部指南文件的摘要，便于核对部署中实际提供给 Agent 的说明版本。
@@ -156,6 +159,7 @@ func LoadGuidance(c *Catalog) (*Guidance, error) {
 			return nil, fmt.Errorf("操作 %s 不属于任何已登记领域", op.ID)
 		}
 	}
+	g.prepareDocuments(c)
 	return g, nil
 }
 

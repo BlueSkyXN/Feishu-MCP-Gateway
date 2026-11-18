@@ -63,6 +63,7 @@ KNOWN_KINDS = frozenset((
     'receipt_storage_failed', 'request_credential_async_unsupported',
     'resource_conflict', 'resource_denied', 'resource_egress_denied',
     'resource_scope_unsupported', 'resource_too_large', 'result_storage_failed',
+    'result_recovery_required', 'result_expired',
     'rate_limit', 'revoked', 'route_ambiguous', 'route_denied', 'route_invalid',
     'route_not_found', 'service_stopping', 'storage_failed', 'storage_quota',
     'token_rate_limit', 'token_response', 'token_transport',

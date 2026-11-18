@@ -153,15 +153,9 @@ func (s *Service) readEvents(ctx context.Context, p Principal, args map[string]a
 	deadline := time.Now().Add(wait)
 	for {
 		cfg := s.currentConfig()
-		c, a, err := cfg.checkPrincipal(p, true)
-		if err == nil {
-			_, err = authorize(cfg, p, eventReadOperation(), args)
-		}
+		a, err := authorize(cfg, p, eventReadOperation(), args)
 		if err != nil {
 			return ExecutionResult{Error: asFault(err)}
-		}
-		if !slices.Contains(c.EventTypes, typ) || !slices.Contains(a.EventTypes, typ) || (p.Actor != "" && !slices.Contains(c.Actors[p.Actor].EventTypes, typ)) {
-			return ExecutionResult{Error: fault("event_type_denied", "当前主体未被授予该事件类型")}
 		}
 		var floor int64
 		_ = s.Store.db.QueryRow(`SELECT floor FROM event_retention WHERE app=? AND event_type=?`, a.ID, typ).Scan(&floor)

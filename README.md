@@ -199,6 +199,10 @@ managed 模式的 `async=true` 持久化登记后返回 job_id，通过 `feishu_
 
 每次调用独立工作区，输入只从当前主体的 File Store 挂载。输出使用相对名称；超限回执（包括 data、meta 和文件清单）保存为 result.json。产物归档后返回 files 与 `feishu-file://files/…` resource_link。未改变的输入不会重复归档，部分失败保留已经产生的文件。工作区退出后清理。
 
+`result_storage_failed` 表示结果文件暂未归档：完整结果保存在 SQLite 回执中，`meta.execution_status` 记录原操作状态，`result_spilled=false`。释放文件配额、调整文件限额或排除存储故障后，用原 invocation_id 调用 `feishu_job_get` 重新归档；同键重试写入也只恢复原结果。恢复成功后返回 `result.json`，不再次执行飞书操作。
+
+存在待恢复结果时，该接入的新业务调用返回 `result_recovery_required`，已排队任务暂停领取；已开始的调用继续收尾，其他接入继续运行。文件管理、回执查询和同键重试仍可用于恢复；全部待恢复结果处理后自动放行。待恢复正文从执行完成起按 `file_ttl_seconds` 保留（默认 24 小时），到期清理正文并返回 `result_expired`，保留原执行状态和幂等记录；写入同键重试仍返回原回执。已有产物按各自文件有效期保留。
+
 Base 的 `record-list`、`record-get`、`record-search` 默认返回 JSON；填写 `output`（相对 `.ndjson` 文件名）时导出记录与 manifest。非空 `jq_records`、`minimal_stdout=true` 或 `overwrite=true` 也会启用产物模式。`jq_records` 的结果放在 `data` 数组中，完整记录文件仍可从 `files` 获取。归档 manifest 中的 `record_file`、`manifest_file` 与回执一致，使用 `feishu-file://` 资源 URI。
 
 - `feishu_file_list/stat/read/delete` 管理当前主体的文件；read 每次最多 64 KiB，返回 next_offset 和 eof。
@@ -222,7 +226,7 @@ python3 scripts/transfer_file.py --endpoint https://gateway.example --file ./rep
 
 事件接入需在应用配置中设置 `event_verify_token_env`、`event_encrypt_key_env` 和明确的 `event_types`，然后由管理员在飞书配置加密 HTTP 回调到 `/events/<app_connection_id>`。该配置不由模型修改。
 
-回调核对应用、加密帧、签名、验证 Token 与时间窗口，只保存配置的事件类型。读取还要求 `events.read` 操作权限、接入 `event_types` 和（启用时）actor `event_types`。不提供依赖互动应答的卡片处理。每个应用保留最多 24 小时、10000 条、64 MiB；读取发现已过期的分页范围会返回缺口错误。
+回调核对应用、加密帧、签名、验证 Token 与时间窗口，只保存配置的事件类型。读取还要求 `events.read` 操作权限，以及应用、接入和（启用时）actor 的 `event_types`。历史回执、结果恢复和所有产物读取入口（包括已签发的下载票据）也检查当前事件类型权限。每个应用保留最多 24 小时、10000 条、64 MiB；读取发现已过期的分页范围会返回缺口错误。不提供依赖互动应答的卡片处理。
 
 `feishu_events_read` 是有界读取，最多 100 条、等待最多 30 秒，也可登记为 Job。它替代旧 `event +subscribe` 的 Agent 使用入口；无需为每次 MCP 调用启动长期 CLI daemon。
 

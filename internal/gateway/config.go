@@ -387,6 +387,14 @@ func authorize(c Config, p Principal, op Operation, args map[string]any) (App, e
 	if err = operationAllowed(v, p, op); err != nil {
 		return a, err
 	}
+	// 原生事件的类型权限也是来源操作权限，回执、文件及恢复入口共用此检查。
+	if op.ID == "events.read" {
+		typ, _ := argumentAt(args, "params.event_type").(string)
+		if !slices.Contains(v.EventTypes, typ) || !slices.Contains(a.EventTypes, typ) ||
+			(p.Actor != "" && !slices.Contains(v.Actors[p.Actor].EventTypes, typ)) {
+			return a, fault("event_type_denied", "当前主体未被授予该事件类型")
+		}
+	}
 	rules := []map[string][]string{}
 	if v.ResourceMode == "resource_scoped" {
 		rules = append(rules, v.Resources)

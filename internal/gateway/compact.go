@@ -114,22 +114,36 @@ func (s *Service) operationSummary(op Operation) map[string]any {
 
 // operationGuidance 返回当前请求可用的指南：相关操作和示例只保留可发现的部分。
 func (s *Service) operationGuidance(c Client, p Principal, op Operation) (OperationGuidance, bool) {
+	return s.operationGuidanceFor(s.guidanceView(c, p), op)
+}
+
+func (s *Service) operationGuidanceFor(view guidanceView, op Operation) (OperationGuidance, bool) {
 	g, ok := s.Guidance.Operations[op.ID]
 	if !ok {
 		return g, false
 	}
 	related := []string{}
 	for _, id := range g.Related {
-		if other, ok := s.Catalog.Operation(id); ok && discoverable(c, p, other) {
+		if view.operations[id] {
 			related = append(related, id)
 		}
 	}
 	examples := []GuidanceExample{}
 	for _, ex := range g.Examples {
-		if other, ok := s.Catalog.Operation(ex.OperationID); ok && discoverable(c, p, other) {
+		if view.operations[ex.OperationID] {
 			examples = append(examples, ex)
 		}
 	}
 	g.Related, g.Examples = related, examples
+	g.UseWhen = view.filterLines(g.UseWhen)
+	g.AvoidWhen = view.filterLines(g.AvoidWhen)
+	g.Prerequisites = view.filterLines(g.Prerequisites)
+	g.Tips = view.filterLines(g.Tips)
+	g.Topics = []string{}
+	for _, topic := range s.Guidance.Operations[op.ID].Topics {
+		if view.topics[topic] {
+			g.Topics = append(g.Topics, topic)
+		}
+	}
 	return g, true
 }

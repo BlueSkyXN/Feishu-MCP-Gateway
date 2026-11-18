@@ -29,6 +29,7 @@ func (s *Service) addGuide(server *mcp.Server) {
 			return failed(err)
 		}
 		views := s.visibleDomains(c, p)
+		guidance := s.guidanceView(c, p)
 		domain, _ := args["domain"].(string)
 		topic, _ := args["topic"].(string)
 		if domain == "" && topic == "" {
@@ -44,7 +45,7 @@ func (s *Service) addGuide(server *mcp.Server) {
 			return failed(fault("domain_unavailable", "当前接入未开放该领域；调用 feishu_guide（无参数）查看可用领域"))
 		}
 		if topic != "" {
-			skill, title, content, ok := s.Guidance.topic(topic)
+			skill, title, _, ok := s.Guidance.topic(topic)
 			if !ok {
 				return failed(fault("unknown_topic", "未知主题；主题 ID 见领域指南中的“主题 x”"))
 			}
@@ -57,19 +58,22 @@ func (s *Service) addGuide(server *mcp.Server) {
 			if !allowed {
 				return failed(fault("domain_unavailable", "该主题不属于指定领域，或所属领域未向当前接入开放"))
 			}
-			data := pageText(content, args)
+			if !guidance.topics[topic] {
+				return failed(fault("operation_denied", "当前接入未开放该主题的操作；请从领域指南选择可用主题"))
+			}
+			data := pageText(guidance.content(topic), args)
 			data["topic"], data["title"] = topic, title
 			return Result{Status: "succeeded", Data: data}
 		}
 		meta, _ := domainByID(domain)
-		content, ok := s.Guidance.guide(meta.Skill)
-		if meta.Skill == "" || !ok {
-			content = s.operationList(c, p, meta)
+		content := s.operationList(c, p, meta)
+		if meta.Skill != "" {
+			content = "> " + meta.Skill + "：" + guideUsage(c) + "\n\n" + content + "\n" + guidance.content(meta.Skill)
 		}
 		data := pageText(content, args)
 		data["domain"] = view
-		if skill, ok := s.Guidance.Skills[meta.Skill]; ok && data["offset"] == 0 {
-			data["topics"] = skill.Topics
+		if _, ok := s.Guidance.Skills[meta.Skill]; ok && data["offset"] == 0 {
+			data["topics"] = guidance.skillTopics(meta.Skill)
 		}
 		return Result{Status: "succeeded", Data: data}
 	})
@@ -79,19 +83,24 @@ func guideUsage(c Client) string {
 	if c.ToolView == "compact" {
 		return "带 domain 读领域指南；用 feishu_tools_search 查找操作，feishu_tools_describe 查看参数与用法，feishu_execute_read 或 feishu_execute_write 执行。"
 	}
-	return "带 domain 读领域指南；直接调用具名工具，operation_id docs.+fetch 对应工具 feishu_docs_fetch。"
+	return "带 domain 读领域指南；直接调用当前开放的具名工具，参数以工具 schema 为准。"
 }
 
 // operationList 为没有上游指南的领域列出可发现的操作和要点。
 func (s *Service) operationList(c Client, p Principal, meta Domain) string {
 	var b strings.Builder
+	view := s.guidanceView(c, p)
 	fmt.Fprintf(&b, "# %s（%s）\n\n%s。\n\n", meta.Title, meta.ID, meta.Summary)
 	for _, op := range s.Catalog.Operations {
 		if opDomain(op) != meta.ID || !discoverable(c, p, op) {
 			continue
 		}
-		fmt.Fprintf(&b, "- `%s`（%s）：%s\n", op.ID, op.Risk, op.Description)
-		if g, ok := s.Guidance.Operations[op.ID]; ok {
+		description := op.Description
+		if !view.allowsText(description) {
+			description = "参数与用法见此操作的工具说明。"
+		}
+		fmt.Fprintf(&b, "- `%s`（%s）：%s\n", op.ID, op.Risk, description)
+		if g, ok := s.operationGuidanceFor(view, op); ok {
 			for _, line := range append(append([]string{}, g.UseWhen...), g.Tips...) {
 				fmt.Fprintf(&b, "  - %s\n", line)
 			}

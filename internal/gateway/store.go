@@ -24,13 +24,23 @@ type Store struct {
 	lock  *os.File
 }
 type Record struct {
-	ID          string
-	Principal   Principal
-	OperationID string
-	Arguments   map[string]any
-	State       string
-	Result      Result
-	Async       bool
+	ID             string
+	Principal      Principal
+	OperationID    string
+	Arguments      map[string]any
+	State          string
+	Result         Result
+	Async          bool
+	RetainedResult *Result
+	RetainedUntil  int64
+}
+
+// 归档失败时把完整结果保存在原回执 JSON 中，待文件存储恢复后重新归档。
+// 此字段仅用于持久化，不进入 MCP Result，也不改变数据库表结构。
+type storedResult struct {
+	Result
+	RetainedResult *Result `json:"retained_result,omitempty"`
+	RetainedUntil  int64   `json:"retained_until,omitempty"`
 }
 
 func OpenStore(c Config) (*Store, error) {
@@ -113,6 +123,8 @@ func (s *Store) initialize(apps []App) error {
 CREATE TABLE IF NOT EXISTS invocations(id TEXT PRIMARY KEY,owner TEXT NOT NULL,principal TEXT NOT NULL,operation TEXT NOT NULL,args TEXT NOT NULL,idem TEXT NOT NULL,hash TEXT NOT NULL,state TEXT NOT NULL,result TEXT NOT NULL,async INTEGER NOT NULL,created INTEGER NOT NULL,updated INTEGER NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS invocation_idem ON invocations(owner,operation,idem) WHERE idem<>'';
 CREATE INDEX IF NOT EXISTS invocation_queue ON invocations(created,id) WHERE state='queued';
+CREATE INDEX IF NOT EXISTS invocation_retained_client ON invocations(json_extract(principal,'$.client_id')) WHERE json_type(result,'$.retained_result')='object';
+CREATE INDEX IF NOT EXISTS invocation_retained_expiry ON invocations(json_extract(result,'$.retained_until')) WHERE json_type(result,'$.retained_result')='object';
 CREATE TABLE IF NOT EXISTS app_bindings(connection_id TEXT PRIMARY KEY,app_id TEXT NOT NULL,org_id TEXT NOT NULL,brand TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files(id TEXT PRIMARY KEY,owner TEXT NOT NULL,client TEXT NOT NULL,meta TEXT NOT NULL,size INTEGER NOT NULL,expires INTEGER NOT NULL,state TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS cursors(id TEXT PRIMARY KEY,owner TEXT NOT NULL,operation TEXT NOT NULL,query_hash TEXT NOT NULL,token TEXT NOT NULL,expires INTEGER NOT NULL);
@@ -125,6 +137,13 @@ CREATE INDEX IF NOT EXISTS events_app_seq ON events(app,seq);`)
 		return err
 	}
 	if err = ensureAppBindings(tx, apps); err != nil {
+		return err
+	}
+	// 兼容之前没有期限的保留结果，沿用该记录最后更新时间和文件保留期。
+	if _, err = tx.Exec(`UPDATE invocations SET result=json_set(result,'$.retained_until',updated+?) WHERE json_type(result,'$.retained_result')='object' AND json_type(result,'$.retained_until') IS NULL`, s.cfg.FileTTL); err != nil {
+		return err
+	}
+	if err = expireRetainedResults(tx); err != nil {
 		return err
 	}
 	// 已经开始的外部请求无法仅凭本地状态判断是否完成。
@@ -195,13 +214,18 @@ func scanRecord(row interface{ Scan(...any) error }) (Record, error) {
 	if err = json.Unmarshal([]byte(a), &r.Arguments); err != nil {
 		return r, err
 	}
-	err = json.Unmarshal([]byte(b), &r.Result)
+	var result storedResult
+	err = json.Unmarshal([]byte(b), &result)
+	r.Result, r.RetainedResult, r.RetainedUntil = result.Result, result.RetainedResult, result.RetainedUntil
 	return r, err
 }
 
 const recordColumns = `id,principal,operation,args,state,result,async`
 
 func (s *Store) Reserve(p Principal, op Operation, args map[string]any, idem string, async bool) (Record, bool, error) {
+	if err := expireRetainedResults(s.db); err != nil {
+		return Record{}, false, err
+	}
 	semantic := map[string]any{}
 	for k, v := range args {
 		if k != "idempotency_key" && k != "async" {
@@ -237,6 +261,15 @@ func (s *Store) Reserve(p Principal, op Operation, args map[string]any, idem str
 			return Record{}, false, err
 		}
 	}
+	// 与登记同一事务：一旦出现待恢复结果，停止此客户端新增业务执行。
+	// 原键重试在此前返回，文件管理与 Job 查询仍可用于恢复。
+	var pendingResult bool
+	if err = tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM invocations WHERE json_type(result,'$.retained_result')='object' AND json_extract(principal,'$.client_id')=?)`, p.ClientID).Scan(&pendingResult); err != nil {
+		return Record{}, false, err
+	}
+	if pendingResult {
+		return Record{}, false, fault("result_recovery_required", "此接入有待恢复结果，已暂停新业务调用；请处理原回执的存储或权限问题，再用 feishu_job_get 恢复结果")
+	}
 	now := time.Now().Unix()
 	for _, fid := range inputFileIDs(op, args) {
 		var n int
@@ -268,9 +301,28 @@ func (s *Store) Reserve(p Principal, op Operation, args map[string]any, idem str
 	}
 	return Record{ID: id, Principal: p, OperationID: op.ID, Arguments: args, State: state, Result: result, Async: async}, false, nil
 }
-func (s *Store) Finish(id string, r Result) error {
+func (s *Store) Finish(id string, r Result, retained ...*Result) error {
 	defer s.db.Exec(`DELETE FROM file_pins WHERE invocation=?`, id)
-	_, err := s.db.Exec(`UPDATE invocations SET state=?,result=?,updated=? WHERE id=? AND state IN ('running','cancel_requested')`, r.Status, string(encode(r)), time.Now().Unix(), id)
+	value := storedResult{Result: r}
+	if len(retained) > 0 {
+		value.RetainedResult = retained[0]
+		if retained[0] != nil {
+			value.RetainedUntil = time.Now().Unix() + s.cfg.FileTTL
+		}
+	}
+	_, err := s.db.Exec(`UPDATE invocations SET state=?,result=?,updated=? WHERE id=? AND state IN ('running','cancel_requested')`, r.Status, string(encode(value)), time.Now().Unix(), id)
+	return err
+}
+
+func (s *Store) SaveRecoveredResult(p Principal, id string, r Result) error {
+	changed, err := s.db.Exec(`UPDATE invocations SET state=?,result=?,updated=? WHERE id=? AND owner=? AND json_type(result,'$.retained_result')='object'`, r.Status, string(encode(r)), time.Now().Unix(), id, p.Owner())
+	if err != nil {
+		return err
+	}
+	n, err := changed.RowsAffected()
+	if err == nil && n != 1 {
+		return fault("receipt_storage_failed", "调用记录已改变，请重新查询回执")
+	}
 	return err
 }
 func (s *Store) Record(p Principal, id string) (Record, error) {
@@ -284,12 +336,23 @@ func (s *Store) Record(p Principal, id string) (Record, error) {
 // ready 在领取前预留执行额度；没有额度的任务保持 queued。
 // 回调只检查内存策略，不能在持有事务时再次访问 Store。
 func (s *Store) Claim(ready func(Principal) bool) (Record, error) {
+	if err := expireRetainedResults(s.db); err != nil {
+		return Record{}, err
+	}
 	tx, err := s.db.Begin()
 	if err != nil {
 		return Record{}, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(`SELECT ` + recordColumns + ` FROM invocations WHERE state='queued' ORDER BY created,id`)
+	// 已排队任务等待同一客户端的结果恢复；其他客户端仍可领取。
+	// partial index 避免每次调度反复解析大结果正文。
+	rows, err := tx.Query(`WITH blocked_clients AS MATERIALIZED (
+SELECT DISTINCT json_extract(principal,'$.client_id') AS client FROM invocations
+WHERE json_type(result,'$.retained_result')='object'
+)
+SELECT ` + recordColumns + ` FROM invocations WHERE state='queued'
+AND NOT EXISTS (SELECT 1 FROM blocked_clients WHERE client=json_extract(invocations.principal,'$.client_id'))
+ORDER BY created,id`)
 	if err != nil {
 		return Record{}, err
 	}
@@ -495,6 +558,9 @@ func (s *Store) Collect() error {
 		return err
 	}
 	defer tx.Rollback()
+	if err := expireRetainedResults(tx); err != nil {
+		return err
+	}
 	if _, err = tx.Exec(`DELETE FROM file_pins WHERE invocation IN (SELECT id FROM invocations WHERE state NOT IN ('queued','running','cancel_requested'))`); err != nil {
 		return err
 	}
@@ -554,6 +620,18 @@ func (s *Store) Collect() error {
 		return err
 	}
 	return tx.Commit()
+}
+
+// 正文与文件使用相同保留期；到期只移除大正文，回执状态和幂等索引保留。
+func expireRetainedResults(db interface {
+	Exec(string, ...any) (sql.Result, error)
+}) error {
+	now := time.Now().Unix()
+	_, err := db.Exec(`UPDATE invocations SET
+result=json_remove(json_set(result,'$.meta.result_retained',json('false'),'$.error',json(?)), '$.retained_result','$.retained_until'),updated=?
+WHERE json_type(result,'$.retained_result')='object' AND json_extract(result,'$.retained_until')<=?`,
+		string(encode(fault("result_expired", "完整结果已超过文件保留期；请通过原回执核对外部结果。写入操作不要更换幂等键重试"))), now, now)
+	return err
 }
 func (s *Store) ListFiles(p Principal, after string, limit int) ([]File, error) {
 	rows, err := s.db.Query(`SELECT meta FROM files WHERE owner=? AND state='ready' AND expires>? AND id>? ORDER BY id LIMIT ?`, p.Owner(), time.Now().Unix(), after, limit)
