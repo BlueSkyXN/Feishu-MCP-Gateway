@@ -38,6 +38,8 @@ description: 通过 Feishu-MCP-Gateway 以飞书应用身份处理飞书/Lark �
 - 文件输入使用 `{"file_id": "…"}`。小文本先用 `feishu_file_create` 保存；多个文件可通过 `workspace_files` 映射到受控工作区的 `inputs/` 下，保持 Markdown/XML 中的相对引用。
 - 输出路径填受控工作区内的相对名称；结果中的 `files` 可以直接作为下一次操作的输入。
 - 结果超过内联上限时保存为 `result.json`，用 `feishu_file_read` 按 `next_offset` 读到 `eof`。
+- 遇到 `result_storage_failed`，完整结果暂存在原回执中；释放文件配额、调整文件限额或排除存储故障后，用原 invocation_id 调用 `feishu_job_get` 重取。不要换幂等键重新执行写入。
+- 遇到 `result_recovery_required`，先恢复此接入之前的待恢复结果，再发起新业务调用；排队任务会在恢复后继续。正文按网关 `file_ttl_seconds` 保留，到期返回 `result_expired`；此时通过原回执核对飞书中的实际对象，写入仍复用原幂等键。
 - 需要在本机上传或下载字节时，使用宿主提供的文件适配器。接入启用了 `feishu_file_transfer` 时，先取得方向匹配的单次票据，再交给适配器传输；票据只用于这一次传输。
 
 ## 分页
@@ -48,6 +50,7 @@ description: 通过 Feishu-MCP-Gateway 以飞书应用身份处理飞书/Lark �
 
 - `operation_denied`：当前接入或提问者未开放该操作。换用已开放的操作，或请管理员调整接入。
 - `resource_denied`：目标资源不在授权范围内。确认资源 ID，或请管理员授权该资源。
+- `event_type_denied`：应用、接入或提问者未开放该事件类型。请管理员核对 `event_types`；历史回执、结果文件和下载票据也使用当前权限。
 - `upstream_credential_required`：本次操作需要客户端提供应用访问 Token。凭据由客户端连接层提供，不要把 Token 塞进工具参数；先调用 `feishu_context` 确认所选应用的 `app_id`，再由客户端环境提供对应 Token 后重试。
 - `upstream_app_mismatch`：客户端提供的 Token 与本次路由选中的应用不一致。按 `feishu_context` 返回的 `app_id`/`brand` 更换对应应用凭据；不要改路由去凑凭据。
 - `route_ambiguous`：请求缺少可确定路由的 caller 或 route。补充 caller 字段或显式路由 ID 后重试。

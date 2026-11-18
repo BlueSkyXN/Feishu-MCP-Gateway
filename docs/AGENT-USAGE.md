@@ -33,13 +33,15 @@ Gateway 用固定的操作目录执行飞书请求，用一层“用法知识”
 
 ## 提问者级发现
 
-搜索、describe、指南总览和 `feishu_context` 使用与执行授权相同的判断：
+搜索、describe、指南总览、主题和 `feishu_context` 使用与执行授权相同的判断：
 
 - 接入通过 `packs` 与 `operations` 的并集开放操作；`resource_scoped` 接入只开放有资源绑定的操作；高风险操作需要出现在 `high_risk_operations` 中。
 - 请求带有 Wake 提问者时，再按该提问者的 `operations` 收窄；提问者配置了 `resources` 时，隐藏无法校验资源范围的操作。
 - 发现阶段可以没有提问者，此时按接入范围展示；实际调用、文件、Job 访问仍要求提问者身份。
 
 因此，同一个 Wake 连接下，不同提问者在搜索结果和指南总览中看到的是各自能执行的操作。
+
+领域指南列出当前可用操作和主题；主题按其主体操作授权，正文中的后续回查操作不会授予整个主题。段落、列表和代码块整体筛选，包含未开放操作或主题的块会省略；表格保留合法的独立行及完整表头，未开放的表头或没有可用数据行的表格整体省略。未开放的章节连同子章节一起省略。describe 中的相关主题、提示和示例也按同一权限筛选。权限热加载后，下一次查询使用更新后的视图。
 
 ## 选择工具视图
 
@@ -61,7 +63,7 @@ Gateway 用固定的操作目录执行飞书请求，用一层“用法知识”
 python3 scripts/package_skill.py local/skill --zip
 ```
 
-`references/<上游 Skill 名>/GUIDE.md` 与主题文件的内容与 `feishu_guide` 返回的相同。发布包中的 `skills/feishu-gateway/` 已包含这些文件。
+`references/<上游 Skill 名>/GUIDE.md` 与主题文件包含完整来源指南；在线 `feishu_guide` 按当前接入权限筛选。离线指南中的操作仍需通过 Gateway 的执行授权。发布包中的 `skills/feishu-gateway/` 已包含这些文件。
 
 修改 `domains.go` 或 `internal/gateway/skill_template.md` 后，重新渲染：
 

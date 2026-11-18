@@ -28,6 +28,7 @@ type domainView struct {
 
 // visibleDomains 按领域表顺序统计当前请求可发现的操作。
 func (s *Service) visibleDomains(c Client, p Principal) []domainView {
+	guidance := s.guidanceView(c, p)
 	counts := map[string]*domainView{}
 	for _, op := range s.Catalog.Operations {
 		if !discoverable(c, p, op) {
@@ -57,8 +58,8 @@ func (s *Service) visibleDomains(c Client, p Principal) []domainView {
 				d.Featured = append(d.Featured, id)
 			}
 		}
-		if skill, ok := s.Guidance.Skills[meta.Skill]; ok {
-			d.Guide, d.Topics = true, len(skill.Topics)
+		if _, ok := s.Guidance.Skills[meta.Skill]; ok {
+			d.Guide, d.Topics = true, len(guidance.skillTopics(meta.Skill))
 		}
 		out = append(out, *d)
 	}

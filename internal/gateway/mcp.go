@@ -115,7 +115,8 @@ func (s *Service) mcpView(client Client) *mcp.Server {
 	})
 	for _, action := range []string{"get", "cancel"} {
 		action := action
-		s.addUtility(server, "feishu_job_"+action, "查询执行回执或请求取消剩余工作；取消不撤销已完成的飞书操作。", schemaObject(map[string]any{"job_id": map[string]any{"type": "string", "minLength": 1}}, []string{"job_id"}), action == "get", func(ctx context.Context, p Principal, args map[string]any) Result {
+		// get 可能将保留的完整结果恢复为文件，因此也会修改本地存储。
+		s.addUtility(server, "feishu_job_"+action, "查询执行回执、重取待归档结果或请求取消剩余工作；取消不撤销已完成的飞书操作。", schemaObject(map[string]any{"job_id": map[string]any{"type": "string", "minLength": 1}}, []string{"job_id"}), false, func(ctx context.Context, p Principal, args map[string]any) Result {
 			return s.Job(p, args["job_id"].(string), action == "cancel")
 		})
 	}

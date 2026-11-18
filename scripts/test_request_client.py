@@ -854,6 +854,18 @@ class RequestClientTest(unittest.TestCase):
         self.assertEqual(diagnostics['error']['retry_after_seconds'], 30.5)
         self.assertEqual([r['body']['method'] for r in state['requests']].count('tools/call'), 1)
 
+    def test_result_retention_errors_keep_kind_and_receipt(self):
+        for kind in ('result_storage_failed', 'result_recovery_required', 'result_expired'):
+            with self.subTest(kind=kind):
+                receipt = {'status': 'failed', 'error': {'kind': kind}}
+                if kind != 'result_recovery_required':
+                    receipt['invocation_id'] = invocation_id()
+                with gateway(tool_result={'isError': True, 'structuredContent': receipt}) as (origin, state):
+                    result = self.invoke(origin)
+                diagnostics = self.assert_failure_diagnostics(result, status='failed', kind=kind)
+                self.assertEqual(diagnostics.get('invocation_id'), receipt.get('invocation_id'))
+                self.assertEqual([r['body']['method'] for r in state['requests']].count('tools/call'), 1)
+
     def test_local_configuration_failures_use_client_error(self):
         """R02：本地配置/文件问题归 client_error，仍输出单 JSON。"""
         with gateway() as (origin, state):

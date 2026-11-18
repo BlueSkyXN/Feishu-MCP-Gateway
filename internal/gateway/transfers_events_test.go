@@ -105,7 +105,7 @@ func TestApplicationEventIngressDedupeCursorAndPolicy(t *testing.T) {
 	c.Clients[0].Packs = append(c.Clients[0].Packs, "events.read")
 	c.Clients[0].ResourceMode = "application_scope"
 	c.Clients[0].EventTypes = c.Apps[0].EventTypes
-	c.Clients[0].Actors = map[string]ActorPolicy{actor("alice").Actor: {EventTypes: []string{"im.message.receive_v1"}}, actor("bob").Actor: {EventTypes: []string{"im.chat.updated_v1"}}}
+	c.Clients[0].Actors = map[string]ActorPolicy{actor("alice").Actor: {EventTypes: []string{"im.message.receive_v1"}}, actor("bob").Actor: {EventTypes: []string{"im.chat.updated_v1"}}, actor("carol").Actor: {EventTypes: []string{"im.message.receive_v1"}}}
 	s := startService(t, c, &fakeExecutor{})
 	server := httptest.NewServer(s.Handler())
 	defer server.Close()
@@ -156,7 +156,8 @@ func TestApplicationEventIngressDedupeCursorAndPolicy(t *testing.T) {
 	if r.Error != nil || len(object(r.Data)["events"].([]any)) != 0 {
 		t.Fatal("event cursor failed", r)
 	}
-	if r = s.Invoke(context.Background(), actor("bob"), "events.read", args); r.Error == nil || r.Error.Kind != "invalid_cursor" {
+	// 同样具有此事件类型权限的另一个 actor 仍不能复用游标。
+	if r = s.Invoke(context.Background(), actor("carol"), "events.read", args); r.Error == nil || r.Error.Kind != "invalid_cursor" {
 		t.Fatal("actor stole cursor", r)
 	}
 	s.Store.db.Exec(`UPDATE events SET created=0`)
