@@ -50,7 +50,8 @@ jobs:
         run: go test -count=1 ./...
 
       - name: go test -race
-        run: go test -race -count=1 ./...
+        # 全仓 race 在托管 runner 上可能超过 Go 默认的 10 分钟整包时限。
+        run: go test -race -timeout 20m -count=1 ./...
 
       - name: Build gateway
         run: go build -trimpath -buildvcs=false -o bin/feishu-mcp-gateway ./cmd/gateway
